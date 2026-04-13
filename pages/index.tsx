@@ -57,26 +57,26 @@ export default function Home() {
         </button>
 
         {/* TAGLINE */}
-        <p
-          style={{
-            fontSize: "20px",
-            letterSpacing: "3px",
-            fontFamily: "'Brush Script MT', cursive",
-            opacity: 0.9,
-          }}
-        >
-          PUTTING{" "}
-          <span
-            style={{
-              fontSize: "28px",
-              fontWeight: "bold",
-              letterSpacing: "4px",
-            }}
-          >
-            YOU
-          </span>{" "}
-          IN THE ART
-        </p>
+       <p
+  style={{
+    fontSize: "18px",
+    letterSpacing: "4px",
+    opacity: 0.85,
+    fontFamily: "serif",
+  }}
+>
+  PUTTING{" "}
+  <span
+    style={{
+      fontSize: "26px",
+      fontWeight: 800,
+      letterSpacing: "6px",
+    }}
+  >
+    YOU
+  </span>{" "}
+  IN THE ART
+</p>
       </div>
     );
   }
