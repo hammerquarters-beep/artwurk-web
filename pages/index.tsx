@@ -28,16 +28,24 @@ export default function Home() {
         }}
       >
         {/* TITLE */}
-        <h1
-          style={{
-            fontSize: "64px",
-            letterSpacing: "8px",
-            marginBottom: "10px",
-          }}
-        >
-          ARTWURK
-        </h1>
-
+       <h1
+  style={{
+    fontSize: "64px",
+    letterSpacing: "8px",
+    marginBottom: "10px",
+  }}
+>
+  ARTWURK
+  <span
+    style={{
+      fontSize: "18px",
+      verticalAlign: "top",
+      marginLeft: "4px",
+    }}
+  >
+    ™
+  </span>
+</h1>
         {/* BUTTON */}
         <button
           onClick={() => setEntered(true)}
