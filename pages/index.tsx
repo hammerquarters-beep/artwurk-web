@@ -10,21 +10,21 @@ const imageStyle: React.CSSProperties = {
 export default function Home() {
   const [entered, setEntered] = useState(false);
 
-  if (!entered) {
-    return (
-      <div
-        style={{
-          background: "#000",
-          color: "#fff",
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: "serif",
-          padding: "40px",
-          textAlign: "center",
-        }}
+ if (!entered) {
+  return (
+    <div
+      style={{
+        background: "#000",
+        color: "#fff",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        fontFamily: "serif",
+        padding: "40px",
+        textAlign: "center",
+      }}
       >
         <h1
           style={{
