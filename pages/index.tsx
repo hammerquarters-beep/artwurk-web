@@ -10,64 +10,78 @@ const imageStyle: React.CSSProperties = {
 export default function Home() {
   const [entered, setEntered] = useState(false);
 
-if (!entered) {
-  return (
-    <div
-      style={{
-        background: "#000",
-        color: "#fff",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "serif",
-        padding: "40px",
-        textAlign: "center",
-      }}
-    >
-      <h1
+  // 🔥 LANDING PAGE
+  if (!entered) {
+    return (
+      <div
         style={{
-          fontSize: "64px",
-          letterSpacing: "8px",
-          marginBottom: "10px",
-        }}
-      >
-        ARTWORK
-      </h1>
-
-      <button
-        onClick={() => setEntered(true)}
-        style={{
-          background: "transparent",
+          background: "#000",
           color: "#fff",
-          border: "1px solid #666",
-          padding: "14px 28px",
-          fontSize: "20px",
-          letterSpacing: "4px",
-          cursor: "pointer",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
           fontFamily: "serif",
-          marginBottom: "20px",
+          padding: "40px",
+          textAlign: "center",
         }}
       >
-        ARTWURK
-      </button>
+        {/* TITLE */}
+        <h1
+          style={{
+            fontSize: "64px",
+            letterSpacing: "8px",
+            marginBottom: "10px",
+          }}
+        >
+          ARTWURK
+        </h1>
 
-      <p
-        style={{
-          fontSize: "18px",
-          fontStyle: "italic",
-          letterSpacing: "2px",
-          fontFamily: "cursive",
-          opacity: 0.8,
-        }}
-      >
-        (PUTTING YOU BACK IN THE ART)
-      </p>
-    </div>
-  );
-}
+        {/* BUTTON */}
+        <button
+          onClick={() => setEntered(true)}
+          style={{
+            background: "transparent",
+            color: "#fff",
+            border: "1px solid #666",
+            padding: "14px 28px",
+            fontSize: "18px",
+            letterSpacing: "4px",
+            cursor: "pointer",
+            fontFamily: "serif",
+            marginBottom: "20px",
+          }}
+        >
+          VIEW COLLECTION
+        </button>
 
+        {/* TAGLINE */}
+        <p
+          style={{
+            fontSize: "20px",
+            letterSpacing: "3px",
+            fontFamily: "'Brush Script MT', cursive",
+            opacity: 0.9,
+          }}
+        >
+          PUTTING{" "}
+          <span
+            style={{
+              fontSize: "28px",
+              fontWeight: "bold",
+              letterSpacing: "4px",
+            }}
+          >
+            YOU
+          </span>{" "}
+          IN THE ART
+        </p>
+      </div>
+    );
+  }
+
+  // 🔥 COLLECTION PAGE
   return (
     <div
       style={{
