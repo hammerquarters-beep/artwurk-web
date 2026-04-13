@@ -9,6 +9,9 @@ const artworks: Artwork[] = [
   { title: "ART 1", image: "/artwork/art1.jpg" },
   { title: "ART 2", image: "/artwork/art2.jpg" },
   { title: "ART 3", image: "/artwork/art3.jpg" },
+  { title: "ART 4", image: "/artwork/art4.jpg" },
+  { title: "ART 5", image: "/artwork/art5.jpg" },
+  { title: "ART 6", image: "/artwork/art6.jpg" },
 ];
 
 const imageStyle: React.CSSProperties = {
