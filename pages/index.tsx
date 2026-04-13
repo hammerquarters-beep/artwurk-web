@@ -1,3 +1,12 @@
+import React from "react";
+
+const imageStyle: React.CSSProperties = {
+  width: "100%",
+  height: "400px",
+  objectFit: "cover",
+  borderRadius: "4px",
+};
+
 export default function Home() {
   return (
     <div
@@ -29,17 +38,10 @@ export default function Home() {
           gap: "30px",
         }}
       >
-        <img src="/artwork/art1.jpg" style={imageStyle} />
-        <img src="/artwork/art2.jpg" style={imageStyle} />
-        <img src="/artwork/art3.jpg" style={imageStyle} />
+        <img src="/artwork/art1.jpg" alt="Art 1" style={imageStyle} />
+        <img src="/artwork/art2.jpg" alt="Art 2" style={imageStyle} />
+        <img src="/artwork/art3.jpg" alt="Art 3" style={imageStyle} />
       </div>
     </div>
   );
 }
-
-const imageStyle = {
-  width: "100%",
-  height: "400px",
-  objectFit: "cover",
-  borderRadius: "4px",
-};
