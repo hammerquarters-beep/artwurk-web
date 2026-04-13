@@ -10,7 +10,7 @@ const imageStyle: React.CSSProperties = {
 export default function Home() {
   const [entered, setEntered] = useState(false);
 
- if (!entered) {
+if (!entered) {
   return (
     <div
       style={{
@@ -25,35 +25,48 @@ export default function Home() {
         padding: "40px",
         textAlign: "center",
       }}
+    >
+      <h1
+        style={{
+          fontSize: "64px",
+          letterSpacing: "8px",
+          marginBottom: "10px",
+        }}
       >
-        <h1
-          style={{
-            fontSize: "64px",
-            letterSpacing: "8px",
-            marginBottom: "28px",
-          }}
-        >
-          ARTWORK
-        </h1>
+        ARTWORK
+      </h1>
 
-        <button
-          onClick={() => setEntered(true)}
-          style={{
-            background: "transparent",
-            color: "#fff",
-            border: "1px solid #666",
-            padding: "14px 28px",
-            fontSize: "20px",
-            letterSpacing: "4px",
-            cursor: "pointer",
-            fontFamily: "serif",
-          }}
-        >
-          ARTWURK
-        </button>
-      </div>
-    );
-  }
+      <button
+        onClick={() => setEntered(true)}
+        style={{
+          background: "transparent",
+          color: "#fff",
+          border: "1px solid #666",
+          padding: "14px 28px",
+          fontSize: "20px",
+          letterSpacing: "4px",
+          cursor: "pointer",
+          fontFamily: "serif",
+          marginBottom: "20px",
+        }}
+      >
+        ARTWURK
+      </button>
+
+      <p
+        style={{
+          fontSize: "18px",
+          fontStyle: "italic",
+          letterSpacing: "2px",
+          fontFamily: "cursive",
+          opacity: 0.8,
+        }}
+      >
+        (PUTTING YOU BACK IN THE ART)
+      </p>
+    </div>
+  );
+}
 
   return (
     <div
