@@ -1,242 +1,249 @@
+import Image from "next/image";
 import React, { useState } from "react";
 
 type Artwork = {
-  title: string;
+  id: string;
+  displayId?: string;
+  name: string;
   image: string;
+  price: string;
 };
 
-const artworks: Artwork[] = [
-  { title: "ART 1", image: "/artwork/art1.jpg" },
-  { title: "ART 2", image: "/artwork/art2.jpg" },
-  { title: "ART 3", image: "/artwork/art3.jpg" },
-  { title: "ART 4", image: "/artwork/art4.jpg" },
-  { title: "ART 5", image: "/artwork/art5.jpg" },
-  { title: "ART 6", image: "/artwork/art6.jpg" },
-];
+const artworks = [
+  { id: "ART-001-002", displayId: "ART-001 / ART-002", name: "Static Mind / Fragile King", image: "/artwork/art-001-002-static-mind-fragile-king-pair.png", price: "" },
+  { id: "ART-003", name: "The Watcher", image: "/artwork/art-003-the-watcher.jpg", price: "" },
+  { id: "ART-004", name: "Impact", image: "/artwork/art-004-impact.jpg", price: "" },
+  { id: "ART-005", name: "Gilded Veil", image: "/artwork/art-005-gilded-veil.jpg", price: "" },
+  { id: "ART-007", name: "Aftermath", image: "/artwork/art-007-aftermath.jpg", price: "" },
+  { id: "ART-008", name: "Three States", image: "/artwork/art-008-three-states.png", price: "" },
+  { id: "ART-009", name: "Velocity Within", image: "/artwork/art-009-velocity-within.jpg", price: "" },
+  { id: "ART-013", name: "Confrontation / Reflection", image: "/artwork/art-013-confrontation-reflection.jpg", price: "" },
+  { id: "ART-014", name: "Gold Current", image: "/artwork/art-014-gold-current.png", price: "" },
+  { id: "ART-018", name: "Velocity of Chaos", image: "/artwork/art-018-velocity-of-chaos.png", price: "" },
+  { id: "ART-032", name: "Structured Force", image: "/artwork/art-032-structured-force.jpg", price: "" },
+  { id: "ART-033", name: "Inner Conflict", image: "/artwork/art-033-inner-conflict.png", price: "" },
+  { id: "ART-035", name: "Whispered Ascent", image: "/artwork/art-035-whispered-ascent.png", price: "" },
+  { id: "ART-038", name: "Black Gold Current", image: "/artwork/art-038-black-gold-current.jpg", price: "" },
+] satisfies Artwork[];
 
-const imageStyle: React.CSSProperties = {
-  width: "100%",
-  height: "auto",
-  display: "block",
-  background: "#111",
+const pageStyle: React.CSSProperties = {
+  minHeight: "100vh",
+  background:
+    "radial-gradient(circle at top, rgba(196, 154, 89, 0.14), transparent 28%), #020202",
+  color: "#f7f2e9",
+  fontFamily: '"Times New Roman", Georgia, serif',
+};
+
+const containerStyle: React.CSSProperties = {
+  width: "min(1180px, calc(100vw - 32px))",
+  margin: "0 auto",
+};
+
+const eyebrowStyle: React.CSSProperties = {
+  fontSize: "12px",
+  letterSpacing: "0.32em",
+  textTransform: "uppercase",
+  color: "rgba(247, 242, 233, 0.58)",
+};
+
+const metaLabelStyle: React.CSSProperties = {
+  fontSize: "11px",
+  letterSpacing: "0.18em",
+  textTransform: "uppercase",
+  color: "rgba(247, 242, 233, 0.48)",
 };
 
 export default function Home() {
-  const [entered, setEntered] = useState(false);
-  const [selectedArt, setSelectedArt] = useState<Artwork | null>(null);
-
-  if (!entered) {
-    return (
-      <div
-        style={{
-          background: "#000",
-          color: "#fff",
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: "serif",
-          padding: "40px",
-          textAlign: "center",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "64px",
-            letterSpacing: "8px",
-            marginBottom: "10px",
-          }}
-        >
-          ARTWURK
-          <span
-            style={{
-              fontSize: "18px",
-              verticalAlign: "top",
-              marginLeft: "4px",
-            }}
-          >
-            ™
-          </span>
-        </h1>
-
-        <button
-          onClick={() => setEntered(true)}
-          style={{
-            background: "transparent",
-            color: "#fff",
-            border: "1px solid #666",
-            padding: "14px 28px",
-            fontSize: "18px",
-            letterSpacing: "4px",
-            cursor: "pointer",
-            fontFamily: "serif",
-            marginBottom: "20px",
-          }}
-        >
-          VIEW COLLECTION
-        </button>
-
-        <p
-          style={{
-            fontSize: "18px",
-            letterSpacing: "4px",
-            opacity: 0.85,
-            fontFamily: "serif",
-          }}
-        >
-          PUTTING{" "}
-          <span
-            style={{
-              fontSize: "26px",
-              fontWeight: 800,
-              letterSpacing: "6px",
-            }}
-          >
-            YOU
-          </span>{" "}
-          IN THE ART
-        </p>
-      </div>
-    );
-  }
+  const [missingImages, setMissingImages] = useState<Record<string, boolean>>({});
 
   return (
-    <div
-      style={{
-        background: "#000",
-        color: "#fff",
-        minHeight: "100vh",
-        padding: "60px 40px",
-        fontFamily: "serif",
-      }}
-    >
-      <h1
-        style={{
-          textAlign: "center",
-          fontSize: "48px",
-          marginBottom: "80px",
-          letterSpacing: "6px",
-        }}
-      >
-        ARTWURK
-        <span
+    <div style={pageStyle}>
+      <main style={{ ...containerStyle, padding: "36px 0 72px" }}>
+        <section
           style={{
-            fontSize: "16px",
-            verticalAlign: "top",
-            marginLeft: "4px",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            padding: "44px 24px 40px",
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))",
           }}
         >
-          ™
-        </span>
-      </h1>
+          <div style={eyebrowStyle}>Hammer HQ LLC</div>
 
-      <div
-        style={{
-          maxWidth: "1400px",
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "30px",
-          alignItems: "start",
-        }}
-      >
-        {artworks.map((art, index) => (
-          <button
-            key={index}
-            onClick={() => setSelectedArt(art)}
-            style={{
-              background: "#fff",
-              padding: "14px",
-              border: "none",
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <img src={art.image} alt={art.title} style={imageStyle} />
-            <div
-              style={{
-                color: "#000",
-                marginTop: "12px",
-                fontSize: "16px",
-                letterSpacing: "2px",
-              }}
-            >
-              {art.title}
-            </div>
-          </button>
-        ))}
-      </div>
-
-      {selectedArt && (
-        <div
-          onClick={() => setSelectedArt(null)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.85)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "40px",
-            zIndex: 1000,
-          }}
-        >
           <div
-            onClick={(e) => e.stopPropagation()}
             style={{
-              background: "#111",
-              padding: "24px",
-              maxWidth: "900px",
-              width: "100%",
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "28px",
+              alignItems: "end",
+              marginTop: "18px",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "20px",
-              }}
-            >
-              <h2
+            <div>
+              <h1
                 style={{
                   margin: 0,
-                  fontSize: "28px",
-                  letterSpacing: "3px",
+                  fontSize: "clamp(54px, 12vw, 120px)",
+                  lineHeight: 0.88,
+                  letterSpacing: "0.12em",
+                  fontWeight: 400,
+                  textTransform: "uppercase",
                 }}
               >
-                {selectedArt.title}
-              </h2>
+                ARTWURK
+                <span
+                  style={{
+                    fontSize: "0.24em",
+                    verticalAlign: "top",
+                    marginLeft: "6px",
+                  }}
+                >
+                  {"\u2122"}
+                </span>
+              </h1>
 
-              <button
-                onClick={() => setSelectedArt(null)}
+              <div
                 style={{
-                  background: "transparent",
-                  color: "#fff",
-                  border: "1px solid #555",
-                  padding: "8px 14px",
-                  cursor: "pointer",
-                  fontFamily: "serif",
+                  marginTop: "20px",
+                  fontSize: "clamp(28px, 5vw, 46px)",
+                  lineHeight: 1,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
                 }}
               >
-                CLOSE
-              </button>
+                Collection
+              </div>
             </div>
 
-            <img
-              src={selectedArt.image}
-              alt={selectedArt.title}
+            <p
               style={{
-                width: "100%",
-                height: "auto",
-                display: "block",
-                background: "#000",
+                margin: 0,
+                maxWidth: "520px",
+                justifySelf: "end",
+                color: "rgba(247, 242, 233, 0.72)",
+                fontSize: "17px",
+                lineHeight: 1.8,
               }}
-            />
+            >
+              A premium black gallery experience built to present ARTWURK with
+              restraint, presence, and space. Each piece is framed to feel
+              deliberate, collectible, and elevated on both desktop and mobile.
+            </p>
           </div>
-        </div>
-      )}
+        </section>
+
+        <section style={{ marginTop: "36px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "28px",
+            }}
+          >
+            {artworks.map((artwork) => {
+              const isMissing = missingImages[artwork.id];
+              const displayId = artwork.displayId ?? artwork.id;
+
+              return (
+                <article
+                  key={artwork.id}
+                  style={{
+                    background: "#050505",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    padding: "18px",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "relative",
+                      aspectRatio: "4 / 5",
+                      background: "#fff",
+                      padding: "14px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        height: "100%",
+                        background:
+                          "linear-gradient(160deg, rgba(22, 22, 22, 1), rgba(78, 63, 35, 0.85))",
+                      }}
+                    >
+                      {!isMissing ? (
+                        <Image
+                          src={artwork.image}
+                          alt={artwork.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          style={{ objectFit: "cover" }}
+                          onError={() =>
+                            setMissingImages((current) => ({
+                              ...current,
+                              [artwork.id]: true,
+                            }))
+                          }
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
+                            padding: "22px",
+                            color: "#f7f2e9",
+                          }}
+                        >
+                          <div style={metaLabelStyle}>Image Missing</div>
+                          <div>
+                            <div style={metaLabelStyle}>{displayId}</div>
+                            <div
+                              style={{
+                                marginTop: "10px",
+                                fontSize: "30px",
+                                lineHeight: 1,
+                              }}
+                            >
+                              {artwork.name}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ padding: "18px 4px 4px" }}>
+                    <div style={metaLabelStyle}>{displayId}</div>
+                    <h2
+                      style={{
+                        margin: "10px 0 0",
+                        fontSize: "24px",
+                        lineHeight: 1.15,
+                        fontWeight: 400,
+                      }}
+                    >
+                      {artwork.name}
+                    </h2>
+                    {artwork.price ? (
+                      <div
+                        style={{
+                          marginTop: "12px",
+                          fontSize: "18px",
+                          color: "#e5c88f",
+                          letterSpacing: "0.04em",
+                        }}
+                      >
+                        {artwork.price}
+                      </div>
+                    ) : null}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
