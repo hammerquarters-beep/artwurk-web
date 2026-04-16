@@ -2,6 +2,9 @@ import Image from "next/image";
 import Script from "next/script";
 import React, { FormEvent, useEffect, useState } from "react";
 
+import CollectorMenu from "../components/CollectorMenu";
+import PromoPopup from "../components/PromoPopup";
+import { MessageSquareIcon } from "../components/ArtwurkIcons";
 import artworks, { type ArtworkRecord } from "../data/artworks";
 import type { ArtworkTrackingRecord, InquiryIntent, LeadStatus } from "../lib/crm-types";
 import {
@@ -594,6 +597,8 @@ export default function Home() {
 
   return (
     <div style={pageStyle}>
+      <PromoPopup enabled={showGallery && !selectedArtwork} />
+
       {!showGallery ? (
         <section
           style={{
@@ -712,6 +717,13 @@ export default function Home() {
           <main>
             <section className="gallery-hero">
               <div className="gallery-hero-inner">
+                <div className="gallery-topbar">
+                  <CollectorMenu />
+                  <a href="/contact" className="gallery-contact-link">
+                    <MessageSquareIcon className="gallery-contact-icon" />
+                    <span>Contact Us</span>
+                  </a>
+                </div>
                 <p className="gallery-kicker">Curated Original Works</p>
                 <h1 className="gallery-brand">
                   ARTWURK
@@ -1476,6 +1488,42 @@ export default function Home() {
           margin: 0 auto;
         }
 
+        .gallery-topbar {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 16px;
+          margin-bottom: 40px;
+        }
+
+        .gallery-contact-link {
+          min-height: 48px;
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          border-radius: 999px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(0, 0, 0, 0.2);
+          padding: 0 16px;
+          text-decoration: none;
+          font-size: 11px;
+          letter-spacing: 0.24em;
+          text-transform: uppercase;
+          color: rgba(247, 242, 232, 0.8);
+          transition: border-color 180ms ease, color 180ms ease;
+        }
+
+        .gallery-contact-link:hover {
+          border-color: rgba(212, 175, 55, 0.4);
+          color: #f7f2e8;
+        }
+
+        .gallery-contact-icon {
+          width: 16px;
+          height: 16px;
+          color: #d4af37;
+        }
+
         .gallery-kicker {
           margin: 0 0 14px;
           font-size: 0.78rem;
@@ -1655,6 +1703,12 @@ export default function Home() {
         @media (max-width: 640px) {
           .gallery-hero {
             padding: 68px 18px 42px;
+          }
+
+          .gallery-topbar {
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 28px;
           }
 
           .gallery-grid-section {
