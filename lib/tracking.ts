@@ -117,7 +117,7 @@ const dispatchPayload = <T>(url: string, payload: T) => {
 };
 
 export const trackEvent = (payload: Omit<ArtwurkEventPayload, "occurredAt">) => {
-  const nextPayload = {
+  const nextPayload: ArtwurkEventPayload = {
     ...payload,
     occurredAt: new Date().toISOString(),
   };
@@ -129,7 +129,7 @@ export const trackEvent = (payload: Omit<ArtwurkEventPayload, "occurredAt">) => 
 export const trackInquiry = (
   payload: Omit<ArtwurkInquiryPayload, "occurredAt" | "type">,
 ) => {
-  const nextPayload = {
+  const nextPayload: ArtwurkInquiryPayload = {
     ...payload,
     type: "artwork_inquiry",
     occurredAt: new Date().toISOString(),
@@ -142,7 +142,7 @@ export const trackInquiry = (
 export const trackLead = (
   payload: Omit<ArtwurkLeadPayload, "occurredAt" | "type" | "status">,
 ) => {
-  const nextPayload = {
+  const nextPayload: ArtwurkLeadPayload = {
     ...payload,
     type: "lead_capture",
     status: "new",
