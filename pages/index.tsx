@@ -114,10 +114,13 @@ const galleryPriorityArtworkIds = ["ART-005", "ART-007", "ART-004", "ART-035", "
 const theWatcherPricing = {
   artwork: "The Watcher",
   basePrice: 1050,
-  frame: "premium",
-  framePrice: 750,
-  total: 1800,
 };
+const theWatcherFrameOptions = [
+  { id: "none", name: "Artwork Only", price: 0 },
+  { id: "minimal", name: "Minimal Frame", price: 167 },
+  { id: "statement", name: "Statement Frame", price: 300 },
+  { id: "premium", name: "Gallery Premium Frame", price: 500 },
+] as const;
 
 const galleryCardDescriptions: Partial<Record<ArtworkRecord["id"], string>> = {
   "ART-005": "Bold, refined, and quietly commanding.",
@@ -188,6 +191,8 @@ export default function Home() {
   const [collectorForm, setCollectorForm] = useState<CollectorFormState>(
     createInitialCollectorForm(),
   );
+  const [selectedWatcherFrameId, setSelectedWatcherFrameId] = useState("none");
+  const [watcherInquiryOpen, setWatcherInquiryOpen] = useState(false);
   const [submissionState, setSubmissionState] = useState<SubmissionState>({
     status: "idle",
   });
@@ -270,6 +275,8 @@ export default function Home() {
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     setCollectorIntent("inquire");
+    setSelectedWatcherFrameId("none");
+    setWatcherInquiryOpen(false);
     setCollectorForm(createInitialCollectorForm());
     setSubmissionState({ status: "idle" });
 
@@ -431,11 +438,21 @@ export default function Home() {
   };
 
   const buildWhatsAppHref = (artwork: ArtworkRecord, intent: InquiryIntent) => {
+    const selectedWatcherFrame =
+      artwork.id === theWatcherArtworkId
+        ? theWatcherFrameOptions.find((option) => option.id === selectedWatcherFrameId)
+        : null;
+    const watcherTotal =
+      artwork.id === theWatcherArtworkId
+        ? theWatcherPricing.basePrice + (selectedWatcherFrame?.price ?? 0)
+        : null;
     const actionLabel = collectorActionConfig[intent].label;
     const message = [
       `Hello Hammer HQ, I want to ${actionLabel.toLowerCase()} for ${artwork.name}.`,
       `Artwork ID: ${artwork.displayId ?? artwork.id}`,
       `Price: ${artwork.price}`,
+      selectedWatcherFrame ? `Frame: ${selectedWatcherFrame.name}` : "",
+      watcherTotal ? `Configured total: $${watcherTotal}` : "",
       collectorForm.name ? `Name: ${collectorForm.name}` : "",
       collectorForm.email ? `Email: ${collectorForm.email}` : "",
       collectorForm.phone ? `Phone: ${collectorForm.phone}` : "",
@@ -503,6 +520,9 @@ export default function Home() {
         metadata: {
           whatsappNumber: inquiryWhatsAppDisplay,
           action: collectorActionConfig[collectorIntent].label,
+          frame: isTheWatcherSelected ? selectedWatcherFrame.name : undefined,
+          framePrice: isTheWatcherSelected ? selectedWatcherFrame.price : undefined,
+          configuredTotal: isTheWatcherSelected ? selectedWatcherTotal : undefined,
         },
       });
 
@@ -522,6 +542,9 @@ export default function Home() {
         metadata: {
           budgetRange: collectorForm.budgetRange || undefined,
           requestedAction: collectorActionConfig[collectorIntent].label,
+          frame: isTheWatcherSelected ? selectedWatcherFrame.name : undefined,
+          framePrice: isTheWatcherSelected ? selectedWatcherFrame.price : undefined,
+          configuredTotal: isTheWatcherSelected ? selectedWatcherTotal : undefined,
         },
       });
 
@@ -556,6 +579,24 @@ export default function Home() {
     });
   };
 
+  const buildWatcherInvoiceHref = () => {
+    if (!selectedArtwork) {
+      return `mailto:${inquiryEmail}`;
+    }
+
+    const subject = `Invoice request for ${selectedArtwork.name}`;
+    const body = [
+      "Hello Hammer HQ,",
+      "",
+      `I would like to request an invoice for ${selectedArtwork.name}.`,
+      `Artwork ID: ${selectedArtwork.displayId ?? selectedArtwork.id}`,
+      `Frame selection: ${selectedWatcherFrame.name}`,
+      `Configured total: $${selectedWatcherTotal}`,
+    ].join("\n");
+
+    return `mailto:${inquiryEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
   const handleWhatsAppClick = (artwork: ArtworkRecord) => {
     trackEvent({
       event: "whatsapp_click",
@@ -572,6 +613,13 @@ export default function Home() {
 
   const shouldShowTheWatcherCheckout = selectedArtwork?.id === theWatcherArtworkId;
   const isTheWatcherSelected = shouldShowTheWatcherCheckout && !!selectedArtwork;
+  const selectedWatcherFrame =
+    theWatcherFrameOptions.find((option) => option.id === selectedWatcherFrameId) ??
+    theWatcherFrameOptions[0];
+  const selectedWatcherTotal = theWatcherPricing.basePrice + selectedWatcherFrame.price;
+  const watcherTotalRangeLabel = `$${theWatcherPricing.basePrice.toLocaleString()} - $${(
+    theWatcherPricing.basePrice + theWatcherFrameOptions[theWatcherFrameOptions.length - 1].price
+  ).toLocaleString()}`;
   const orderedArtworks = [
     ...galleryPriorityArtworkIds
       .map((id) => artworks.find((artwork) => artwork.id === id))
@@ -591,15 +639,12 @@ export default function Home() {
       page: "gallery",
       source: "watcher-acquire-button",
       artwork: toTrackingArtwork(selectedArtwork),
+      metadata: {
+        frame: selectedWatcherFrame.name,
+        framePrice: selectedWatcherFrame.price,
+        configuredTotal: selectedWatcherTotal,
+      },
     });
-
-    if (typeof window !== "undefined") {
-      window.requestAnimationFrame(() => {
-        document
-          .getElementById("collector-inquiry")
-          ?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    }
   };
 
   return (
@@ -1072,66 +1117,68 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                    paddingTop: "24px",
-                  }}
-                >
-                  <div style={modalMetaStyle}>Collector Actions</div>
+                {!shouldShowTheWatcherCheckout ? (
                   <div
                     style={{
-                      marginTop: "14px",
-                      display: "grid",
-                      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                      gap: "12px",
+                      borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                      paddingTop: "24px",
                     }}
                   >
-                    {(Object.keys(collectorActionConfig) as InquiryIntent[]).map((intent) => {
-                      const isActive = collectorIntent === intent;
+                    <div style={modalMetaStyle}>Collector Actions</div>
+                    <div
+                      style={{
+                        marginTop: "14px",
+                        display: "grid",
+                        gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                        gap: "12px",
+                      }}
+                    >
+                      {(Object.keys(collectorActionConfig) as InquiryIntent[]).map((intent) => {
+                        const isActive = collectorIntent === intent;
 
-                      return (
-                        <button
-                          key={intent}
-                          type="button"
-                          onClick={() => handleCollectorIntent(intent)}
-                          style={{
-                            padding: "14px 12px",
-                            border: isActive
-                              ? "1px solid rgba(212, 175, 55, 0.7)"
-                              : "1px solid rgba(255, 255, 255, 0.12)",
-                            background: isActive
-                              ? "linear-gradient(180deg, rgba(212, 175, 55, 0.18), rgba(212, 175, 55, 0.06))"
-                              : "rgba(255, 255, 255, 0.03)",
-                            color: "#f7f2e9",
-                            cursor: "pointer",
-                            fontSize: "11px",
-                            fontWeight: 700,
-                            letterSpacing: "0.16em",
-                            textTransform: "uppercase",
-                            transition:
-                              "transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease",
-                            boxShadow: isActive
-                              ? "0 18px 40px rgba(0, 0, 0, 0.22)"
-                              : "none",
-                          }}
-                        >
-                          {collectorActionConfig[intent].label}
-                        </button>
-                      );
-                    })}
+                        return (
+                          <button
+                            key={intent}
+                            type="button"
+                            onClick={() => handleCollectorIntent(intent)}
+                            style={{
+                              padding: "14px 12px",
+                              border: isActive
+                                ? "1px solid rgba(212, 175, 55, 0.7)"
+                                : "1px solid rgba(255, 255, 255, 0.12)",
+                              background: isActive
+                                ? "linear-gradient(180deg, rgba(212, 175, 55, 0.18), rgba(212, 175, 55, 0.06))"
+                                : "rgba(255, 255, 255, 0.03)",
+                              color: "#f7f2e9",
+                              cursor: "pointer",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              letterSpacing: "0.16em",
+                              textTransform: "uppercase",
+                              transition:
+                                "transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease",
+                              boxShadow: isActive
+                                ? "0 18px 40px rgba(0, 0, 0, 0.22)"
+                                : "none",
+                            }}
+                          >
+                            {collectorActionConfig[intent].label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p
+                      style={{
+                        margin: "14px 0 0",
+                        color: "rgba(247, 242, 233, 0.68)",
+                        fontSize: "15px",
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      {collectorActionConfig[collectorIntent].helper}
+                    </p>
                   </div>
-                  <p
-                    style={{
-                      margin: "14px 0 0",
-                      color: "rgba(247, 242, 233, 0.68)",
-                      fontSize: "15px",
-                      lineHeight: 1.7,
-                    }}
-                  >
-                    {collectorActionConfig[collectorIntent].helper}
-                  </p>
-                </div>
+                ) : null}
 
                 {shouldShowTheWatcherCheckout ? (
                   <div
@@ -1141,57 +1188,65 @@ export default function Home() {
                     }}
                   >
                     <div style={modalMetaStyle}>Secure Checkout</div>
+                    <div style={{ marginTop: "16px", fontSize: "30px", lineHeight: 1.05 }}>
+                      The Watcher
+                    </div>
                     <div
                       style={{
-                        marginTop: "16px",
-                        display: "grid",
-                        gap: "10px",
-                        border: "1px solid rgba(212, 175, 55, 0.18)",
-                        background: "rgba(212, 175, 55, 0.05)",
-                        padding: "18px",
+                        marginTop: "10px",
+                        fontSize: "24px",
+                        color: "#d4af37",
+                        letterSpacing: "0.04em",
                       }}
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          gap: "16px",
-                          fontSize: "15px",
-                          color: "rgba(247, 242, 233, 0.78)",
-                        }}
-                      >
-                        <span>Original artwork</span>
-                        <span>${theWatcherPricing.basePrice}</span>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          gap: "16px",
-                          fontSize: "15px",
-                          color: "rgba(247, 242, 233, 0.78)",
-                        }}
-                      >
-                        <span>{theWatcherPricing.frame} frame</span>
-                        <span>${theWatcherPricing.framePrice}</span>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          gap: "16px",
-                          paddingTop: "10px",
-                          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                          fontSize: "18px",
-                          fontWeight: 700,
-                          color: "#d4af37",
-                          letterSpacing: "0.04em",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        <span>Collector total</span>
-                        <span>${theWatcherPricing.total}</span>
-                      </div>
+                      ${theWatcherPricing.basePrice.toLocaleString()}
+                    </div>
+                    <p
+                      style={{
+                        margin: "14px 0 0",
+                        color: "rgba(247, 242, 233, 0.7)",
+                        fontSize: "15px",
+                        lineHeight: 1.8,
+                      }}
+                    >
+                      A faceless observer with stillness, mystery, and quiet authority.
+                    </p>
+                    <select
+                      value={selectedWatcherFrameId}
+                      onChange={(event) => setSelectedWatcherFrameId(event.target.value)}
+                      style={{
+                        width: "100%",
+                        marginTop: "18px",
+                        padding: "14px",
+                        background: "#111",
+                        color: "#fff",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        fontSize: "15px",
+                        fontFamily: '"Times New Roman", Georgia, serif',
+                      }}
+                    >
+                      {theWatcherFrameOptions.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.name}
+                          {option.price > 0 ? ` (+$${option.price})` : ""}
+                        </option>
+                      ))}
+                    </select>
+                    <div
+                      style={{
+                        marginTop: "18px",
+                        fontSize: "18px",
+                        color: "#d4af37",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: "12px",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span>Total: ${selectedWatcherTotal.toLocaleString()}</span>
+                      <span style={{ color: "rgba(247, 242, 233, 0.54)", fontSize: "13px" }}>
+                        Range: {watcherTotalRangeLabel}
+                      </span>
                     </div>
                     <button
                       type="button"
@@ -1220,13 +1275,16 @@ export default function Home() {
                     <div
                       style={{
                         marginTop: "18px",
-                        color: "rgba(247, 242, 233, 0.68)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: "12px",
                         fontSize: "12px",
-                        letterSpacing: "0.16em",
-                        textTransform: "uppercase",
+                        color: "rgba(247, 242, 233, 0.56)",
+                        flexWrap: "wrap",
                       }}
                     >
-                      Preferred payment options
+                      <span>PayPal • Card • Venmo</span>
+                      <span>Secure Checkout</span>
                     </div>
                     <div
                       style={{
@@ -1238,6 +1296,17 @@ export default function Home() {
                       }}
                     >
                       <div id={theWatcherPaypalContainerId} />
+                      <div
+                        style={{
+                          marginTop: "12px",
+                          fontSize: "12px",
+                          lineHeight: 1.7,
+                          color: "rgba(247, 242, 233, 0.52)",
+                        }}
+                      >
+                        Hosted PayPal checkout may reflect the base artwork purchase while custom
+                        frame upgrades can be finalized through invoice or direct collector follow-up.
+                      </div>
                       <div
                         style={{
                           marginTop: "14px",
@@ -1266,7 +1335,7 @@ export default function Home() {
                           Pay with Venmo
                         </a>
                         <a
-                          href={`mailto:${inquiryEmail}`}
+                          href={buildWatcherInvoiceHref()}
                           onClick={() => handleEmailClick(selectedArtwork)}
                           style={{
                             display: "block",
@@ -1281,8 +1350,26 @@ export default function Home() {
                             fontSize: "11px",
                           }}
                         >
-                          Request Card Invoice
+                          Request Invoice
                         </a>
+                        <button
+                          type="button"
+                          onClick={() => setWatcherInquiryOpen((current) => !current)}
+                          style={{
+                            display: "block",
+                            padding: "14px 16px",
+                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                            background: "rgba(255, 255, 255, 0.02)",
+                            color: "#f7f2e9",
+                            textAlign: "center",
+                            letterSpacing: "0.12em",
+                            textTransform: "uppercase",
+                            fontSize: "11px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          {watcherInquiryOpen ? "Hide Collector Inquiry" : "Collector Inquiry"}
+                        </button>
                       </div>
                     </div>
                     <div
@@ -1313,156 +1400,158 @@ export default function Home() {
                   </div>
                 ) : null}
 
-                <div
-                  id={isTheWatcherSelected ? "collector-inquiry" : undefined}
-                  style={{
-                    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                    paddingTop: "24px",
-                    scrollMarginTop: "24px",
-                  }}
-                >
-                  <div style={modalMetaStyle}>
-                    {isTheWatcherSelected ? "Collector Inquiry" : "Collector Form"}
-                  </div>
-                  {isTheWatcherSelected ? (
-                    <p
-                      style={{
-                        margin: "12px 0 0",
-                        color: "rgba(247, 242, 233, 0.72)",
-                        fontSize: "15px",
-                        lineHeight: 1.8,
-                      }}
-                    >
-                      Request availability, private viewing details, or acquisition support
-                      directly from Hammer HQ.
-                    </p>
-                  ) : null}
-                  <form
-                    onSubmit={handleCollectorSubmit}
+                {!isTheWatcherSelected || watcherInquiryOpen ? (
+                  <div
+                    id={isTheWatcherSelected ? "collector-inquiry" : undefined}
                     style={{
-                      marginTop: "16px",
-                      display: "grid",
-                      gap: "14px",
+                      borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                      paddingTop: "24px",
+                      scrollMarginTop: "24px",
                     }}
                   >
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                        gap: "12px",
-                      }}
-                    >
-                      <input
-                        value={collectorForm.name}
-                        onChange={(event) => handleFieldChange("name", event.target.value)}
-                        placeholder="Your name"
-                        style={fieldStyle}
-                      />
-                      <input
-                        value={collectorForm.email}
-                        onChange={(event) => handleFieldChange("email", event.target.value)}
-                        placeholder="Email"
-                        type="email"
-                        style={fieldStyle}
-                      />
+                    <div style={modalMetaStyle}>
+                      {isTheWatcherSelected ? "Collector Inquiry" : "Collector Form"}
                     </div>
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                        gap: "12px",
-                      }}
-                    >
-                      <input
-                        value={collectorForm.phone}
-                        onChange={(event) => handleFieldChange("phone", event.target.value)}
-                        placeholder="Phone or WhatsApp"
-                        style={fieldStyle}
-                      />
-                      <select
-                        value={collectorForm.preferredContact}
-                        onChange={(event) =>
-                          handleFieldChange(
-                            "preferredContact",
-                            event.target.value as CollectorFormState["preferredContact"],
-                          )
-                        }
-                        style={fieldStyle}
-                      >
-                        <option value="email">Preferred contact: Email</option>
-                        <option value="whatsapp">Preferred contact: WhatsApp</option>
-                        <option value="phone">Preferred contact: Phone</option>
-                      </select>
-                    </div>
-                    <select
-                      value={collectorForm.budgetRange}
-                      onChange={(event) => handleFieldChange("budgetRange", event.target.value)}
-                      style={fieldStyle}
-                    >
-                      <option value="">Budget range</option>
-                      <option value="Under $1,000">Under $1,000</option>
-                      <option value="$1,000 - $2,500">$1,000 - $2,500</option>
-                      <option value="$2,500 - $5,000">$2,500 - $5,000</option>
-                      <option value="$5,000+">$5,000+</option>
-                    </select>
-                    <textarea
-                      value={collectorForm.message}
-                      onChange={(event) => handleFieldChange("message", event.target.value)}
-                      placeholder="Tell Hammer HQ what you want to know, purchase, or reserve."
-                      rows={4}
-                      style={{
-                        ...fieldStyle,
-                        resize: "vertical",
-                      }}
-                    />
-                    {submissionState.message ? (
-                      <div
+                    {isTheWatcherSelected ? (
+                      <p
                         style={{
-                          padding: "14px 16px",
-                          border:
-                            submissionState.status === "error"
-                              ? "1px solid rgba(215, 108, 108, 0.35)"
-                              : "1px solid rgba(212, 175, 55, 0.28)",
-                          background:
-                            submissionState.status === "error"
-                              ? "rgba(120, 28, 28, 0.16)"
-                              : "rgba(212, 175, 55, 0.08)",
-                          color: "#f7f2e9",
+                          margin: "12px 0 0",
+                          color: "rgba(247, 242, 233, 0.72)",
                           fontSize: "15px",
-                          lineHeight: 1.7,
+                          lineHeight: 1.8,
                         }}
                       >
-                        {submissionState.message}
-                      </div>
+                        Request availability, private viewing details, or acquisition support
+                        directly from Hammer HQ.
+                      </p>
                     ) : null}
-                    <button
-                      type="submit"
-                      className="artwurk-inquire-button"
-                      disabled={submissionState.status === "submitting"}
+                    <form
+                      onSubmit={handleCollectorSubmit}
                       style={{
-                        width: "100%",
-                        padding: "16px 20px",
-                        border: "1px solid rgba(212, 175, 55, 0.58)",
-                        background:
-                          "linear-gradient(180deg, rgba(212, 175, 55, 0.16), rgba(212, 175, 55, 0.05))",
-                        color: "#faf6ef",
-                        cursor: submissionState.status === "submitting" ? "wait" : "pointer",
-                        fontSize: "13px",
-                        fontWeight: 700,
-                        letterSpacing: "0.22em",
-                        textTransform: "uppercase",
-                        transition:
-                          "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease",
-                        boxShadow: "0 18px 40px rgba(0, 0, 0, 0.25)",
-                        opacity: submissionState.status === "submitting" ? 0.7 : 1,
+                        marginTop: "16px",
+                        display: "grid",
+                        gap: "14px",
                       }}
                     >
-                      {submissionState.status === "submitting"
-                        ? "Sending"
-                        : collectorActionConfig[collectorIntent].submitLabel}
-                    </button>
-                  </form>
-                </div>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                          gap: "12px",
+                        }}
+                      >
+                        <input
+                          value={collectorForm.name}
+                          onChange={(event) => handleFieldChange("name", event.target.value)}
+                          placeholder="Your name"
+                          style={fieldStyle}
+                        />
+                        <input
+                          value={collectorForm.email}
+                          onChange={(event) => handleFieldChange("email", event.target.value)}
+                          placeholder="Email"
+                          type="email"
+                          style={fieldStyle}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                          gap: "12px",
+                        }}
+                      >
+                        <input
+                          value={collectorForm.phone}
+                          onChange={(event) => handleFieldChange("phone", event.target.value)}
+                          placeholder="Phone or WhatsApp"
+                          style={fieldStyle}
+                        />
+                        <select
+                          value={collectorForm.preferredContact}
+                          onChange={(event) =>
+                            handleFieldChange(
+                              "preferredContact",
+                              event.target.value as CollectorFormState["preferredContact"],
+                            )
+                          }
+                          style={fieldStyle}
+                        >
+                          <option value="email">Preferred contact: Email</option>
+                          <option value="whatsapp">Preferred contact: WhatsApp</option>
+                          <option value="phone">Preferred contact: Phone</option>
+                        </select>
+                      </div>
+                      <select
+                        value={collectorForm.budgetRange}
+                        onChange={(event) => handleFieldChange("budgetRange", event.target.value)}
+                        style={fieldStyle}
+                      >
+                        <option value="">Budget range</option>
+                        <option value="Under $1,000">Under $1,000</option>
+                        <option value="$1,000 - $2,500">$1,000 - $2,500</option>
+                        <option value="$2,500 - $5,000">$2,500 - $5,000</option>
+                        <option value="$5,000+">$5,000+</option>
+                      </select>
+                      <textarea
+                        value={collectorForm.message}
+                        onChange={(event) => handleFieldChange("message", event.target.value)}
+                        placeholder="Tell Hammer HQ what you want to know, purchase, or reserve."
+                        rows={4}
+                        style={{
+                          ...fieldStyle,
+                          resize: "vertical",
+                        }}
+                      />
+                      {submissionState.message ? (
+                        <div
+                          style={{
+                            padding: "14px 16px",
+                            border:
+                              submissionState.status === "error"
+                                ? "1px solid rgba(215, 108, 108, 0.35)"
+                                : "1px solid rgba(212, 175, 55, 0.28)",
+                            background:
+                              submissionState.status === "error"
+                                ? "rgba(120, 28, 28, 0.16)"
+                                : "rgba(212, 175, 55, 0.08)",
+                            color: "#f7f2e9",
+                            fontSize: "15px",
+                            lineHeight: 1.7,
+                          }}
+                        >
+                          {submissionState.message}
+                        </div>
+                      ) : null}
+                      <button
+                        type="submit"
+                        className="artwurk-inquire-button"
+                        disabled={submissionState.status === "submitting"}
+                        style={{
+                          width: "100%",
+                          padding: "16px 20px",
+                          border: "1px solid rgba(212, 175, 55, 0.58)",
+                          background:
+                            "linear-gradient(180deg, rgba(212, 175, 55, 0.16), rgba(212, 175, 55, 0.05))",
+                          color: "#faf6ef",
+                          cursor: submissionState.status === "submitting" ? "wait" : "pointer",
+                          fontSize: "13px",
+                          fontWeight: 700,
+                          letterSpacing: "0.22em",
+                          textTransform: "uppercase",
+                          transition:
+                            "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease",
+                          boxShadow: "0 18px 40px rgba(0, 0, 0, 0.25)",
+                          opacity: submissionState.status === "submitting" ? 0.7 : 1,
+                        }}
+                      >
+                        {submissionState.status === "submitting"
+                          ? "Sending"
+                          : collectorActionConfig[collectorIntent].submitLabel}
+                      </button>
+                    </form>
+                  </div>
+                ) : null}
 
                 <div
                   style={{
