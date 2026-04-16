@@ -93,6 +93,21 @@ type PayPalHostedButtonsApi = {
   };
 };
 
+const theWatcherDescription = {
+  primary: "A silent presence that commands attention without identity.",
+  secondary: "The Watcher exists between shadow and intention — unseen, yet undeniable.",
+};
+
+const theWatcherValuePoints = [
+  "Original Painting",
+  "One of One",
+  "Signed Work",
+  "Certificate of Authenticity Included",
+  "Secure Shipment from Hammer HQ",
+];
+
+const trustBadges = ["PayPal", "Visa", "Mastercard", "Secure Checkout"];
+
 const createInitialCollectorForm = (): CollectorFormState => ({
   name: "",
   email: "",
@@ -536,6 +551,30 @@ export default function Home() {
   };
 
   const shouldShowTheWatcherCheckout = selectedArtwork?.id === theWatcherArtworkId;
+  const isTheWatcherSelected = shouldShowTheWatcherCheckout && !!selectedArtwork;
+
+  const handleAcquireArtwork = () => {
+    if (!selectedArtwork) {
+      return;
+    }
+
+    setCollectorIntent("buy_now");
+    trackEvent({
+      event: "buy_now_click",
+      route: "/",
+      page: "gallery",
+      source: "watcher-acquire-button",
+      artwork: toTrackingArtwork(selectedArtwork),
+    });
+
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        document
+          .getElementById("collector-inquiry")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  };
 
   return (
     <div style={pageStyle}>
@@ -1030,6 +1069,55 @@ export default function Home() {
                   </div>
                 </div>
 
+                {isTheWatcherSelected ? (
+                  <div
+                    style={{
+                      borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                      paddingTop: "24px",
+                    }}
+                  >
+                    <div style={modalMetaStyle}>Original Artwork</div>
+                    <p
+                      style={{
+                        margin: "16px 0 0",
+                        color: "rgba(247, 242, 233, 0.82)",
+                        fontSize: "18px",
+                        lineHeight: 1.9,
+                      }}
+                    >
+                      {theWatcherDescription.primary}
+                      <span style={{ display: "block", marginTop: "8px" }}>
+                        {theWatcherDescription.secondary}
+                      </span>
+                    </p>
+                    <div
+                      style={{
+                        marginTop: "18px",
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: "10px",
+                      }}
+                    >
+                      {theWatcherValuePoints.map((point) => (
+                        <div
+                          key={point}
+                          style={{
+                            padding: "10px 14px",
+                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                            background: "rgba(255, 255, 255, 0.03)",
+                            fontSize: "12px",
+                            letterSpacing: "0.08em",
+                            textTransform: "uppercase",
+                            color: "rgba(247, 242, 233, 0.82)",
+                          }}
+                        >
+                          {point}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
                 <div
                   style={{
                     borderTop: "1px solid rgba(255, 255, 255, 0.08)",
@@ -1141,6 +1229,41 @@ export default function Home() {
                     }}
                   >
                     <div style={modalMetaStyle}>Secure Checkout</div>
+                    <button
+                      type="button"
+                      onClick={handleAcquireArtwork}
+                      className="artwurk-inquire-button"
+                      style={{
+                        width: "100%",
+                        marginTop: "16px",
+                        padding: "16px 20px",
+                        border: "1px solid rgba(212, 175, 55, 0.58)",
+                        background:
+                          "linear-gradient(180deg, rgba(212, 175, 55, 0.16), rgba(212, 175, 55, 0.05))",
+                        color: "#faf6ef",
+                        cursor: "pointer",
+                        fontSize: "13px",
+                        fontWeight: 700,
+                        letterSpacing: "0.22em",
+                        textTransform: "uppercase",
+                        transition:
+                          "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease",
+                        boxShadow: "0 18px 40px rgba(0, 0, 0, 0.25)",
+                      }}
+                    >
+                      Acquire Artwork
+                    </button>
+                    <div
+                      style={{
+                        marginTop: "18px",
+                        color: "rgba(247, 242, 233, 0.68)",
+                        fontSize: "12px",
+                        letterSpacing: "0.16em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Preferred payment options
+                    </div>
                     <div
                       style={{
                         marginTop: "14px",
@@ -1151,17 +1274,105 @@ export default function Home() {
                       }}
                     >
                       <div id={theWatcherPaypalContainerId} />
+                      <div
+                        style={{
+                          marginTop: "14px",
+                          display: "grid",
+                          gap: "10px",
+                        }}
+                      >
+                        <a
+                          href={buildWhatsAppHref(selectedArtwork, "buy_now")}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={() => handleWhatsAppClick(selectedArtwork)}
+                          style={{
+                            display: "block",
+                            padding: "14px 16px",
+                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                            background: "rgba(255, 255, 255, 0.02)",
+                            textDecoration: "none",
+                            color: "#f7f2e9",
+                            textAlign: "center",
+                            letterSpacing: "0.12em",
+                            textTransform: "uppercase",
+                            fontSize: "11px",
+                          }}
+                        >
+                          Pay with Venmo
+                        </a>
+                        <a
+                          href={`mailto:${inquiryEmail}`}
+                          onClick={() => handleEmailClick(selectedArtwork)}
+                          style={{
+                            display: "block",
+                            padding: "14px 16px",
+                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                            background: "rgba(255, 255, 255, 0.02)",
+                            textDecoration: "none",
+                            color: "#f7f2e9",
+                            textAlign: "center",
+                            letterSpacing: "0.12em",
+                            textTransform: "uppercase",
+                            fontSize: "11px",
+                          }}
+                        >
+                          Request Card Invoice
+                        </a>
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "14px",
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: "10px",
+                      }}
+                    >
+                      {trustBadges.map((badge) => (
+                        <span
+                          key={badge}
+                          style={{
+                            padding: "8px 12px",
+                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                            background: "rgba(255, 255, 255, 0.02)",
+                            fontSize: "11px",
+                            letterSpacing: "0.12em",
+                            textTransform: "uppercase",
+                            color: "rgba(247, 242, 233, 0.78)",
+                          }}
+                        >
+                          {badge}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 ) : null}
 
                 <div
+                  id={isTheWatcherSelected ? "collector-inquiry" : undefined}
                   style={{
                     borderTop: "1px solid rgba(255, 255, 255, 0.08)",
                     paddingTop: "24px",
+                    scrollMarginTop: "24px",
                   }}
                 >
-                  <div style={modalMetaStyle}>Collector Form</div>
+                  <div style={modalMetaStyle}>
+                    {isTheWatcherSelected ? "Collector Inquiry" : "Collector Form"}
+                  </div>
+                  {isTheWatcherSelected ? (
+                    <p
+                      style={{
+                        margin: "12px 0 0",
+                        color: "rgba(247, 242, 233, 0.72)",
+                        fontSize: "15px",
+                        lineHeight: 1.8,
+                      }}
+                    >
+                      Request availability, private viewing details, or acquisition support
+                      directly from Hammer HQ.
+                    </p>
+                  ) : null}
                   <form
                     onSubmit={handleCollectorSubmit}
                     style={{
