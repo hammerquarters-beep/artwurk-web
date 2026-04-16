@@ -1,5 +1,6 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import { trackEvent, trackInquiry, trackLead } from "../lib/tracking";
 
 type Artwork = {
   id: string;
@@ -8,7 +9,9 @@ type Artwork = {
   image: string;
   price: string;
   dimensions: string;
+  category?: string;
   story: string;
+  status?: string;
 };
 
 const artworks = [
@@ -18,7 +21,8 @@ const artworks = [
     title: "Static Mind + Fragile King (Pair)",
     image: "/artwork/art-001-002-static-mind-fragile-king-pair.png",
     price: "Price on request",
-    dimensions: '24 x 24 in each panel, 48 x 24 in combined',
+    dimensions: "24 x 24 in each panel, 48 x 24 in combined",
+    category: "Character / IP",
     story:
       "Original paired presentation of the duo, intended to be viewed as one larger narrative statement.",
   },
@@ -27,7 +31,8 @@ const artworks = [
     title: "The Watcher",
     image: "/artwork/art-003-the-watcher.jpg",
     price: "$1,050",
-    dimensions: '24 x 48 in',
+    dimensions: "24 x 48 in",
+    category: "Character / IP",
     story:
       "A faceless observer with stillness, mystery, and quiet authority.",
   },
@@ -36,7 +41,8 @@ const artworks = [
     title: "Impact",
     image: "/artwork/art-004-impact.jpg",
     price: "$1,920",
-    dimensions: '30 x 40 in',
+    dimensions: "30 x 40 in",
+    category: "Bold / Impact",
     story:
       "A raw-energy release piece with force, movement, and emotional collision.",
   },
@@ -45,7 +51,8 @@ const artworks = [
     title: "Gilded Veil",
     image: "/artwork/art-005-gilded-veil.jpg",
     price: "$2,040",
-    dimensions: '30 x 40 in',
+    dimensions: "30 x 40 in",
+    category: "Luxury / Metallic",
     story:
       "A luxury abstract built on concealment, contrast, and hidden value.",
   },
@@ -54,7 +61,8 @@ const artworks = [
     title: "Aftermath",
     image: "/artwork/art-007-aftermath.jpg",
     price: "$2,880",
-    dimensions: '24 x 24 in each panel, 48 x 24 in combined',
+    dimensions: "24 x 24 in each panel, 48 x 24 in combined",
+    category: "Fluid Abstract",
     story:
       "A diptych installation capturing what remains after intensity passes.",
   },
@@ -63,7 +71,8 @@ const artworks = [
     title: "Three States",
     image: "/artwork/art-008-three-states.png",
     price: "$1,740",
-    dimensions: '24 x 48 in',
+    dimensions: "24 x 48 in",
+    category: "Character / IP",
     story:
       "A narrative character group built around emotional contrast and merch-ready identity.",
   },
@@ -72,7 +81,8 @@ const artworks = [
     title: "Velocity Within",
     image: "/artwork/art-009-velocity-within.jpg",
     price: "$1,920",
-    dimensions: '30 x 40 in',
+    dimensions: "30 x 40 in",
+    category: "Bold / Impact",
     story:
       "A controlled-motion abstract with tension, energy, and internal restraint.",
   },
@@ -81,7 +91,8 @@ const artworks = [
     title: "Confrontation / Reflection",
     image: "/artwork/art-013-confrontation-reflection.jpg",
     price: "$1,320",
-    dimensions: '16 x 16 in each panel, 32 x 16 in combined',
+    dimensions: "16 x 16 in each panel, 32 x 16 in combined",
+    category: "Character / IP",
     story:
       "A dual-identity diptych built around self-versus-self tension.",
   },
@@ -90,7 +101,8 @@ const artworks = [
     title: "Gold Current",
     image: "/artwork/art-014-gold-current.png",
     price: "$960",
-    dimensions: '20 x 20 in',
+    dimensions: "20 x 20 in",
+    category: "Luxury / Metallic",
     story:
       "A minimal luxury flow piece with vein-like direction and controlled movement.",
   },
@@ -99,7 +111,8 @@ const artworks = [
     title: "Velocity of Chaos",
     image: "/artwork/art-018-velocity-of-chaos.png",
     price: "$2,520",
-    dimensions: '24 x 48 in',
+    dimensions: "24 x 48 in",
+    category: "Bold / Impact",
     story:
       "A visually aggressive statement work centered on force, impact, and collision.",
   },
@@ -108,7 +121,8 @@ const artworks = [
     title: "Structured Force",
     image: "/artwork/art-032-structured-force.jpg",
     price: "$1,140",
-    dimensions: '24 x 36 in',
+    dimensions: "24 x 36 in",
+    category: "Bold / Impact",
     story:
       "A geometric and gestural bridge piece balancing structure with expression.",
   },
@@ -117,7 +131,8 @@ const artworks = [
     title: "Inner Conflict",
     image: "/artwork/art-033-inner-conflict.png",
     price: "$1,440",
-    dimensions: '24 x 36 in',
+    dimensions: "24 x 36 in",
+    category: "Character / IP",
     story:
       "A psychological abstract with hidden-face energy and dark internal tension.",
   },
@@ -126,7 +141,8 @@ const artworks = [
     title: "Whispered Ascent",
     image: "/artwork/art-035-whispered-ascent.png",
     price: "$840",
-    dimensions: '16 x 20 in',
+    dimensions: "16 x 20 in",
+    category: "Fluid Abstract",
     story:
       "A quiet spiritual collector piece with restrained lift and minimal presence.",
   },
@@ -135,7 +151,8 @@ const artworks = [
     title: "Black Gold Current",
     image: "/artwork/art-038-black-gold-current.jpg",
     price: "$960",
-    dimensions: '16 x 20 in',
+    dimensions: "16 x 20 in",
+    category: "Luxury / Metallic",
     story:
       "A flagship commercial-style luxury minimal abstract in the black-gold lane.",
   },
@@ -175,12 +192,47 @@ const modalMetaStyle: React.CSSProperties = {
   color: "rgba(247, 242, 233, 0.52)",
 };
 
+const trustLineStyle: React.CSSProperties = {
+  padding: "14px 0",
+  borderBottom: "1px solid rgba(255, 255, 255, 0.07)",
+  color: "rgba(247, 242, 233, 0.82)",
+  fontSize: "15px",
+  lineHeight: 1.5,
+};
+
+const inquiryEmail = "hammerhq@outlook.com";
+const inquiryWhatsAppLabel = "HQ";
+const inquiryWhatsAppDisplay = "+1 (209) 684-2964";
+const inquiryWhatsAppUrl = "https://wa.me/12096842964";
+
 export default function Home() {
   const [missingImages, setMissingImages] = useState<Record<string, boolean>>({});
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [hoveredArtworkId, setHoveredArtworkId] = useState<string | null>(null);
   const [showGallery, setShowGallery] = useState(false);
   const [galleryVisible, setGalleryVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const toTrackingArtwork = (artwork: Artwork) => ({
+    id: artwork.id,
+    displayId: artwork.displayId,
+    name: artwork.title,
+    price: artwork.price,
+    dimensions: artwork.dimensions,
+    category: artwork.category,
+    status:
+      artwork.status ??
+      (artwork.price.toLowerCase().includes("request") ? "price-on-request" : "available"),
+  });
+
+  useEffect(() => {
+    trackEvent({
+      event: "landing_page_view",
+      route: "/",
+      page: "landing",
+      source: "page-load",
+    });
+  }, []);
 
   useEffect(() => {
     if (!selectedArtwork) {
@@ -192,17 +244,34 @@ export default function Home() {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setSelectedArtwork(null);
+        setModalVisible(false);
       }
     };
+
+    const frame = window.requestAnimationFrame(() => {
+      setModalVisible(true);
+    });
 
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      window.cancelAnimationFrame(frame);
       document.body.style.overflow = originalOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [selectedArtwork]);
+
+  useEffect(() => {
+    if (!selectedArtwork || modalVisible) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setSelectedArtwork(null);
+    }, 220);
+
+    return () => window.clearTimeout(timeout);
+  }, [modalVisible, selectedArtwork]);
 
   useEffect(() => {
     if (!showGallery) {
@@ -217,8 +286,101 @@ export default function Home() {
     return () => window.cancelAnimationFrame(frame);
   }, [showGallery]);
 
+  useEffect(() => {
+    if (!selectedArtwork || !modalVisible) {
+      return;
+    }
+
+    trackEvent({
+      event: "modal_open",
+      route: "/",
+      page: "gallery",
+      source: "artwork-modal",
+      artwork: toTrackingArtwork(selectedArtwork),
+    });
+  }, [modalVisible, selectedArtwork]);
+
   const enterCollection = () => {
+    trackEvent({
+      event: "view_collection_click",
+      route: "/",
+      page: "landing",
+      source: "landing-cta",
+    });
     setShowGallery(true);
+  };
+
+  const openArtwork = (artwork: Artwork) => {
+    trackEvent({
+      event: "artwork_click",
+      route: "/",
+      page: "gallery",
+      source: "artwork-card",
+      artwork: toTrackingArtwork(artwork),
+    });
+    setSelectedArtwork(artwork);
+    setModalVisible(false);
+  };
+
+  const closeArtwork = () => {
+    setModalVisible(false);
+  };
+
+  const buildInquiryHref = (artwork: Artwork) => {
+    const subject = `ARTWURK Inquiry - ${artwork.displayId ?? artwork.id} - ${artwork.title}`;
+    const body = [
+      "Hello Hammer HQ,",
+      "",
+      `I am interested in ${artwork.title}.`,
+      `Artwork ID: ${artwork.displayId ?? artwork.id}`,
+      `Price: ${artwork.price}`,
+      `Dimensions: ${artwork.dimensions}`,
+      "",
+      "Please send next steps regarding availability and purchase.",
+    ].join("\n");
+
+    return `mailto:${inquiryEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
+  const handleInquiryClick = (artwork: Artwork) => {
+    const trackingArtwork = toTrackingArtwork(artwork);
+
+    trackEvent({
+      event: "inquire_click",
+      route: "/",
+      page: "gallery",
+      source: "modal-inquire",
+      artwork: trackingArtwork,
+      metadata: {
+        contactChannel: "email",
+      },
+    });
+
+    trackInquiry({
+      route: "/",
+      page: "gallery",
+      source: "modal-inquire",
+      artwork: trackingArtwork,
+      inquiry: {
+        channel: "email",
+        destination: inquiryEmail,
+        whatsappLabel: inquiryWhatsAppLabel,
+        whatsappNumber: inquiryWhatsAppDisplay,
+      },
+      metadata: {
+        contactOptions: ["email", "whatsapp"],
+      },
+    });
+
+    trackLead({
+      route: "/",
+      page: "gallery",
+      source: "modal-inquire",
+      artwork: trackingArtwork,
+      metadata: {
+        leadIntent: "artwork-purchase",
+      },
+    });
   };
 
   return (
@@ -428,7 +590,7 @@ export default function Home() {
                   return (
                     <button
                       key={artwork.id}
-                      onClick={() => setSelectedArtwork(artwork)}
+                      onClick={() => openArtwork(artwork)}
                       onMouseEnter={() => setHoveredArtworkId(artwork.id)}
                       onMouseLeave={() =>
                         setHoveredArtworkId((current) =>
@@ -551,36 +713,40 @@ export default function Home() {
 
       {selectedArtwork ? (
         <div
-          onClick={() => setSelectedArtwork(null)}
+          onClick={closeArtwork}
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0, 0, 0, 0.9)",
-            backdropFilter: "blur(10px)",
+            background: modalVisible ? "rgba(0, 0, 0, 0.9)" : "rgba(0, 0, 0, 0)",
+            backdropFilter: modalVisible ? "blur(10px)" : "blur(0px)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             padding: "24px",
             zIndex: 80,
-            animation: "artwurk-modal-fade 240ms ease both",
+            opacity: modalVisible ? 1 : 0,
+            transition: "opacity 220ms ease, background 220ms ease, backdrop-filter 220ms ease",
           }}
         >
           <div
             onClick={(event) => event.stopPropagation()}
             style={{
-              width: "min(1240px, 100%)",
+              width: "min(1280px, 100%)",
               maxHeight: "calc(100vh - 48px)",
               overflow: "auto",
               background: "#060606",
               border: "1px solid rgba(255, 255, 255, 0.08)",
               boxShadow: "0 40px 120px rgba(0, 0, 0, 0.45)",
-              animation: "artwurk-modal-panel 280ms ease both",
+              opacity: modalVisible ? 1 : 0,
+              transform: modalVisible ? "translateY(0) scale(1)" : "translateY(18px) scale(0.985)",
+              transition: "opacity 240ms ease, transform 240ms ease",
             }}
           >
             <div
+              className="artwurk-modal-grid"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                gridTemplateColumns: "minmax(0, 1.08fr) minmax(320px, 0.92fr)",
               }}
             >
               <div
@@ -593,13 +759,14 @@ export default function Home() {
                   background:
                     "linear-gradient(160deg, rgba(17, 17, 17, 1), rgba(92, 70, 29, 0.18))",
                   borderRight: "1px solid rgba(255, 255, 255, 0.06)",
+                  padding: "24px",
                 }}
               >
                 <div
                   style={{
                     position: "relative",
                     width: "100%",
-                    height: "min(80vh, 860px)",
+                    height: "min(80vh, 820px)",
                   }}
                 >
                   <Image
@@ -614,10 +781,12 @@ export default function Home() {
 
               <div
                 style={{
-                  padding: "32px 30px",
+                  padding: "34px 30px 30px",
                   display: "flex",
                   flexDirection: "column",
-                  gap: "26px",
+                  gap: "28px",
+                  background:
+                    "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0))",
                 }}
               >
                 <div
@@ -646,7 +815,7 @@ export default function Home() {
                   </div>
 
                   <button
-                    onClick={() => setSelectedArtwork(null)}
+                    onClick={closeArtwork}
                     aria-label="Close artwork view"
                     style={{
                       width: "42px",
@@ -658,6 +827,7 @@ export default function Home() {
                       fontSize: "18px",
                       lineHeight: 1,
                       flexShrink: 0,
+                      transition: "border-color 180ms ease, background 180ms ease",
                     }}
                   >
                     {"\u00D7"}
@@ -669,20 +839,16 @@ export default function Home() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
                     gap: "18px",
+                    padding: "20px 0 0",
+                    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
                   }}
                 >
-                  <div>
-                    <div style={modalMetaStyle}>Artwork ID</div>
-                    <div style={{ marginTop: "8px", fontSize: "18px" }}>
-                      {selectedArtwork.displayId ?? selectedArtwork.id}
-                    </div>
-                  </div>
                   <div>
                     <div style={modalMetaStyle}>Price</div>
                     <div
                       style={{
                         marginTop: "8px",
-                        fontSize: "24px",
+                        fontSize: "28px",
                         color: "#D4AF37",
                         letterSpacing: "0.03em",
                         fontWeight: 700,
@@ -695,6 +861,12 @@ export default function Home() {
                     <div style={modalMetaStyle}>Dimensions</div>
                     <div style={{ marginTop: "8px", fontSize: "18px" }}>
                       {selectedArtwork.dimensions}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={modalMetaStyle}>Category</div>
+                    <div style={{ marginTop: "8px", fontSize: "18px" }}>
+                      {selectedArtwork.category ?? "Private Collection"}
                     </div>
                   </div>
                 </div>
@@ -717,6 +889,94 @@ export default function Home() {
                     {selectedArtwork.story}
                   </p>
                 </div>
+
+                <div
+                  style={{
+                    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                    paddingTop: "24px",
+                  }}
+                >
+                  <div style={modalMetaStyle}>Collector Assurance</div>
+                  <div style={{ marginTop: "8px" }}>
+                    <div style={trustLineStyle}>Original • One of One</div>
+                    <div style={trustLineStyle}>Hand-painted acrylic on canvas</div>
+                    <div style={trustLineStyle}>Signed by artist</div>
+                    <div
+                      style={{
+                        ...trustLineStyle,
+                        borderBottom: "none",
+                        paddingBottom: 0,
+                      }}
+                    >
+                      Certificate of authenticity included
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                    paddingTop: "24px",
+                  }}
+                >
+                  <a
+                    href={buildInquiryHref(selectedArtwork)}
+                    onClick={() => handleInquiryClick(selectedArtwork)}
+                    className="artwurk-inquire-button"
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      padding: "16px 20px",
+                      border: "1px solid rgba(212, 175, 55, 0.58)",
+                      background:
+                        "linear-gradient(180deg, rgba(212, 175, 55, 0.16), rgba(212, 175, 55, 0.05))",
+                      color: "#faf6ef",
+                      cursor: "pointer",
+                      fontSize: "13px",
+                      fontWeight: 700,
+                      letterSpacing: "0.22em",
+                      textTransform: "uppercase",
+                      textAlign: "center",
+                      textDecoration: "none",
+                      transition:
+                        "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease",
+                      boxShadow: "0 18px 40px rgba(0, 0, 0, 0.25)",
+                    }}
+                  >
+                    Inquire
+                  </a>
+                  <div
+                    style={{
+                      marginTop: "16px",
+                      display: "grid",
+                      gap: "10px",
+                    }}
+                  >
+                    <div style={modalMetaStyle}>Contact</div>
+                    <a
+                      href={`mailto:${inquiryEmail}`}
+                      style={{
+                        color: "rgba(247, 242, 233, 0.82)",
+                        textDecoration: "none",
+                        fontSize: "15px",
+                      }}
+                    >
+                      {inquiryEmail}
+                    </a>
+                    <a
+                      href={inquiryWhatsAppUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        color: "rgba(247, 242, 233, 0.82)",
+                        textDecoration: "none",
+                        fontSize: "15px",
+                      }}
+                    >
+                      WhatsApp {inquiryWhatsAppLabel}: {inquiryWhatsAppDisplay}
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -735,26 +995,20 @@ export default function Home() {
           }
         }
 
-        @keyframes artwurk-modal-fade {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
+        .artwurk-inquire-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 24px 50px rgba(0, 0, 0, 0.32), 0 0 26px rgba(212, 175, 55, 0.14);
+          border-color: rgba(212, 175, 55, 0.82);
+          background: linear-gradient(180deg, rgba(212, 175, 55, 0.22), rgba(212, 175, 55, 0.08));
         }
 
-        @keyframes artwurk-modal-panel {
-          from {
-            opacity: 0;
-            transform: translateY(18px) scale(0.985);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
+        @media (max-width: 960px) {
+          .artwurk-modal-grid {
+            grid-template-columns: 1fr !important;
           }
         }
       `}</style>
     </div>
   );
 }
+
