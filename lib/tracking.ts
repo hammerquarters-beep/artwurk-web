@@ -1,3 +1,9 @@
+import {
+  appendStoredEvent,
+  appendStoredInquiry,
+  appendStoredLead,
+} from "./crm-store";
+
 export type ArtwurkEventName =
   | "landing_page_view"
   | "view_collection_click"
@@ -111,29 +117,38 @@ const dispatchPayload = <T>(url: string, payload: T) => {
 };
 
 export const trackEvent = (payload: Omit<ArtwurkEventPayload, "occurredAt">) => {
-  dispatchPayload("/api/events", {
+  const nextPayload = {
     ...payload,
     occurredAt: new Date().toISOString(),
-  });
+  };
+
+  appendStoredEvent(nextPayload);
+  dispatchPayload("/api/events", nextPayload);
 };
 
 export const trackInquiry = (
   payload: Omit<ArtwurkInquiryPayload, "occurredAt" | "type">,
 ) => {
-  dispatchPayload("/api/inquiries", {
+  const nextPayload = {
     ...payload,
     type: "artwork_inquiry",
     occurredAt: new Date().toISOString(),
-  });
+  };
+
+  appendStoredInquiry(nextPayload);
+  dispatchPayload("/api/inquiries", nextPayload);
 };
 
 export const trackLead = (
   payload: Omit<ArtwurkLeadPayload, "occurredAt" | "type" | "status">,
 ) => {
-  dispatchPayload("/api/leads", {
+  const nextPayload = {
     ...payload,
     type: "lead_capture",
     status: "new",
     occurredAt: new Date().toISOString(),
-  });
+  };
+
+  appendStoredLead(nextPayload);
+  dispatchPayload("/api/leads", nextPayload);
 };
