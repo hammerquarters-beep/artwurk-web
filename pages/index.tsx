@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Script from "next/script";
 import React, { FormEvent, useEffect, useState } from "react";
 
 import artworks, { type ArtworkRecord } from "../data/artworks";
@@ -80,6 +81,17 @@ const inquiryEmail = "hammerhq@outlook.com";
 const inquiryWhatsAppLabel = "HQ";
 const inquiryWhatsAppDisplay = "+1 (209) 684-2964";
 const inquiryWhatsAppUrl = "https://wa.me/12096842964";
+const paypalSdkSrc =
+  "https://www.paypal.com/sdk/js?client-id=BAApqENv-0EtbRTyPYL5WXCWQjYvRGMtjcYUpTgN1a9CZ16b5MhC38hZAAa5un2j64qLDI5DwknEPwuFt0&components=hosted-buttons&enable-funding=venmo&currency=USD";
+const theWatcherHostedButtonId = "EA68DYJEMEDNW";
+const theWatcherArtworkId = "ART-003";
+const theWatcherPaypalContainerId = "paypal-container-EA68DYJEMEDNW";
+
+type PayPalHostedButtonsApi = {
+  HostedButtons: (config: { hostedButtonId: string }) => {
+    render: (selector: string) => Promise<void> | void;
+  };
+};
 
 const createInitialCollectorForm = (): CollectorFormState => ({
   name: "",
@@ -136,6 +148,7 @@ export default function Home() {
   const [galleryVisible, setGalleryVisible] = useState(false);
   const [hasTrackedGalleryView, setHasTrackedGalleryView] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [paypalSdkReady, setPaypalSdkReady] = useState(false);
   const [collectorIntent, setCollectorIntent] = useState<InquiryIntent>("inquire");
   const [collectorForm, setCollectorForm] = useState<CollectorFormState>(
     createInitialCollectorForm(),
@@ -257,6 +270,30 @@ export default function Home() {
       artwork: toTrackingArtwork(selectedArtwork),
     });
   }, [modalVisible, selectedArtwork]);
+
+  useEffect(() => {
+    const isTheWatcherOpen =
+      selectedArtwork?.id === theWatcherArtworkId && modalVisible && paypalSdkReady;
+
+    if (!isTheWatcherOpen || typeof window === "undefined") {
+      return;
+    }
+
+    const paypal = (window as Window & { paypal?: PayPalHostedButtonsApi }).paypal;
+    const container = document.getElementById(theWatcherPaypalContainerId);
+
+    if (!paypal?.HostedButtons || !container) {
+      return;
+    }
+
+    container.innerHTML = "";
+
+    void paypal
+      .HostedButtons({
+        hostedButtonId: theWatcherHostedButtonId,
+      })
+      .render(`#${theWatcherPaypalContainerId}`);
+  }, [modalVisible, paypalSdkReady, selectedArtwork]);
 
   useEffect(() => {
     if (!selectedArtwork || modalVisible) {
@@ -497,6 +534,8 @@ export default function Home() {
       },
     });
   };
+
+  const shouldShowTheWatcherCheckout = selectedArtwork?.id === theWatcherArtworkId;
 
   return (
     <div style={pageStyle}>
@@ -1094,6 +1133,28 @@ export default function Home() {
                   </p>
                 </div>
 
+                {shouldShowTheWatcherCheckout ? (
+                  <div
+                    style={{
+                      borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                      paddingTop: "24px",
+                    }}
+                  >
+                    <div style={modalMetaStyle}>Secure Checkout</div>
+                    <div
+                      style={{
+                        marginTop: "14px",
+                        padding: "18px",
+                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        background:
+                          "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))",
+                      }}
+                    >
+                      <div id={theWatcherPaypalContainerId} />
+                    </div>
+                  </div>
+                ) : null}
+
                 <div
                   style={{
                     borderTop: "1px solid rgba(255, 255, 255, 0.08)",
@@ -1272,6 +1333,17 @@ export default function Home() {
             </div>
           </div>
         </div>
+      ) : null}
+
+      {shouldShowTheWatcherCheckout ? (
+        <Script
+          id="paypal-hosted-buttons-sdk"
+          src={paypalSdkSrc}
+          strategy="afterInteractive"
+          onReady={() => {
+            setPaypalSdkReady(true);
+          }}
+        />
       ) : null}
 
       <style jsx global>{`
