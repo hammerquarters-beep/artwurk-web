@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 type Artwork = {
   id: string;
   displayId?: string;
-  name: string;
+  title: string;
   image: string;
   price: string;
   dimensions: string;
@@ -15,129 +15,129 @@ const artworks = [
   {
     id: "ART-001-002",
     displayId: "ART-001 / ART-002",
-    name: "Static Mind / Fragile King",
+    title: "Static Mind + Fragile King (Pair)",
     image: "/artwork/art-001-002-static-mind-fragile-king-pair.png",
-    price: "Private catalog release",
-    dimensions: "Diptych dimensions to be finalized",
+    price: "Price on request",
+    dimensions: '24 x 24 in each panel, 48 x 24 in combined',
     story:
-      "Story placement is being refined. This paired work is currently held as a character-driven dual entry inside the ARTWURK catalog.",
+      "Original paired presentation of the duo, intended to be viewed as one larger narrative statement.",
   },
   {
     id: "ART-003",
-    name: "The Watcher",
+    title: "The Watcher",
     image: "/artwork/art-003-the-watcher.jpg",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$1,050",
+    dimensions: '24 x 48 in',
     story:
-      "Story placement is being refined. This work is currently presented as a symbolic character study within the evolving ARTWURK collection.",
+      "A faceless observer with stillness, mystery, and quiet authority.",
   },
   {
     id: "ART-004",
-    name: "Impact",
+    title: "Impact",
     image: "/artwork/art-004-impact.jpg",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$1,920",
+    dimensions: '30 x 40 in',
     story:
-      "Story placement is being refined. The piece is currently positioned as a force-forward abstract built around tension, movement, and immediate visual strike.",
+      "A raw-energy release piece with force, movement, and emotional collision.",
   },
   {
     id: "ART-005",
-    name: "Gilded Veil",
+    title: "Gilded Veil",
     image: "/artwork/art-005-gilded-veil.jpg",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$2,040",
+    dimensions: '30 x 40 in',
     story:
-      "Story placement is being refined. This entry leans into a controlled luxury tone, using softness and metallic presence to hold attention quietly.",
+      "A luxury abstract built on concealment, contrast, and hidden value.",
   },
   {
     id: "ART-007",
-    name: "Aftermath",
+    title: "Aftermath",
     image: "/artwork/art-007-aftermath.jpg",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$2,880",
+    dimensions: '24 x 24 in each panel, 48 x 24 in combined',
     story:
-      "Story placement is being refined. The composition is being treated as a post-impact emotional field, where residue and silence become the subject.",
+      "A diptych installation capturing what remains after intensity passes.",
   },
   {
     id: "ART-008",
-    name: "Three States",
+    title: "Three States",
     image: "/artwork/art-008-three-states.png",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$1,740",
+    dimensions: '24 x 48 in',
     story:
-      "Story placement is being refined. This work is currently cataloged as a psychological and character-based piece centered on shifting emotional condition.",
+      "A narrative character group built around emotional contrast and merch-ready identity.",
   },
   {
     id: "ART-009",
-    name: "Velocity Within",
+    title: "Velocity Within",
     image: "/artwork/art-009-velocity-within.jpg",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$1,920",
+    dimensions: '30 x 40 in',
     story:
-      "Story placement is being refined. The current reading frames this work as interior acceleration held beneath an otherwise controlled surface.",
+      "A controlled-motion abstract with tension, energy, and internal restraint.",
   },
   {
     id: "ART-013",
-    name: "Confrontation / Reflection",
+    title: "Confrontation / Reflection",
     image: "/artwork/art-013-confrontation-reflection.jpg",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$1,320",
+    dimensions: '16 x 16 in each panel, 32 x 16 in combined',
     story:
-      "Story placement is being refined. This mirrored structure is currently held as a dual-image examination of tension, identity, and self-recognition.",
+      "A dual-identity diptych built around self-versus-self tension.",
   },
   {
     id: "ART-014",
-    name: "Gold Current",
+    title: "Gold Current",
     image: "/artwork/art-014-gold-current.png",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$960",
+    dimensions: '20 x 20 in',
     story:
-      "Story placement is being refined. The piece is cataloged around a focused current of value and motion cutting through a darker field.",
+      "A minimal luxury flow piece with vein-like direction and controlled movement.",
   },
   {
     id: "ART-018",
-    name: "Velocity of Chaos",
+    title: "Velocity of Chaos",
     image: "/artwork/art-018-velocity-of-chaos.png",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$2,520",
+    dimensions: '24 x 48 in',
     story:
-      "Story placement is being refined. This work is currently read as unstable momentum held inside a charged red-violet atmosphere.",
+      "A visually aggressive statement work centered on force, impact, and collision.",
   },
   {
     id: "ART-032",
-    name: "Structured Force",
+    title: "Structured Force",
     image: "/artwork/art-032-structured-force.jpg",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$1,140",
+    dimensions: '24 x 36 in',
     story:
-      "Story placement is being refined. The composition is positioned as a disciplined force study, balancing geometry, pressure, and restraint.",
+      "A geometric and gestural bridge piece balancing structure with expression.",
   },
   {
     id: "ART-033",
-    name: "Inner Conflict",
+    title: "Inner Conflict",
     image: "/artwork/art-033-inner-conflict.png",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$1,440",
+    dimensions: '24 x 36 in',
     story:
-      "Story placement is being refined. This piece is currently cataloged as an inward psychological tension study with a fractured emotional center.",
+      "A psychological abstract with hidden-face energy and dark internal tension.",
   },
   {
     id: "ART-035",
-    name: "Whispered Ascent",
+    title: "Whispered Ascent",
     image: "/artwork/art-035-whispered-ascent.png",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$840",
+    dimensions: '16 x 20 in',
     story:
-      "Story placement is being refined. The work is being held as a softer upward movement piece, where lift and subtlety replace spectacle.",
+      "A quiet spiritual collector piece with restrained lift and minimal presence.",
   },
   {
     id: "ART-038",
-    name: "Black Gold Current",
+    title: "Black Gold Current",
     image: "/artwork/art-038-black-gold-current.jpg",
-    price: "Private catalog release",
-    dimensions: "Dimensions to be finalized",
+    price: "$960",
+    dimensions: '16 x 20 in',
     story:
-      "Story placement is being refined. This entry focuses on contrast, luxury, and directional energy through a black-gold current motif.",
+      "A flagship commercial-style luxury minimal abstract in the black-gold lane.",
   },
 ] satisfies Artwork[];
 
@@ -179,6 +179,8 @@ export default function Home() {
   const [missingImages, setMissingImages] = useState<Record<string, boolean>>({});
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [hoveredArtworkId, setHoveredArtworkId] = useState<string | null>(null);
+  const [showGallery, setShowGallery] = useState(false);
+  const [galleryVisible, setGalleryVisible] = useState(false);
 
   useEffect(() => {
     if (!selectedArtwork) {
@@ -202,211 +204,350 @@ export default function Home() {
     };
   }, [selectedArtwork]);
 
+  useEffect(() => {
+    if (!showGallery) {
+      setGalleryVisible(false);
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      setGalleryVisible(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [showGallery]);
+
+  const enterCollection = () => {
+    setShowGallery(true);
+  };
+
   return (
     <div style={pageStyle}>
-      <main style={{ ...containerStyle, padding: "36px 0 72px" }}>
+      {!showGallery ? (
         <section
           style={{
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            padding: "44px 24px 40px",
-            background:
-              "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))",
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "24px",
+            animation: "artwurk-fade-in 420ms ease both",
           }}
         >
-          <div style={eyebrowStyle}>Hammer HQ LLC</div>
-
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "28px",
-              alignItems: "end",
-              marginTop: "18px",
+              width: "min(980px, 100%)",
+              textAlign: "center",
+              padding: "48px 24px",
             }}
           >
-            <div>
-              <h1
+            <div
+              style={{
+                fontSize: "clamp(64px, 15vw, 156px)",
+                lineHeight: 0.88,
+                letterSpacing: "0.12em",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                color: "#ffffff",
+                textShadow: "0 24px 60px rgba(0, 0, 0, 0.45)",
+              }}
+            >
+              ARTWURK
+              <span
                 style={{
-                  margin: 0,
-                  fontSize: "clamp(54px, 12vw, 120px)",
-                  lineHeight: 0.88,
-                  letterSpacing: "0.12em",
+                  fontSize: "0.22em",
+                  verticalAlign: "top",
+                  marginLeft: "8px",
                   fontWeight: 400,
-                  textTransform: "uppercase",
                 }}
               >
-                ARTWURK
-                <span
-                  style={{
-                    fontSize: "0.24em",
-                    verticalAlign: "top",
-                    marginLeft: "6px",
-                  }}
-                >
-                  {"\u2122"}
-                </span>
-              </h1>
+                {"\u2122"}
+              </span>
+            </div>
+
+            <div
+              style={{
+                marginTop: "24px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "baseline",
+                flexWrap: "wrap",
+                gap: "12px",
+                whiteSpace: "normal",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "clamp(22px, 3vw, 34px)",
+                  color: "rgba(247, 242, 233, 0.72)",
+                  fontWeight: 400,
+                }}
+              >
+                PUTTING
+              </span>
+              <span
+                style={{
+                  fontSize: "clamp(34px, 5vw, 56px)",
+                  color: "#ffffff",
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  letterSpacing: "0.04em",
+                }}
+              >
+                YOU
+              </span>
+              <span
+                style={{
+                  fontSize: "clamp(22px, 3vw, 34px)",
+                  color: "rgba(247, 242, 233, 0.72)",
+                  fontWeight: 400,
+                }}
+              >
+                IN THE ART
+              </span>
+            </div>
+
+            <button
+              onClick={enterCollection}
+              style={{
+                marginTop: "42px",
+                padding: "16px 30px",
+                border: "1px solid rgba(255, 255, 255, 0.16)",
+                background: "rgba(255, 255, 255, 0.03)",
+                color: "#f7f2e9",
+                cursor: "pointer",
+                fontSize: "12px",
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                transition:
+                  "transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease",
+                boxShadow: "0 16px 50px rgba(0, 0, 0, 0.26)",
+              }}
+            >
+              View Collection
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {showGallery ? (
+        <div
+          style={{
+            opacity: galleryVisible ? 1 : 0,
+            transform: galleryVisible ? "translateY(0)" : "translateY(16px)",
+            transition: "opacity 360ms ease, transform 360ms ease",
+          }}
+        >
+          <main style={{ ...containerStyle, padding: "36px 0 72px" }}>
+            <section
+              style={{
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                padding: "44px 24px 40px",
+                background:
+                  "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))",
+              }}
+            >
+              <div style={eyebrowStyle}>Hammer HQ LLC</div>
 
               <div
                 style={{
-                  marginTop: "20px",
-                  fontSize: "clamp(28px, 5vw, 46px)",
-                  lineHeight: 1,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                  gap: "28px",
+                  alignItems: "end",
+                  marginTop: "18px",
                 }}
               >
-                Collection
-              </div>
-            </div>
-
-            <p
-              style={{
-                margin: 0,
-                maxWidth: "520px",
-                justifySelf: "end",
-                color: "rgba(247, 242, 233, 0.72)",
-                fontSize: "17px",
-                lineHeight: 1.8,
-              }}
-            >
-              A premium black gallery experience built to present ARTWURK with
-              restraint, presence, and space. Each piece is framed to feel
-              deliberate, collectible, and elevated on both desktop and mobile.
-            </p>
-          </div>
-        </section>
-
-        <section style={{ marginTop: "36px" }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "28px",
-            }}
-          >
-            {artworks.map((artwork) => {
-              const isMissing = missingImages[artwork.id];
-              const displayId = artwork.displayId ?? artwork.id;
-              const isHovered = hoveredArtworkId === artwork.id;
-
-              return (
-                <button
-                  key={artwork.id}
-                  onClick={() => setSelectedArtwork(artwork)}
-                  onMouseEnter={() => setHoveredArtworkId(artwork.id)}
-                  onMouseLeave={() => setHoveredArtworkId((current) => (current === artwork.id ? null : current))}
-                  style={{
-                    background: "#050505",
-                    border: isHovered
-                      ? "1px solid rgba(212, 175, 55, 0.34)"
-                      : "1px solid rgba(255, 255, 255, 0.08)",
-                    padding: "18px",
-                    textAlign: "left",
-                    color: "inherit",
-                    cursor: "pointer",
-                    transition:
-                      "transform 220ms ease, border-color 220ms ease, background 220ms ease, box-shadow 220ms ease",
-                    transform: isHovered ? "scale(1.03)" : "scale(1)",
-                    boxShadow: isHovered
-                      ? "0 24px 60px rgba(0, 0, 0, 0.32), 0 0 28px rgba(212, 175, 55, 0.12)"
-                      : "0 0 0 rgba(0, 0, 0, 0)",
-                  }}
-                >
-                  <div
+                <div>
+                  <h1
                     style={{
-                      position: "relative",
-                      aspectRatio: "4 / 5",
-                      background: "#fff",
-                      padding: "14px",
+                      margin: 0,
+                      fontSize: "clamp(54px, 12vw, 120px)",
+                      lineHeight: 0.88,
+                      letterSpacing: "0.12em",
+                      fontWeight: 400,
+                      textTransform: "uppercase",
                     }}
                   >
-                    <div
+                    ARTWURK
+                    <span
                       style={{
-                        position: "relative",
-                        width: "100%",
-                        height: "100%",
-                        background:
-                          "linear-gradient(160deg, rgba(22, 22, 22, 1), rgba(78, 63, 35, 0.85))",
+                        fontSize: "0.24em",
+                        verticalAlign: "top",
+                        marginLeft: "6px",
                       }}
                     >
-                      {!isMissing ? (
-                        <Image
-                          src={artwork.image}
-                          alt={artwork.name}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          style={{
-                            objectFit: "cover",
-                            transform: isHovered ? "scale(1.03)" : "scale(1)",
-                            transition: "transform 260ms ease",
-                          }}
-                          onError={() =>
-                            setMissingImages((current) => ({
-                              ...current,
-                              [artwork.id]: true,
-                            }))
-                          }
-                        />
-                      ) : (
+                      {"\u2122"}
+                    </span>
+                  </h1>
+
+                  <div
+                    style={{
+                      marginTop: "20px",
+                      fontSize: "clamp(28px, 5vw, 46px)",
+                      lineHeight: 1,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Collection
+                  </div>
+                </div>
+
+                <p
+                  style={{
+                    margin: 0,
+                    maxWidth: "520px",
+                    justifySelf: "end",
+                    color: "rgba(247, 242, 233, 0.72)",
+                    fontSize: "17px",
+                    lineHeight: 1.8,
+                  }}
+                >
+                  A premium black gallery experience built to present ARTWURK
+                  with restraint, presence, and space. Each piece is framed to
+                  feel deliberate, collectible, and elevated on both desktop and
+                  mobile.
+                </p>
+              </div>
+            </section>
+
+            <section style={{ marginTop: "36px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                  gap: "28px",
+                }}
+              >
+                {artworks.map((artwork) => {
+                  const isMissing = missingImages[artwork.id];
+                  const displayId = artwork.displayId ?? artwork.id;
+                  const isHovered = hoveredArtworkId === artwork.id;
+
+                  return (
+                    <button
+                      key={artwork.id}
+                      onClick={() => setSelectedArtwork(artwork)}
+                      onMouseEnter={() => setHoveredArtworkId(artwork.id)}
+                      onMouseLeave={() =>
+                        setHoveredArtworkId((current) =>
+                          current === artwork.id ? null : current,
+                        )
+                      }
+                      style={{
+                        background: "#050505",
+                        border: isHovered
+                          ? "1px solid rgba(212, 175, 55, 0.34)"
+                          : "1px solid rgba(255, 255, 255, 0.08)",
+                        padding: "18px",
+                        textAlign: "left",
+                        color: "inherit",
+                        cursor: "pointer",
+                        transition:
+                          "transform 220ms ease, border-color 220ms ease, background 220ms ease, box-shadow 220ms ease",
+                        transform: isHovered ? "scale(1.03)" : "scale(1)",
+                        boxShadow: isHovered
+                          ? "0 24px 60px rgba(0, 0, 0, 0.32), 0 0 28px rgba(212, 175, 55, 0.12)"
+                          : "0 0 0 rgba(0, 0, 0, 0)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: "relative",
+                          aspectRatio: "4 / 5",
+                          background: "#fff",
+                          padding: "14px",
+                        }}
+                      >
                         <div
                           style={{
+                            position: "relative",
                             width: "100%",
                             height: "100%",
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                            padding: "22px",
-                            color: "#f7f2e9",
+                            background:
+                              "linear-gradient(160deg, rgba(22, 22, 22, 1), rgba(78, 63, 35, 0.85))",
                           }}
                         >
-                          <div style={metaLabelStyle}>Image Missing</div>
-                          <div>
-                            <div style={metaLabelStyle}>{displayId}</div>
+                          {!isMissing ? (
+                            <Image
+                              src={artwork.image}
+                              alt={artwork.title}
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              style={{
+                                objectFit: "cover",
+                                transform: isHovered ? "scale(1.03)" : "scale(1)",
+                                transition: "transform 260ms ease",
+                              }}
+                              onError={() =>
+                                setMissingImages((current) => ({
+                                  ...current,
+                                  [artwork.id]: true,
+                                }))
+                              }
+                            />
+                          ) : (
                             <div
                               style={{
-                                marginTop: "10px",
-                                fontSize: "30px",
-                                lineHeight: 1,
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "space-between",
+                                padding: "22px",
+                                color: "#f7f2e9",
                               }}
                             >
-                              {artwork.name}
+                              <div style={metaLabelStyle}>Image Missing</div>
+                              <div>
+                                <div style={metaLabelStyle}>{displayId}</div>
+                                <div
+                                  style={{
+                                    marginTop: "10px",
+                                    fontSize: "30px",
+                                    lineHeight: 1,
+                                  }}
+                                >
+                                  {artwork.title}
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </div>
+                      </div>
 
-                  <div style={{ padding: "18px 4px 4px" }}>
-                    <div style={metaLabelStyle}>{displayId}</div>
-                    <h2
-                      style={{
-                        margin: "10px 0 0",
-                        fontSize: "24px",
-                        lineHeight: 1.15,
-                        fontWeight: 400,
-                      }}
-                    >
-                      {artwork.name}
-                    </h2>
-                    <div
-                      style={{
-                        marginTop: "12px",
-                        fontSize: "18px",
-                        color: "#e5c88f",
-                        letterSpacing: "0.04em",
-                      }}
-                    >
-                      {artwork.price}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      </main>
+                      <div style={{ padding: "18px 4px 4px" }}>
+                        <div style={metaLabelStyle}>{displayId}</div>
+                        <h2
+                          style={{
+                            margin: "10px 0 0",
+                            fontSize: "24px",
+                            lineHeight: 1.15,
+                            fontWeight: 400,
+                          }}
+                        >
+                          {artwork.title}
+                        </h2>
+                        <div
+                          style={{
+                            marginTop: "12px",
+                            fontSize: "18px",
+                            color: "#D4AF37",
+                            letterSpacing: "0.04em",
+                          }}
+                        >
+                          {artwork.price}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          </main>
+        </div>
+      ) : null}
 
       {selectedArtwork ? (
         <div
@@ -427,7 +568,7 @@ export default function Home() {
           <div
             onClick={(event) => event.stopPropagation()}
             style={{
-              width: "min(1220px, 100%)",
+              width: "min(1240px, 100%)",
               maxHeight: "calc(100vh - 48px)",
               overflow: "auto",
               background: "#060606",
@@ -445,23 +586,35 @@ export default function Home() {
               <div
                 style={{
                   position: "relative",
-                  minHeight: "min(72vh, 820px)",
+                  minHeight: "min(80vh, 860px)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   background:
-                    "linear-gradient(160deg, rgba(17, 17, 17, 1), rgba(92, 70, 29, 0.28))",
+                    "linear-gradient(160deg, rgba(17, 17, 17, 1), rgba(92, 70, 29, 0.18))",
+                  borderRight: "1px solid rgba(255, 255, 255, 0.06)",
                 }}
               >
-                <Image
-                  src={selectedArtwork.image}
-                  alt={selectedArtwork.name}
-                  fill
-                  sizes="(max-width: 900px) 100vw, 60vw"
-                  style={{ objectFit: "contain" }}
-                />
+                <div
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    height: "min(80vh, 860px)",
+                  }}
+                >
+                  <Image
+                    src={selectedArtwork.image}
+                    alt={selectedArtwork.title}
+                    fill
+                    sizes="(max-width: 900px) 100vw, 58vw"
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
               </div>
 
               <div
                 style={{
-                  padding: "28px",
+                  padding: "32px 30px",
                   display: "flex",
                   flexDirection: "column",
                   gap: "26px",
@@ -484,10 +637,11 @@ export default function Home() {
                         margin: "12px 0 0",
                         fontSize: "clamp(34px, 5vw, 54px)",
                         lineHeight: 0.96,
-                        fontWeight: 400,
+                        fontWeight: 700,
+                        color: "#faf6ef",
                       }}
                     >
-                      {selectedArtwork.name}
+                      {selectedArtwork.title}
                     </h2>
                   </div>
 
@@ -495,18 +649,18 @@ export default function Home() {
                     onClick={() => setSelectedArtwork(null)}
                     aria-label="Close artwork view"
                     style={{
-                      padding: "10px 14px",
+                      width: "42px",
+                      height: "42px",
                       border: "1px solid rgba(255, 255, 255, 0.12)",
                       background: "transparent",
                       color: "#f7f2e9",
                       cursor: "pointer",
-                      letterSpacing: "0.16em",
-                      textTransform: "uppercase",
-                      fontSize: "11px",
+                      fontSize: "18px",
+                      lineHeight: 1,
                       flexShrink: 0,
                     }}
                   >
-                    Close
+                    {"\u00D7"}
                   </button>
                 </div>
 
@@ -525,7 +679,15 @@ export default function Home() {
                   </div>
                   <div>
                     <div style={modalMetaStyle}>Price</div>
-                    <div style={{ marginTop: "8px", fontSize: "18px", color: "#e5c88f" }}>
+                    <div
+                      style={{
+                        marginTop: "8px",
+                        fontSize: "24px",
+                        color: "#D4AF37",
+                        letterSpacing: "0.03em",
+                        fontWeight: 700,
+                      }}
+                    >
                       {selectedArtwork.price}
                     </div>
                   </div>
@@ -562,6 +724,17 @@ export default function Home() {
       ) : null}
 
       <style jsx global>{`
+        @keyframes artwurk-fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
         @keyframes artwurk-modal-fade {
           from {
             opacity: 0;
