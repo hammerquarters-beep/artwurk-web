@@ -111,6 +111,13 @@ const theWatcherValuePoints = [
 
 const trustBadges = ["PayPal", "Visa", "Mastercard", "Secure Checkout"];
 const galleryPriorityArtworkIds = ["ART-005", "ART-007", "ART-004", "ART-035", "ART-038", "ART-003"];
+const theWatcherPricing = {
+  artwork: "The Watcher",
+  basePrice: 1050,
+  frame: "premium",
+  framePrice: 750,
+  total: 1800,
+};
 
 const galleryCardDescriptions: Partial<Record<ArtworkRecord["id"], string>> = {
   "ART-005": "Bold, refined, and quietly commanding.",
@@ -1134,6 +1141,58 @@ export default function Home() {
                     }}
                   >
                     <div style={modalMetaStyle}>Secure Checkout</div>
+                    <div
+                      style={{
+                        marginTop: "16px",
+                        display: "grid",
+                        gap: "10px",
+                        border: "1px solid rgba(212, 175, 55, 0.18)",
+                        background: "rgba(212, 175, 55, 0.05)",
+                        padding: "18px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: "16px",
+                          fontSize: "15px",
+                          color: "rgba(247, 242, 233, 0.78)",
+                        }}
+                      >
+                        <span>Original artwork</span>
+                        <span>${theWatcherPricing.basePrice}</span>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: "16px",
+                          fontSize: "15px",
+                          color: "rgba(247, 242, 233, 0.78)",
+                        }}
+                      >
+                        <span>{theWatcherPricing.frame} frame</span>
+                        <span>${theWatcherPricing.framePrice}</span>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: "16px",
+                          paddingTop: "10px",
+                          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                          fontSize: "18px",
+                          fontWeight: 700,
+                          color: "#d4af37",
+                          letterSpacing: "0.04em",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        <span>Collector total</span>
+                        <span>${theWatcherPricing.total}</span>
+                      </div>
+                    </div>
                     <button
                       type="button"
                       onClick={handleAcquireArtwork}

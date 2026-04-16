@@ -379,6 +379,21 @@ export default function CrmPage() {
                 Clear Pipeline
               </button>
               <Link
+                href="/crm/clients"
+                style={{
+                  padding: "12px 16px",
+                  border: "1px solid rgba(212, 175, 55, 0.28)",
+                  background: "rgba(212, 175, 55, 0.06)",
+                  color: "#f7f2e9",
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  fontSize: "11px",
+                  textDecoration: "none",
+                }}
+              >
+                Clients & Campaigns
+              </Link>
+              <Link
                 href="/"
                 style={{
                   padding: "12px 16px",

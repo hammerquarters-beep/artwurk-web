@@ -39,6 +39,11 @@ export default function CollectorMenu() {
       icon: <TagIcon className="collector-menu-icon" />,
     },
     {
+      href: "/crm/clients",
+      label: "Clients & Campaigns",
+      icon: <MailIcon className="collector-menu-icon" />,
+    },
+    {
       href: "/contact",
       label: "Contact Us",
       icon: <MailIcon className="collector-menu-icon" />,
