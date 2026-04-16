@@ -107,6 +107,16 @@ const theWatcherValuePoints = [
 ];
 
 const trustBadges = ["PayPal", "Visa", "Mastercard", "Secure Checkout"];
+const galleryPriorityArtworkIds = ["ART-005", "ART-007", "ART-004", "ART-035", "ART-038", "ART-003"];
+
+const galleryCardDescriptions: Partial<Record<ArtworkRecord["id"], string>> = {
+  "ART-005": "Bold, refined, and quietly commanding.",
+  "ART-007": "Raw force shaped into visual presence.",
+  "ART-004": "A statement piece built to stop the room.",
+  "ART-035": "Quiet elevation with unmistakable presence.",
+  "ART-038": "Dark energy, movement, and luxury in one frame.",
+  "ART-003": "Stillness, mystery, and quiet authority.",
+};
 
 const createInitialCollectorForm = (): CollectorFormState => ({
   name: "",
@@ -552,6 +562,12 @@ export default function Home() {
 
   const shouldShowTheWatcherCheckout = selectedArtwork?.id === theWatcherArtworkId;
   const isTheWatcherSelected = shouldShowTheWatcherCheckout && !!selectedArtwork;
+  const orderedArtworks = [
+    ...galleryPriorityArtworkIds
+      .map((id) => artworks.find((artwork) => artwork.id === id))
+      .filter((artwork): artwork is ArtworkRecord => Boolean(artwork)),
+    ...artworks.filter((artwork) => !galleryPriorityArtworkIds.includes(artwork.id)),
+  ];
 
   const handleAcquireArtwork = () => {
     if (!selectedArtwork) {
@@ -693,95 +709,36 @@ export default function Home() {
             transition: "opacity 360ms ease, transform 360ms ease",
           }}
         >
-          <main style={{ ...containerStyle, padding: "36px 0 72px" }}>
-            <section
-              style={{
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                padding: "44px 24px 40px",
-                background:
-                  "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))",
-              }}
-            >
-              <div style={eyebrowStyle}>Hammer HQ LLC</div>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                  gap: "28px",
-                  alignItems: "end",
-                  marginTop: "18px",
-                }}
-              >
-                <div>
-                  <h1
-                    style={{
-                      margin: 0,
-                      fontSize: "clamp(54px, 12vw, 120px)",
-                      lineHeight: 0.88,
-                      letterSpacing: "0.12em",
-                      fontWeight: 400,
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    ARTWURK
-                    <span
-                      style={{
-                        fontSize: "0.24em",
-                        verticalAlign: "top",
-                        marginLeft: "6px",
-                      }}
-                    >
-                      {"\u2122"}
-                    </span>
-                  </h1>
-
-                  <div
-                    style={{
-                      marginTop: "20px",
-                      fontSize: "clamp(28px, 5vw, 46px)",
-                      lineHeight: 1,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    Collection
-                  </div>
-                </div>
-
-                <p
-                  style={{
-                    margin: 0,
-                    maxWidth: "520px",
-                    justifySelf: "end",
-                    color: "rgba(247, 242, 233, 0.72)",
-                    fontSize: "17px",
-                    lineHeight: 1.8,
-                  }}
-                >
-                  A premium black gallery experience built to present ARTWURK with
-                  restraint, presence, and space. Each piece is framed to feel
-                  deliberate, collectible, and elevated on both desktop and mobile.
+          <main>
+            <section className="gallery-hero">
+              <div className="gallery-hero-inner">
+                <p className="gallery-kicker">Curated Original Works</p>
+                <h1 className="gallery-brand">
+                  ARTWURK
+                  <span className="gallery-brand-mark">{"\u2122"}</span>
+                </h1>
+                <p className="gallery-description">
+                  Enter a curated world of bold originals designed to command attention,
+                  elevate interiors, and leave a lasting impression. Each piece is created
+                  to carry presence, emotion, and collector-level distinction.
                 </p>
               </div>
             </section>
 
-            <section style={{ marginTop: "36px" }}>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                  gap: "28px",
-                }}
-              >
-                {artworks.map((artwork) => {
+            <section className="gallery-grid-section">
+              <div className="gallery-grid">
+                {orderedArtworks.map((artwork) => {
                   const isMissing = missingImages[artwork.id];
-                  const displayId = artwork.displayId ?? artwork.id;
                   const isHovered = hoveredArtworkId === artwork.id;
+                  const isFeatured = galleryPriorityArtworkIds.indexOf(artwork.id) < 5;
+                  const displayId = artwork.displayId ?? artwork.id;
+                  const description = galleryCardDescriptions[artwork.id] ?? artwork.story;
 
                   return (
                     <button
                       key={artwork.id}
+                      type="button"
+                      className={`gallery-card${isFeatured ? " featured" : ""}`}
                       onClick={() => openArtwork(artwork)}
                       onMouseEnter={() => handleArtworkHover(artwork)}
                       onMouseLeave={() =>
@@ -789,50 +746,19 @@ export default function Home() {
                           current === artwork.id ? null : current,
                         )
                       }
-                      style={{
-                        background: "#050505",
-                        border: isHovered
-                          ? "1px solid rgba(212, 175, 55, 0.34)"
-                          : "1px solid rgba(255, 255, 255, 0.08)",
-                        padding: "18px",
-                        textAlign: "left",
-                        color: "inherit",
-                        cursor: "pointer",
-                        transition:
-                          "transform 220ms ease, border-color 220ms ease, background 220ms ease, box-shadow 220ms ease",
-                        transform: isHovered ? "scale(1.03)" : "scale(1)",
-                        boxShadow: isHovered
-                          ? "0 24px 60px rgba(0, 0, 0, 0.32), 0 0 28px rgba(212, 175, 55, 0.12)"
-                          : "0 0 0 rgba(0, 0, 0, 0)",
-                      }}
                     >
-                      <div
-                        style={{
-                          position: "relative",
-                          aspectRatio: "4 / 5",
-                          background: "#fff",
-                          padding: "14px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            position: "relative",
-                            width: "100%",
-                            height: "100%",
-                            background:
-                              "linear-gradient(160deg, rgba(22, 22, 22, 1), rgba(78, 63, 35, 0.85))",
-                          }}
-                        >
+                      <div className="gallery-card-link">
+                        <div className="gallery-image-wrap">
                           {!isMissing ? (
                             <Image
                               src={artwork.image}
-                              alt={artwork.name}
+                              alt={`${artwork.name} artwork`}
                               fill
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              sizes="(max-width: 640px) 100vw, (max-width: 980px) 50vw, 33vw"
                               style={{
                                 objectFit: "cover",
                                 transform: isHovered ? "scale(1.03)" : "scale(1)",
-                                transition: "transform 260ms ease",
+                                transition: "transform 0.4s ease",
                               }}
                               onError={() =>
                                 setMissingImages((current) => ({
@@ -842,56 +768,21 @@ export default function Home() {
                               }
                             />
                           ) : (
-                            <div
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "space-between",
-                                padding: "22px",
-                                color: "#f7f2e9",
-                              }}
-                            >
+                            <div className="gallery-image-fallback">
                               <div style={metaLabelStyle}>Image Missing</div>
                               <div>
                                 <div style={metaLabelStyle}>{displayId}</div>
-                                <div
-                                  style={{
-                                    marginTop: "10px",
-                                    fontSize: "30px",
-                                    lineHeight: 1,
-                                  }}
-                                >
-                                  {artwork.name}
-                                </div>
+                                <div className="gallery-image-fallback-title">{artwork.name}</div>
                               </div>
                             </div>
                           )}
                         </div>
-                      </div>
 
-                      <div style={{ padding: "18px 4px 4px" }}>
-                        <div style={metaLabelStyle}>{displayId}</div>
-                        <h2
-                          style={{
-                            margin: "10px 0 0",
-                            fontSize: "24px",
-                            lineHeight: 1.15,
-                            fontWeight: 400,
-                          }}
-                        >
-                          {artwork.name}
-                        </h2>
-                        <div
-                          style={{
-                            marginTop: "12px",
-                            fontSize: "18px",
-                            color: "#D4AF37",
-                            letterSpacing: "0.04em",
-                          }}
-                        >
-                          {artwork.price}
+                        <div className="gallery-card-copy">
+                          <div className="gallery-card-meta">{displayId}</div>
+                          <h2>{artwork.name}</h2>
+                          <p>{description}</p>
+                          <div className="gallery-card-price">{artwork.price}</div>
                         </div>
                       </div>
                     </button>
@@ -899,6 +790,8 @@ export default function Home() {
                 })}
               </div>
             </section>
+
+            <footer className="gallery-footer-note">A Hammer HQ LLC company</footer>
           </main>
         </div>
       ) : null}
@@ -1569,6 +1462,177 @@ export default function Home() {
           }
         }
 
+        .gallery-hero {
+          padding: 88px 24px 52px;
+          background:
+            radial-gradient(circle at top, rgba(212, 175, 55, 0.16), transparent 28%),
+            #040404;
+          border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+          text-align: center;
+        }
+
+        .gallery-hero-inner {
+          max-width: 980px;
+          margin: 0 auto;
+        }
+
+        .gallery-kicker {
+          margin: 0 0 14px;
+          font-size: 0.78rem;
+          letter-spacing: 0.28em;
+          text-transform: uppercase;
+          color: rgba(212, 175, 55, 0.78);
+        }
+
+        .gallery-brand {
+          margin: 0;
+          font-size: clamp(3rem, 8vw, 6.4rem);
+          line-height: 0.95;
+          font-weight: 900;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #f7f2e8;
+          text-shadow:
+            0 0 10px rgba(212, 175, 55, 0.32),
+            0 0 22px rgba(212, 175, 55, 0.2),
+            0 0 42px rgba(212, 175, 55, 0.14);
+        }
+
+        .gallery-brand-mark {
+          font-size: 0.2em;
+          vertical-align: top;
+          margin-left: 8px;
+          font-weight: 400;
+        }
+
+        .gallery-description {
+          max-width: 760px;
+          margin: 24px auto 0;
+          font-size: 1.08rem;
+          line-height: 1.9;
+          color: rgba(247, 242, 233, 0.78);
+        }
+
+        .gallery-grid-section {
+          padding: 42px 24px 72px;
+          background: #040404;
+        }
+
+        .gallery-grid {
+          width: min(1280px, 100%);
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 24px;
+        }
+
+        .gallery-card {
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
+          overflow: hidden;
+          transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+          appearance: none;
+          width: 100%;
+          padding: 0;
+          text-align: left;
+          color: inherit;
+          cursor: pointer;
+        }
+
+        .gallery-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(212, 175, 55, 0.28);
+          box-shadow: 0 18px 38px rgba(0, 0, 0, 0.38);
+        }
+
+        .gallery-card.featured {
+          border-color: rgba(212, 175, 55, 0.2);
+        }
+
+        .gallery-card-link {
+          text-decoration: none;
+          color: inherit;
+          display: block;
+        }
+
+        .gallery-image-wrap {
+          position: relative;
+          background: #0b0b0b;
+          aspect-ratio: 1 / 1;
+          overflow: hidden;
+        }
+
+        .gallery-image-wrap img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+          transition: transform 0.4s ease;
+        }
+
+        .gallery-card:hover .gallery-image-wrap img {
+          transform: scale(1.03);
+        }
+
+        .gallery-image-fallback {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 22px;
+          color: #f7f2e9;
+          background: linear-gradient(160deg, rgba(22, 22, 22, 1), rgba(78, 63, 35, 0.85));
+        }
+
+        .gallery-image-fallback-title {
+          margin-top: 10px;
+          font-size: 30px;
+          line-height: 1;
+        }
+
+        .gallery-card-copy {
+          padding: 18px 18px 20px;
+        }
+
+        .gallery-card-meta {
+          margin: 0 0 8px;
+          font-size: 0.76rem;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: rgba(212, 175, 55, 0.72);
+        }
+
+        .gallery-card-copy h2 {
+          margin: 0 0 8px;
+          font-size: 1.2rem;
+          color: #f7f2e8;
+        }
+
+        .gallery-card-copy p {
+          margin: 0;
+          line-height: 1.7;
+          color: rgba(247, 242, 233, 0.68);
+        }
+
+        .gallery-card-price {
+          margin-top: 14px;
+          font-size: 1rem;
+          letter-spacing: 0.06em;
+          color: #d4af37;
+        }
+
+        .gallery-footer-note {
+          padding: 18px 24px 28px;
+          text-align: center;
+          font-size: 0.78rem;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: rgba(247, 242, 233, 0.44);
+          background: #040404;
+          border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
         .artwurk-inquire-button:hover {
           transform: translateY(-2px);
           box-shadow: 0 24px 50px rgba(0, 0, 0, 0.32), 0 0 26px rgba(212, 175, 55, 0.14);
@@ -1576,9 +1640,35 @@ export default function Home() {
           background: linear-gradient(180deg, rgba(212, 175, 55, 0.22), rgba(212, 175, 55, 0.08));
         }
 
+        @media (max-width: 980px) {
+          .gallery-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
         @media (max-width: 960px) {
           .artwurk-modal-grid {
             grid-template-columns: 1fr !important;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .gallery-hero {
+            padding: 68px 18px 42px;
+          }
+
+          .gallery-grid-section {
+            padding: 28px 16px 56px;
+          }
+
+          .gallery-grid {
+            grid-template-columns: 1fr;
+            gap: 18px;
+          }
+
+          .gallery-description {
+            font-size: 1rem;
+            line-height: 1.8;
           }
         }
       `}</style>
