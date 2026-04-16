@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import type { ArtwurkEventPayload } from "../../lib/tracking";
+import { appendServerEvent } from "../../lib/crm-database";
+import type { ArtwurkEventPayload } from "../../lib/crm-types";
 
 type EventsApiResponse = {
   ok: boolean;
@@ -10,7 +11,7 @@ type EventsApiResponse = {
   error?: string;
 };
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<EventsApiResponse>,
 ) {
@@ -35,6 +36,8 @@ export default function handler(
       error: "Invalid event payload",
     });
   }
+
+  await appendServerEvent(payload);
 
   return res.status(200).json({
     ok: true,

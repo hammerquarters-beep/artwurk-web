@@ -1,8 +1,9 @@
 import type {
+  ArtwurkCrmSnapshot,
   ArtwurkEventPayload,
   ArtwurkInquiryPayload,
   ArtwurkLeadPayload,
-} from "./tracking";
+} from "./crm-types";
 
 const CRM_STORAGE_KEYS = {
   events: "artwurk.crm.events",
@@ -71,7 +72,7 @@ export const getStoredInquiries = () =>
 
 export const getStoredLeads = () => readCollection<ArtwurkLeadPayload>(CRM_STORAGE_KEYS.leads);
 
-export const getCrmSnapshot = () => ({
+export const getCrmSnapshot = (): ArtwurkCrmSnapshot => ({
   events: getStoredEvents(),
   inquiries: getStoredInquiries(),
   leads: getStoredLeads(),

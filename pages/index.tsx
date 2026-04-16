@@ -1,162 +1,28 @@
-﻿import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import { trackEvent, trackInquiry, trackLead } from "../lib/tracking";
+import Image from "next/image";
+import React, { FormEvent, useEffect, useState } from "react";
 
-type Artwork = {
-  id: string;
-  displayId?: string;
-  title: string;
-  image: string;
-  price: string;
-  dimensions: string;
-  category?: string;
-  story: string;
-  status?: string;
+import artworks, { type ArtworkRecord } from "../data/artworks";
+import type { ArtworkTrackingRecord, InquiryIntent, LeadStatus } from "../lib/crm-types";
+import {
+  getTrackingSessionState,
+  trackEvent,
+  trackInquiry,
+  trackLead,
+} from "../lib/tracking";
+
+type CollectorFormState = {
+  name: string;
+  email: string;
+  phone: string;
+  preferredContact: "email" | "whatsapp" | "phone";
+  budgetRange: string;
+  message: string;
 };
 
-const artworks = [
-  {
-    id: "ART-001-002",
-    displayId: "ART-001 / ART-002",
-    title: "Static Mind + Fragile King (Pair)",
-    image: "/artwork/art-001-002-static-mind-fragile-king-pair.png",
-    price: "Price on request",
-    dimensions: "24 x 24 in each panel, 48 x 24 in combined",
-    category: "Character / IP",
-    story:
-      "Original paired presentation of the duo, intended to be viewed as one larger narrative statement.",
-  },
-  {
-    id: "ART-003",
-    title: "The Watcher",
-    image: "/artwork/art-003-the-watcher.jpg",
-    price: "$1,050",
-    dimensions: "24 x 48 in",
-    category: "Character / IP",
-    story:
-      "A faceless observer with stillness, mystery, and quiet authority.",
-  },
-  {
-    id: "ART-004",
-    title: "Impact",
-    image: "/artwork/art-004-impact.jpg",
-    price: "$1,920",
-    dimensions: "30 x 40 in",
-    category: "Bold / Impact",
-    story:
-      "A raw-energy release piece with force, movement, and emotional collision.",
-  },
-  {
-    id: "ART-005",
-    title: "Gilded Veil",
-    image: "/artwork/art-005-gilded-veil.jpg",
-    price: "$2,040",
-    dimensions: "30 x 40 in",
-    category: "Luxury / Metallic",
-    story:
-      "A luxury abstract built on concealment, contrast, and hidden value.",
-  },
-  {
-    id: "ART-007",
-    title: "Aftermath",
-    image: "/artwork/art-007-aftermath.jpg",
-    price: "$2,880",
-    dimensions: "24 x 24 in each panel, 48 x 24 in combined",
-    category: "Fluid Abstract",
-    story:
-      "A diptych installation capturing what remains after intensity passes.",
-  },
-  {
-    id: "ART-008",
-    title: "Three States",
-    image: "/artwork/art-008-three-states.png",
-    price: "$1,740",
-    dimensions: "24 x 48 in",
-    category: "Character / IP",
-    story:
-      "A narrative character group built around emotional contrast and merch-ready identity.",
-  },
-  {
-    id: "ART-009",
-    title: "Velocity Within",
-    image: "/artwork/art-009-velocity-within.jpg",
-    price: "$1,920",
-    dimensions: "30 x 40 in",
-    category: "Bold / Impact",
-    story:
-      "A controlled-motion abstract with tension, energy, and internal restraint.",
-  },
-  {
-    id: "ART-013",
-    title: "Confrontation / Reflection",
-    image: "/artwork/art-013-confrontation-reflection.jpg",
-    price: "$1,320",
-    dimensions: "16 x 16 in each panel, 32 x 16 in combined",
-    category: "Character / IP",
-    story:
-      "A dual-identity diptych built around self-versus-self tension.",
-  },
-  {
-    id: "ART-014",
-    title: "Gold Current",
-    image: "/artwork/art-014-gold-current.png",
-    price: "$960",
-    dimensions: "20 x 20 in",
-    category: "Luxury / Metallic",
-    story:
-      "A minimal luxury flow piece with vein-like direction and controlled movement.",
-  },
-  {
-    id: "ART-018",
-    title: "Velocity of Chaos",
-    image: "/artwork/art-018-velocity-of-chaos.png",
-    price: "$2,520",
-    dimensions: "24 x 48 in",
-    category: "Bold / Impact",
-    story:
-      "A visually aggressive statement work centered on force, impact, and collision.",
-  },
-  {
-    id: "ART-032",
-    title: "Structured Force",
-    image: "/artwork/art-032-structured-force.jpg",
-    price: "$1,140",
-    dimensions: "24 x 36 in",
-    category: "Bold / Impact",
-    story:
-      "A geometric and gestural bridge piece balancing structure with expression.",
-  },
-  {
-    id: "ART-033",
-    title: "Inner Conflict",
-    image: "/artwork/art-033-inner-conflict.png",
-    price: "$1,440",
-    dimensions: "24 x 36 in",
-    category: "Character / IP",
-    story:
-      "A psychological abstract with hidden-face energy and dark internal tension.",
-  },
-  {
-    id: "ART-035",
-    title: "Whispered Ascent",
-    image: "/artwork/art-035-whispered-ascent.png",
-    price: "$840",
-    dimensions: "16 x 20 in",
-    category: "Fluid Abstract",
-    story:
-      "A quiet spiritual collector piece with restrained lift and minimal presence.",
-  },
-  {
-    id: "ART-038",
-    title: "Black Gold Current",
-    image: "/artwork/art-038-black-gold-current.jpg",
-    price: "$960",
-    dimensions: "16 x 20 in",
-    category: "Luxury / Metallic",
-    story:
-      "A flagship commercial-style luxury minimal abstract in the black-gold lane.",
-  },
-] satisfies Artwork[];
+type SubmissionState = {
+  status: "idle" | "submitting" | "success" | "error";
+  message?: string;
+};
 
 const pageStyle: React.CSSProperties = {
   minHeight: "100vh",
@@ -200,39 +66,153 @@ const trustLineStyle: React.CSSProperties = {
   lineHeight: 1.5,
 };
 
+const fieldStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "14px 16px",
+  border: "1px solid rgba(255, 255, 255, 0.12)",
+  background: "rgba(255, 255, 255, 0.03)",
+  color: "#f7f2e9",
+  fontSize: "15px",
+  fontFamily: '"Times New Roman", Georgia, serif',
+};
+
 const inquiryEmail = "hammerhq@outlook.com";
 const inquiryWhatsAppLabel = "HQ";
 const inquiryWhatsAppDisplay = "+1 (209) 684-2964";
 const inquiryWhatsAppUrl = "https://wa.me/12096842964";
 
+const createInitialCollectorForm = (): CollectorFormState => ({
+  name: "",
+  email: "",
+  phone: "",
+  preferredContact: "email",
+  budgetRange: "",
+  message: "",
+});
+
+const collectorActionConfig: Record<
+  InquiryIntent,
+  {
+    label: string;
+    event: "inquire_click" | "buy_now_click" | "pay_in_4_click";
+    helper: string;
+    submitLabel: string;
+  }
+> = {
+  inquire: {
+    label: "Inquire",
+    event: "inquire_click",
+    helper: "Request availability, collector notes, and next steps from Hammer HQ.",
+    submitLabel: "Send Inquiry",
+  },
+  buy_now: {
+    label: "Buy Now",
+    event: "buy_now_click",
+    helper: "Signal immediate purchase intent so Hammer HQ can reserve the piece and follow up.",
+    submitLabel: "Request Purchase",
+  },
+  pay_in_4: {
+    label: "Pay In 4",
+    event: "pay_in_4_click",
+    helper: "Register financing interest so Hammer HQ can follow up with installment options.",
+    submitLabel: "Request Pay In 4",
+  },
+};
+
+const formatStatusLabel = (status?: string) => {
+  if (!status) {
+    return "Available";
+  }
+
+  return status.replaceAll("-", " ");
+};
+
 export default function Home() {
   const [missingImages, setMissingImages] = useState<Record<string, boolean>>({});
-  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
+  const [selectedArtwork, setSelectedArtwork] = useState<ArtworkRecord | null>(null);
   const [hoveredArtworkId, setHoveredArtworkId] = useState<string | null>(null);
+  const [hoverTracked, setHoverTracked] = useState<Record<string, boolean>>({});
   const [showGallery, setShowGallery] = useState(false);
   const [galleryVisible, setGalleryVisible] = useState(false);
+  const [hasTrackedGalleryView, setHasTrackedGalleryView] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [collectorIntent, setCollectorIntent] = useState<InquiryIntent>("inquire");
+  const [collectorForm, setCollectorForm] = useState<CollectorFormState>(
+    createInitialCollectorForm(),
+  );
+  const [submissionState, setSubmissionState] = useState<SubmissionState>({
+    status: "idle",
+  });
 
-  const toTrackingArtwork = (artwork: Artwork) => ({
+  const toTrackingArtwork = (artwork: ArtworkRecord): ArtworkTrackingRecord => ({
     id: artwork.id,
     displayId: artwork.displayId,
-    name: artwork.title,
+    name: artwork.name,
+    image: artwork.image,
     price: artwork.price,
     dimensions: artwork.dimensions,
     category: artwork.category,
-    status:
-      artwork.status ??
-      (artwork.price.toLowerCase().includes("request") ? "price-on-request" : "available"),
+    status: artwork.status,
   });
 
   useEffect(() => {
+    const sessionState = getTrackingSessionState();
+
     trackEvent({
       event: "landing_page_view",
       route: "/",
       page: "landing",
       source: "page-load",
+      metadata: {
+        isReturningVisitor: sessionState.isReturningVisitor,
+      },
     });
+
+    if (sessionState.isNewSession) {
+      trackEvent({
+        event: "session_started",
+        route: "/",
+        page: "landing",
+        source: "session-start",
+      });
+    }
+
+    if (sessionState.isReturningVisitor) {
+      trackEvent({
+        event: "return_visit",
+        route: "/",
+        page: "landing",
+        source: "session-start",
+      });
+    }
   }, []);
+
+  useEffect(() => {
+    if (!showGallery) {
+      setGalleryVisible(false);
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      setGalleryVisible(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [showGallery]);
+
+  useEffect(() => {
+    if (!showGallery || !galleryVisible || hasTrackedGalleryView) {
+      return;
+    }
+
+    trackEvent({
+      event: "gallery_view",
+      route: "/",
+      page: "gallery",
+      source: "collection-view",
+    });
+    setHasTrackedGalleryView(true);
+  }, [galleryVisible, hasTrackedGalleryView, showGallery]);
 
   useEffect(() => {
     if (!selectedArtwork) {
@@ -241,10 +221,13 @@ export default function Home() {
 
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    setCollectorIntent("inquire");
+    setCollectorForm(createInitialCollectorForm());
+    setSubmissionState({ status: "idle" });
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setModalVisible(false);
+        closeArtwork("escape-key");
       }
     };
 
@@ -262,31 +245,6 @@ export default function Home() {
   }, [selectedArtwork]);
 
   useEffect(() => {
-    if (!selectedArtwork || modalVisible) {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      setSelectedArtwork(null);
-    }, 220);
-
-    return () => window.clearTimeout(timeout);
-  }, [modalVisible, selectedArtwork]);
-
-  useEffect(() => {
-    if (!showGallery) {
-      setGalleryVisible(false);
-      return;
-    }
-
-    const frame = window.requestAnimationFrame(() => {
-      setGalleryVisible(true);
-    });
-
-    return () => window.cancelAnimationFrame(frame);
-  }, [showGallery]);
-
-  useEffect(() => {
     if (!selectedArtwork || !modalVisible) {
       return;
     }
@@ -300,6 +258,19 @@ export default function Home() {
     });
   }, [modalVisible, selectedArtwork]);
 
+  useEffect(() => {
+    if (!selectedArtwork || modalVisible) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setSelectedArtwork(null);
+      setSubmissionState({ status: "idle" });
+    }, 220);
+
+    return () => window.clearTimeout(timeout);
+  }, [modalVisible, selectedArtwork]);
+
   const enterCollection = () => {
     trackEvent({
       event: "view_collection_click",
@@ -310,7 +281,7 @@ export default function Home() {
     setShowGallery(true);
   };
 
-  const openArtwork = (artwork: Artwork) => {
+  const openArtwork = (artwork: ArtworkRecord) => {
     trackEvent({
       event: "artwork_click",
       route: "/",
@@ -322,63 +293,207 @@ export default function Home() {
     setModalVisible(false);
   };
 
-  const closeArtwork = () => {
+  const closeArtwork = (reason: string) => {
+    if (selectedArtwork) {
+      trackEvent({
+        event: "modal_close",
+        route: "/",
+        page: "gallery",
+        source: reason,
+        artwork: toTrackingArtwork(selectedArtwork),
+      });
+    }
+
     setModalVisible(false);
   };
 
-  const buildInquiryHref = (artwork: Artwork) => {
-    const subject = `ARTWURK Inquiry - ${artwork.displayId ?? artwork.id} - ${artwork.title}`;
-    const body = [
-      "Hello Hammer HQ,",
-      "",
-      `I am interested in ${artwork.title}.`,
-      `Artwork ID: ${artwork.displayId ?? artwork.id}`,
-      `Price: ${artwork.price}`,
-      `Dimensions: ${artwork.dimensions}`,
-      "",
-      "Please send next steps regarding availability and purchase.",
-    ].join("\n");
+  const handleArtworkHover = (artwork: ArtworkRecord) => {
+    setHoveredArtworkId(artwork.id);
 
-    return `mailto:${inquiryEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  };
+    if (hoverTracked[artwork.id]) {
+      return;
+    }
 
-  const handleInquiryClick = (artwork: Artwork) => {
-    const trackingArtwork = toTrackingArtwork(artwork);
+    setHoverTracked((current) => ({
+      ...current,
+      [artwork.id]: true,
+    }));
 
     trackEvent({
-      event: "inquire_click",
+      event: "artwork_card_hover",
       route: "/",
       page: "gallery",
-      source: "modal-inquire",
-      artwork: trackingArtwork,
+      source: "artwork-card",
+      artwork: toTrackingArtwork(artwork),
+    });
+  };
+
+  const handleCollectorIntent = (intent: InquiryIntent) => {
+    if (!selectedArtwork) {
+      return;
+    }
+
+    setCollectorIntent(intent);
+    setSubmissionState({ status: "idle" });
+
+    trackEvent({
+      event: collectorActionConfig[intent].event,
+      route: "/",
+      page: "gallery",
+      source: "collector-action",
+      artwork: toTrackingArtwork(selectedArtwork),
       metadata: {
-        contactChannel: "email",
+        intent,
       },
     });
+  };
 
-    trackInquiry({
+  const handleFieldChange = (
+    field: keyof CollectorFormState,
+    value: CollectorFormState[keyof CollectorFormState],
+  ) => {
+    setCollectorForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
+  const buildWhatsAppHref = (artwork: ArtworkRecord, intent: InquiryIntent) => {
+    const actionLabel = collectorActionConfig[intent].label;
+    const message = [
+      `Hello Hammer HQ, I want to ${actionLabel.toLowerCase()} for ${artwork.name}.`,
+      `Artwork ID: ${artwork.displayId ?? artwork.id}`,
+      `Price: ${artwork.price}`,
+      collectorForm.name ? `Name: ${collectorForm.name}` : "",
+      collectorForm.email ? `Email: ${collectorForm.email}` : "",
+      collectorForm.phone ? `Phone: ${collectorForm.phone}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    return `${inquiryWhatsAppUrl}?text=${encodeURIComponent(message)}`;
+  };
+
+  const handleCollectorSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!selectedArtwork) {
+      return;
+    }
+
+    const trimmedName = collectorForm.name.trim();
+    const trimmedEmail = collectorForm.email.trim();
+
+    if (!trimmedName || !trimmedEmail) {
+      setSubmissionState({
+        status: "error",
+        message: "Please provide your name and email so Hammer HQ can follow up.",
+      });
+      return;
+    }
+
+    setSubmissionState({ status: "submitting" });
+
+    const trackingArtwork = toTrackingArtwork(selectedArtwork);
+    const leadStatus: LeadStatus = collectorIntent === "buy_now" ? "qualified" : "new";
+
+    try {
+      trackEvent({
+        event: "inquiry_submit",
+        route: "/",
+        page: "gallery",
+        source: "collector-form",
+        artwork: trackingArtwork,
+        metadata: {
+          intent: collectorIntent,
+        },
+      });
+
+      trackInquiry({
+        route: "/",
+        page: "gallery",
+        source: "collector-form",
+        status: "new",
+        intent: collectorIntent,
+        artwork: trackingArtwork,
+        inquiry: {
+          channel: "form",
+          destination: inquiryEmail,
+          preferredContact: collectorForm.preferredContact,
+          budgetRange: collectorForm.budgetRange || undefined,
+        },
+        customer: {
+          name: trimmedName,
+          email: trimmedEmail,
+          phone: collectorForm.phone.trim() || undefined,
+          message: collectorForm.message.trim() || undefined,
+        },
+        metadata: {
+          whatsappNumber: inquiryWhatsAppDisplay,
+          action: collectorActionConfig[collectorIntent].label,
+        },
+      });
+
+      trackLead({
+        route: "/",
+        page: "gallery",
+        source: "collector-form",
+        status: leadStatus,
+        intent: collectorIntent,
+        artwork: trackingArtwork,
+        customer: {
+          name: trimmedName,
+          email: trimmedEmail,
+          phone: collectorForm.phone.trim() || undefined,
+          preferredContact: collectorForm.preferredContact,
+        },
+        metadata: {
+          budgetRange: collectorForm.budgetRange || undefined,
+          requestedAction: collectorActionConfig[collectorIntent].label,
+        },
+      });
+
+      setSubmissionState({
+        status: "success",
+        message:
+          collectorIntent === "buy_now"
+            ? "Purchase intent captured. Hammer HQ can now follow up to reserve the work."
+            : collectorIntent === "pay_in_4"
+              ? "Financing interest captured. Hammer HQ can now follow up with installment options."
+              : "Inquiry captured. Hammer HQ can now follow up with collector details.",
+      });
+    } catch {
+      setSubmissionState({
+        status: "error",
+        message: "Something interrupted the request. Please try again or use the direct contact links.",
+      });
+    }
+  };
+
+  const handleEmailClick = (artwork: ArtworkRecord) => {
+    trackEvent({
+      event: "email_click",
       route: "/",
       page: "gallery",
-      source: "modal-inquire",
-      artwork: trackingArtwork,
-      inquiry: {
-        channel: "email",
+      source: "collector-contact",
+      artwork: toTrackingArtwork(artwork),
+      metadata: {
+        intent: collectorIntent,
         destination: inquiryEmail,
-        whatsappLabel: inquiryWhatsAppLabel,
-        whatsappNumber: inquiryWhatsAppDisplay,
-      },
-      metadata: {
-        contactOptions: ["email", "whatsapp"],
       },
     });
+  };
 
-    trackLead({
+  const handleWhatsAppClick = (artwork: ArtworkRecord) => {
+    trackEvent({
+      event: "whatsapp_click",
       route: "/",
       page: "gallery",
-      source: "modal-inquire",
-      artwork: trackingArtwork,
+      source: "collector-contact",
+      artwork: toTrackingArtwork(artwork),
       metadata: {
-        leadIntent: "artwork-purchase",
+        intent: collectorIntent,
+        destination: inquiryWhatsAppDisplay,
       },
     });
   };
@@ -566,10 +681,9 @@ export default function Home() {
                     lineHeight: 1.8,
                   }}
                 >
-                  A premium black gallery experience built to present ARTWURK
-                  with restraint, presence, and space. Each piece is framed to
-                  feel deliberate, collectible, and elevated on both desktop and
-                  mobile.
+                  A premium black gallery experience built to present ARTWURK with
+                  restraint, presence, and space. Each piece is framed to feel
+                  deliberate, collectible, and elevated on both desktop and mobile.
                 </p>
               </div>
             </section>
@@ -591,7 +705,7 @@ export default function Home() {
                     <button
                       key={artwork.id}
                       onClick={() => openArtwork(artwork)}
-                      onMouseEnter={() => setHoveredArtworkId(artwork.id)}
+                      onMouseEnter={() => handleArtworkHover(artwork)}
                       onMouseLeave={() =>
                         setHoveredArtworkId((current) =>
                           current === artwork.id ? null : current,
@@ -634,7 +748,7 @@ export default function Home() {
                           {!isMissing ? (
                             <Image
                               src={artwork.image}
-                              alt={artwork.title}
+                              alt={artwork.name}
                               fill
                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                               style={{
@@ -671,7 +785,7 @@ export default function Home() {
                                     lineHeight: 1,
                                   }}
                                 >
-                                  {artwork.title}
+                                  {artwork.name}
                                 </div>
                               </div>
                             </div>
@@ -689,7 +803,7 @@ export default function Home() {
                             fontWeight: 400,
                           }}
                         >
-                          {artwork.title}
+                          {artwork.name}
                         </h2>
                         <div
                           style={{
@@ -713,7 +827,7 @@ export default function Home() {
 
       {selectedArtwork ? (
         <div
-          onClick={closeArtwork}
+          onClick={() => closeArtwork("overlay")}
           style={{
             position: "fixed",
             inset: 0,
@@ -746,7 +860,7 @@ export default function Home() {
               className="artwurk-modal-grid"
               style={{
                 display: "grid",
-                gridTemplateColumns: "minmax(0, 1.08fr) minmax(320px, 0.92fr)",
+                gridTemplateColumns: "minmax(0, 1.08fr) minmax(360px, 0.92fr)",
               }}
             >
               <div
@@ -771,7 +885,7 @@ export default function Home() {
                 >
                   <Image
                     src={selectedArtwork.image}
-                    alt={selectedArtwork.title}
+                    alt={selectedArtwork.name}
                     fill
                     sizes="(max-width: 900px) 100vw, 58vw"
                     style={{ objectFit: "contain" }}
@@ -810,12 +924,12 @@ export default function Home() {
                         color: "#faf6ef",
                       }}
                     >
-                      {selectedArtwork.title}
+                      {selectedArtwork.name}
                     </h2>
                   </div>
 
                   <button
-                    onClick={closeArtwork}
+                    onClick={() => closeArtwork("close-button")}
                     aria-label="Close artwork view"
                     style={{
                       width: "42px",
@@ -837,7 +951,7 @@ export default function Home() {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
                     gap: "18px",
                     padding: "20px 0 0",
                     borderTop: "1px solid rgba(255, 255, 255, 0.08)",
@@ -866,7 +980,13 @@ export default function Home() {
                   <div>
                     <div style={modalMetaStyle}>Category</div>
                     <div style={{ marginTop: "8px", fontSize: "18px" }}>
-                      {selectedArtwork.category ?? "Private Collection"}
+                      {selectedArtwork.category}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={modalMetaStyle}>Availability</div>
+                    <div style={{ marginTop: "8px", fontSize: "18px", textTransform: "capitalize" }}>
+                      {formatStatusLabel(selectedArtwork.status)}
                     </div>
                   </div>
                 </div>
@@ -919,42 +1039,212 @@ export default function Home() {
                     paddingTop: "24px",
                   }}
                 >
-                  <a
-                    href={buildInquiryHref(selectedArtwork)}
-                    onClick={() => handleInquiryClick(selectedArtwork)}
-                    className="artwurk-inquire-button"
-                    style={{
-                      display: "block",
-                      width: "100%",
-                      padding: "16px 20px",
-                      border: "1px solid rgba(212, 175, 55, 0.58)",
-                      background:
-                        "linear-gradient(180deg, rgba(212, 175, 55, 0.16), rgba(212, 175, 55, 0.05))",
-                      color: "#faf6ef",
-                      cursor: "pointer",
-                      fontSize: "13px",
-                      fontWeight: 700,
-                      letterSpacing: "0.22em",
-                      textTransform: "uppercase",
-                      textAlign: "center",
-                      textDecoration: "none",
-                      transition:
-                        "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease",
-                      boxShadow: "0 18px 40px rgba(0, 0, 0, 0.25)",
-                    }}
-                  >
-                    Inquire
-                  </a>
+                  <div style={modalMetaStyle}>Collector Actions</div>
                   <div
                     style={{
+                      marginTop: "14px",
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                      gap: "12px",
+                    }}
+                  >
+                    {(Object.keys(collectorActionConfig) as InquiryIntent[]).map((intent) => {
+                      const isActive = collectorIntent === intent;
+
+                      return (
+                        <button
+                          key={intent}
+                          type="button"
+                          onClick={() => handleCollectorIntent(intent)}
+                          style={{
+                            padding: "14px 12px",
+                            border: isActive
+                              ? "1px solid rgba(212, 175, 55, 0.7)"
+                              : "1px solid rgba(255, 255, 255, 0.12)",
+                            background: isActive
+                              ? "linear-gradient(180deg, rgba(212, 175, 55, 0.18), rgba(212, 175, 55, 0.06))"
+                              : "rgba(255, 255, 255, 0.03)",
+                            color: "#f7f2e9",
+                            cursor: "pointer",
+                            fontSize: "11px",
+                            fontWeight: 700,
+                            letterSpacing: "0.16em",
+                            textTransform: "uppercase",
+                            transition:
+                              "transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease",
+                            boxShadow: isActive
+                              ? "0 18px 40px rgba(0, 0, 0, 0.22)"
+                              : "none",
+                          }}
+                        >
+                          {collectorActionConfig[intent].label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p
+                    style={{
+                      margin: "14px 0 0",
+                      color: "rgba(247, 242, 233, 0.68)",
+                      fontSize: "15px",
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    {collectorActionConfig[collectorIntent].helper}
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                    paddingTop: "24px",
+                  }}
+                >
+                  <div style={modalMetaStyle}>Collector Form</div>
+                  <form
+                    onSubmit={handleCollectorSubmit}
+                    style={{
                       marginTop: "16px",
+                      display: "grid",
+                      gap: "14px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                        gap: "12px",
+                      }}
+                    >
+                      <input
+                        value={collectorForm.name}
+                        onChange={(event) => handleFieldChange("name", event.target.value)}
+                        placeholder="Your name"
+                        style={fieldStyle}
+                      />
+                      <input
+                        value={collectorForm.email}
+                        onChange={(event) => handleFieldChange("email", event.target.value)}
+                        placeholder="Email"
+                        type="email"
+                        style={fieldStyle}
+                      />
+                    </div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                        gap: "12px",
+                      }}
+                    >
+                      <input
+                        value={collectorForm.phone}
+                        onChange={(event) => handleFieldChange("phone", event.target.value)}
+                        placeholder="Phone or WhatsApp"
+                        style={fieldStyle}
+                      />
+                      <select
+                        value={collectorForm.preferredContact}
+                        onChange={(event) =>
+                          handleFieldChange(
+                            "preferredContact",
+                            event.target.value as CollectorFormState["preferredContact"],
+                          )
+                        }
+                        style={fieldStyle}
+                      >
+                        <option value="email">Preferred contact: Email</option>
+                        <option value="whatsapp">Preferred contact: WhatsApp</option>
+                        <option value="phone">Preferred contact: Phone</option>
+                      </select>
+                    </div>
+                    <select
+                      value={collectorForm.budgetRange}
+                      onChange={(event) => handleFieldChange("budgetRange", event.target.value)}
+                      style={fieldStyle}
+                    >
+                      <option value="">Budget range</option>
+                      <option value="Under $1,000">Under $1,000</option>
+                      <option value="$1,000 - $2,500">$1,000 - $2,500</option>
+                      <option value="$2,500 - $5,000">$2,500 - $5,000</option>
+                      <option value="$5,000+">$5,000+</option>
+                    </select>
+                    <textarea
+                      value={collectorForm.message}
+                      onChange={(event) => handleFieldChange("message", event.target.value)}
+                      placeholder="Tell Hammer HQ what you want to know, purchase, or reserve."
+                      rows={4}
+                      style={{
+                        ...fieldStyle,
+                        resize: "vertical",
+                      }}
+                    />
+                    {submissionState.message ? (
+                      <div
+                        style={{
+                          padding: "14px 16px",
+                          border:
+                            submissionState.status === "error"
+                              ? "1px solid rgba(215, 108, 108, 0.35)"
+                              : "1px solid rgba(212, 175, 55, 0.28)",
+                          background:
+                            submissionState.status === "error"
+                              ? "rgba(120, 28, 28, 0.16)"
+                              : "rgba(212, 175, 55, 0.08)",
+                          color: "#f7f2e9",
+                          fontSize: "15px",
+                          lineHeight: 1.7,
+                        }}
+                      >
+                        {submissionState.message}
+                      </div>
+                    ) : null}
+                    <button
+                      type="submit"
+                      className="artwurk-inquire-button"
+                      disabled={submissionState.status === "submitting"}
+                      style={{
+                        width: "100%",
+                        padding: "16px 20px",
+                        border: "1px solid rgba(212, 175, 55, 0.58)",
+                        background:
+                          "linear-gradient(180deg, rgba(212, 175, 55, 0.16), rgba(212, 175, 55, 0.05))",
+                        color: "#faf6ef",
+                        cursor: submissionState.status === "submitting" ? "wait" : "pointer",
+                        fontSize: "13px",
+                        fontWeight: 700,
+                        letterSpacing: "0.22em",
+                        textTransform: "uppercase",
+                        transition:
+                          "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease",
+                        boxShadow: "0 18px 40px rgba(0, 0, 0, 0.25)",
+                        opacity: submissionState.status === "submitting" ? 0.7 : 1,
+                      }}
+                    >
+                      {submissionState.status === "submitting"
+                        ? "Sending"
+                        : collectorActionConfig[collectorIntent].submitLabel}
+                    </button>
+                  </form>
+                </div>
+
+                <div
+                  style={{
+                    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                    paddingTop: "24px",
+                  }}
+                >
+                  <div style={modalMetaStyle}>Contact</div>
+                  <div
+                    style={{
+                      marginTop: "12px",
                       display: "grid",
                       gap: "10px",
                     }}
                   >
-                    <div style={modalMetaStyle}>Contact</div>
                     <a
                       href={`mailto:${inquiryEmail}`}
+                      onClick={() => handleEmailClick(selectedArtwork)}
                       style={{
                         color: "rgba(247, 242, 233, 0.82)",
                         textDecoration: "none",
@@ -964,9 +1254,10 @@ export default function Home() {
                       {inquiryEmail}
                     </a>
                     <a
-                      href={inquiryWhatsAppUrl}
+                      href={buildWhatsAppHref(selectedArtwork, collectorIntent)}
                       target="_blank"
                       rel="noreferrer"
+                      onClick={() => handleWhatsAppClick(selectedArtwork)}
                       style={{
                         color: "rgba(247, 242, 233, 0.82)",
                         textDecoration: "none",
@@ -1011,4 +1302,3 @@ export default function Home() {
     </div>
   );
 }
-
