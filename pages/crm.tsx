@@ -1,7 +1,11 @@
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 
-import type { ArtwurkCrmSnapshot, LeadStatus } from "../lib/crm-types";
+import type {
+  ArtwurkCrmSnapshot,
+  ArtwurkTrafficSnapshot,
+  LeadStatus,
+} from "../lib/crm-types";
 
 const pageStyle: React.CSSProperties = {
   minHeight: "100vh",
@@ -44,6 +48,18 @@ const emptySnapshot: ArtwurkCrmSnapshot = {
   leads: [],
 };
 
+const emptyTrafficSnapshot: ArtwurkTrafficSnapshot = {
+  timezone: "America/Los_Angeles",
+  generatedAt: "",
+  totalUniqueVisitors: 0,
+  totalSessions: 0,
+  totalPageViews: 0,
+  todayVisitors: 0,
+  todaySessions: 0,
+  daily: [],
+  hourly: [],
+};
+
 const formatTimestamp = (value?: string) => {
   if (!value) {
     return "Unknown";
@@ -69,6 +85,17 @@ const fetchSnapshot = async (): Promise<ArtwurkCrmSnapshot> => {
   return data.snapshot ?? emptySnapshot;
 };
 
+const fetchTraffic = async (): Promise<ArtwurkTrafficSnapshot> => {
+  const response = await fetch("/api/crm/traffic");
+
+  if (!response.ok) {
+    throw new Error("Unable to load CRM traffic.");
+  }
+
+  const data = (await response.json()) as { traffic?: ArtwurkTrafficSnapshot };
+  return data.traffic ?? emptyTrafficSnapshot;
+};
+
 const updateRecordStatus = async (
   route: "/api/inquiries" | "/api/leads",
   id: string,
@@ -92,6 +119,7 @@ const updateRecordStatus = async (
 
 export default function CrmPage() {
   const [snapshot, setSnapshot] = useState<ArtwurkCrmSnapshot>(emptySnapshot);
+  const [traffic, setTraffic] = useState<ArtwurkTrafficSnapshot>(emptyTrafficSnapshot);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,7 +129,9 @@ export default function CrmPage() {
     setError(null);
 
     try {
-      setSnapshot(await fetchSnapshot());
+      const [nextSnapshot, nextTraffic] = await Promise.all([fetchSnapshot(), fetchTraffic()]);
+      setSnapshot(nextSnapshot);
+      setTraffic(nextTraffic);
     } catch (issue) {
       setError(issue instanceof Error ? issue.message : "Unable to refresh CRM.");
     } finally {
@@ -125,6 +155,22 @@ export default function CrmPage() {
   const metrics = useMemo(
     () => [
       {
+        label: "Visitors",
+        value: traffic.totalUniqueVisitors,
+      },
+      {
+        label: "Sessions",
+        value: traffic.totalSessions,
+      },
+      {
+        label: "Today Visitors",
+        value: traffic.todayVisitors,
+      },
+      {
+        label: "Today Sessions",
+        value: traffic.todaySessions,
+      },
+      {
         label: "Events",
         value: snapshot.events.length,
       },
@@ -141,7 +187,7 @@ export default function CrmPage() {
         value: snapshot.leads.filter((item) => item.intent === "buy_now").length,
       },
     ],
-    [snapshot],
+    [snapshot, traffic],
   );
 
   const pipelineMetrics = useMemo(
@@ -266,6 +312,7 @@ export default function CrmPage() {
       }
 
       setSnapshot(emptySnapshot);
+      setTraffic(emptyTrafficSnapshot);
     } catch (issue) {
       setError(issue instanceof Error ? issue.message : "Unable to clear CRM.");
     } finally {
@@ -459,6 +506,98 @@ export default function CrmPage() {
               </div>
             </article>
           ))}
+        </section>
+
+        <section
+          style={{
+            marginTop: "24px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "18px",
+          }}
+        >
+          <article style={{ ...panelStyle, padding: "22px" }}>
+            <div style={labelStyle}>Daily Visitor History</div>
+            <div
+              style={{
+                marginTop: "10px",
+                color: "rgba(247, 242, 233, 0.62)",
+                fontSize: "14px",
+                lineHeight: 1.8,
+              }}
+            >
+              Stored until you clear it manually. Timezone: {traffic.timezone}.
+              {traffic.retainedSince ? ` Retained since ${traffic.retainedSince}.` : ""}
+            </div>
+            <div style={{ marginTop: "18px", display: "grid", gap: "14px" }}>
+              {traffic.daily.length ? (
+                traffic.daily.slice(0, 90).map((day) => (
+                  <div
+                    key={day.date}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "minmax(120px, 1fr) repeat(4, minmax(0, 1fr))",
+                      gap: "12px",
+                      paddingBottom: "14px",
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.07)",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div style={{ fontSize: "15px" }}>{day.date}</div>
+                    <div style={{ color: "#D4AF37" }}>Visitors {day.visitors}</div>
+                    <div>Sessions {day.sessions}</div>
+                    <div>Views {day.pageViews}</div>
+                    <div>Events {day.eventCount}</div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ color: "rgba(247, 242, 233, 0.62)", lineHeight: 1.8 }}>
+                  No visitor traffic captured yet.
+                </div>
+              )}
+            </div>
+          </article>
+
+          <article style={{ ...panelStyle, padding: "22px" }}>
+            <div style={labelStyle}>Hourly Breakdown</div>
+            <div
+              style={{
+                marginTop: "10px",
+                color: "rgba(247, 242, 233, 0.62)",
+                fontSize: "14px",
+                lineHeight: 1.8,
+              }}
+            >
+              Most recent 72 hourly buckets from tracked storefront activity.
+            </div>
+            <div style={{ marginTop: "18px", display: "grid", gap: "14px" }}>
+              {traffic.hourly.length ? (
+                traffic.hourly.slice(0, 72).map((hour) => (
+                  <div
+                    key={hour.date}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "minmax(140px, 1fr) repeat(4, minmax(0, 1fr))",
+                      gap: "12px",
+                      paddingBottom: "14px",
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.07)",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div style={{ fontSize: "15px" }}>{hour.date}</div>
+                    <div style={{ color: "#D4AF37" }}>Visitors {hour.visitors}</div>
+                    <div>Sessions {hour.sessions}</div>
+                    <div>Views {hour.pageViews}</div>
+                    <div>Events {hour.eventCount}</div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ color: "rgba(247, 242, 233, 0.62)", lineHeight: 1.8 }}>
+                  No hourly traffic captured yet.
+                </div>
+              )}
+            </div>
+          </article>
         </section>
 
         <section

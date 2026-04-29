@@ -10,8 +10,14 @@ import type {
   LeadStatus,
 } from "./crm-types";
 
-const STORE_PATH = path.join(os.tmpdir(), "artwurk-crm-store.json");
-const STORE_LIMIT = 500;
+const DEFAULT_LOCAL_STORE_PATH = path.join(
+  process.cwd(),
+  ".artwurk-data",
+  "artwurk-crm-store.json",
+);
+const STORE_PATH =
+  process.env.ARTWURK_CRM_STORE_PATH ??
+  (process.env.VERCEL ? path.join(os.tmpdir(), "artwurk-crm-store.json") : DEFAULT_LOCAL_STORE_PATH);
 
 const emptySnapshot = (): ArtwurkCrmSnapshot => ({
   events: [],
@@ -35,13 +41,14 @@ const readStore = async () => {
 };
 
 const writeStore = async (snapshot: ArtwurkCrmSnapshot) => {
+  await fs.mkdir(path.dirname(STORE_PATH), { recursive: true });
   await fs.writeFile(
     STORE_PATH,
     JSON.stringify(
       {
-        events: snapshot.events.slice(0, STORE_LIMIT),
-        inquiries: snapshot.inquiries.slice(0, STORE_LIMIT),
-        leads: snapshot.leads.slice(0, STORE_LIMIT),
+        events: snapshot.events,
+        inquiries: snapshot.inquiries,
+        leads: snapshot.leads,
       },
       null,
       2,
@@ -58,21 +65,21 @@ export const clearCrmSnapshot = async () => {
 
 export const appendServerEvent = async (payload: ArtwurkEventPayload) => {
   const snapshot = await readStore();
-  snapshot.events = [payload, ...snapshot.events].slice(0, STORE_LIMIT);
+  snapshot.events = [payload, ...snapshot.events];
   await writeStore(snapshot);
   return payload;
 };
 
 export const appendServerInquiry = async (payload: ArtwurkInquiryPayload) => {
   const snapshot = await readStore();
-  snapshot.inquiries = [payload, ...snapshot.inquiries].slice(0, STORE_LIMIT);
+  snapshot.inquiries = [payload, ...snapshot.inquiries];
   await writeStore(snapshot);
   return payload;
 };
 
 export const appendServerLead = async (payload: ArtwurkLeadPayload) => {
   const snapshot = await readStore();
-  snapshot.leads = [payload, ...snapshot.leads].slice(0, STORE_LIMIT);
+  snapshot.leads = [payload, ...snapshot.leads];
   await writeStore(snapshot);
   return payload;
 };

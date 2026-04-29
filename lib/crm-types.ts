@@ -117,3 +117,33 @@ export type ArtwurkCrmSnapshot = {
   inquiries: ArtwurkInquiryPayload[];
   leads: ArtwurkLeadPayload[];
 };
+
+export type ArtwurkTrafficDay = {
+  date: string;
+  visitors: number;
+  sessions: number;
+  pageViews: number;
+  eventCount: number;
+};
+
+export type ArtwurkTrafficHour = {
+  date: string;
+  hour: string;
+  visitors: number;
+  sessions: number;
+  pageViews: number;
+  eventCount: number;
+};
+
+export type ArtwurkTrafficSnapshot = {
+  timezone: string;
+  generatedAt: string;
+  retainedSince?: string;
+  totalUniqueVisitors: number;
+  totalSessions: number;
+  totalPageViews: number;
+  todayVisitors: number;
+  todaySessions: number;
+  daily: ArtwurkTrafficDay[];
+  hourly: ArtwurkTrafficHour[];
+};
