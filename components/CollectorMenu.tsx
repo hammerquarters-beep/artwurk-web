@@ -29,24 +29,19 @@ export default function CollectorMenu() {
 
   const navItems = [
     {
-      href: "/profile",
-      label: "Create / Sign In Profile",
-      icon: <UserIcon className="collector-menu-icon" />,
-    },
-    {
       href: "/appraisal",
-      label: "Artwork Appraisal",
+      label: "Art Appraisal",
       icon: <TagIcon className="collector-menu-icon" />,
-    },
-    {
-      href: "/crm/clients",
-      label: "Clients & Campaigns",
-      icon: <MailIcon className="collector-menu-icon" />,
     },
     {
       href: "/contact",
       label: "Contact Us",
       icon: <MailIcon className="collector-menu-icon" />,
+    },
+    {
+      href: "/profile",
+      label: "Create / Sign In",
+      icon: <UserIcon className="collector-menu-icon" />,
     },
   ];
 
