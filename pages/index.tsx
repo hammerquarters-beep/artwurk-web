@@ -84,6 +84,7 @@ const inquiryEmail = "hammerhq@outlook.com";
 const inquiryWhatsAppLabel = "HQ";
 const inquiryWhatsAppDisplay = "+1 (209) 684-2964";
 const inquiryWhatsAppUrl = "https://wa.me/12096842964";
+const brandLogoSrc = "/brand/artwurk-logo-transparent.png";
 const paypalSdkSrc =
   "https://www.paypal.com/sdk/js?client-id=BAApqENv-0EtbRTyPYL5WXCWQjYvRGMtjcYUpTgN1a9CZ16b5MhC38hZAAa5un2j64qLDI5DwknEPwuFt0&components=hosted-buttons&enable-funding=venmo&currency=USD";
 const theWatcherHostedButtonId = "EA68DYJEMEDNW";
@@ -98,7 +99,7 @@ type PayPalHostedButtonsApi = {
 
 const theWatcherDescription = {
   primary: "A silent presence that commands attention without identity.",
-  secondary: "The Watcher exists between shadow and intention — unseen, yet undeniable.",
+  secondary: "The Watcher exists between shadow and intention - unseen, yet undeniable.",
 };
 
 const theWatcherValuePoints = [
@@ -671,31 +672,46 @@ export default function Home() {
           >
             <div
               style={{
-                fontSize: "clamp(64px, 15vw, 156px)",
-                lineHeight: 0.88,
-                letterSpacing: "0.12em",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                color: "#ffffff",
-                textShadow: "0 24px 60px rgba(0, 0, 0, 0.45)",
+                width: "min(520px, 88vw)",
+                margin: "0 auto",
+                padding: "18px",
+                border: "1px solid rgba(212, 175, 55, 0.24)",
+                background:
+                  "linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 242, 232, 0.96))",
+                boxShadow:
+                  "0 34px 90px rgba(0, 0, 0, 0.48), 0 0 90px rgba(212, 175, 55, 0.1)",
               }}
             >
-              ARTWURK
-              <span
+              <Image
+                src={brandLogoSrc}
+                alt="ARTWURK logo"
+                width={1254}
+                height={1254}
+                priority
                 style={{
-                  fontSize: "0.22em",
-                  verticalAlign: "top",
-                  marginLeft: "8px",
-                  fontWeight: 400,
+                  width: "100%",
+                  height: "auto",
+                  display: "block",
                 }}
-              >
-                {"\u2122"}
-              </span>
+              />
             </div>
 
             <div
               style={{
-                marginTop: "24px",
+                marginTop: "30px",
+                fontSize: "12px",
+                letterSpacing: "0.34em",
+                textTransform: "uppercase",
+                color: "rgba(212, 175, 55, 0.78)",
+                fontWeight: 400,
+              }}
+            >
+              Original Works / Private Collector Access
+            </div>
+
+            <div
+              style={{
+                marginTop: "16px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "baseline",
@@ -731,7 +747,7 @@ export default function Home() {
                   fontWeight: 400,
                 }}
               >
-                IN THE ART
+                IN ART
               </span>
             </div>
 
@@ -777,6 +793,19 @@ export default function Home() {
                   </a>
                 </div>
                 <p className="gallery-kicker">Curated Original Works</p>
+                <div className="gallery-logo-mark">
+                  <Image
+                    src={brandLogoSrc}
+                    alt="ARTWURK logo"
+                    width={1254}
+                    height={1254}
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      display: "block",
+                    }}
+                  />
+                </div>
                 <h1 className="gallery-brand">
                   ARTWURK
                   <span className="gallery-brand-mark">{"\u2122"}</span>
@@ -1678,6 +1707,15 @@ export default function Home() {
           letter-spacing: 0.28em;
           text-transform: uppercase;
           color: rgba(212, 175, 55, 0.78);
+        }
+
+        .gallery-logo-mark {
+          width: min(220px, 54vw);
+          margin: 0 auto 24px;
+          padding: 8px;
+          border: 1px solid rgba(212, 175, 55, 0.2);
+          background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 242, 232, 0.96));
+          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.36), 0 0 42px rgba(212, 175, 55, 0.08);
         }
 
         .gallery-brand {

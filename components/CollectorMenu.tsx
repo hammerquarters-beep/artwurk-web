@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
 import {
@@ -7,6 +8,8 @@ import {
   TagIcon,
   UserIcon,
 } from "./ArtwurkIcons";
+
+const brandLogoSrc = "/brand/artwurk-logo-transparent.png";
 
 export default function CollectorMenu() {
   const [open, setOpen] = useState(false);
@@ -63,6 +66,13 @@ export default function CollectorMenu() {
 
       <div className={`collector-menu-panel${open ? " is-open" : ""}`}>
         <div className="collector-menu-header">
+          <Image
+            src={brandLogoSrc}
+            alt="ARTWURK logo"
+            width={1254}
+            height={1254}
+            className="collector-menu-logo"
+          />
           <div className="collector-menu-kicker">Collector Access</div>
           <div className="collector-menu-title">ARTWURK Menu</div>
         </div>
@@ -139,6 +149,17 @@ export default function CollectorMenu() {
         .collector-menu-header {
           padding: 18px 20px 16px;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .collector-menu-logo {
+          display: block;
+          width: 116px;
+          height: auto;
+          margin-bottom: 14px;
+          padding: 5px;
+          border: 1px solid rgba(212, 175, 55, 0.2);
+          background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 242, 232, 0.96));
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
         }
 
         .collector-menu-kicker {
