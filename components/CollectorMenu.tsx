@@ -1,4 +1,3 @@
-import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
 import {
@@ -8,8 +7,6 @@ import {
   TagIcon,
   UserIcon,
 } from "./ArtwurkIcons";
-
-const brandLogoSrc = "/brand/artwurk-logo-transparent.png";
 
 export default function CollectorMenu() {
   const [open, setOpen] = useState(false);
@@ -66,13 +63,6 @@ export default function CollectorMenu() {
 
       <div className={`collector-menu-panel${open ? " is-open" : ""}`}>
         <div className="collector-menu-header">
-          <Image
-            src={brandLogoSrc}
-            alt="ARTWURK logo"
-            width={1254}
-            height={1254}
-            className="collector-menu-logo"
-          />
           <div className="collector-menu-kicker">Collector Access</div>
           <div className="collector-menu-title">ARTWURK Menu</div>
         </div>
@@ -131,48 +121,40 @@ export default function CollectorMenu() {
           overflow: hidden;
           border-radius: 24px;
           border: 1px solid rgba(255, 255, 255, 0.1);
-          background: rgba(9, 9, 9, 0.95);
-          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+          background: linear-gradient(180deg, rgba(12, 12, 12, 0.98), rgba(4, 4, 4, 0.98));
+          box-shadow: 0 28px 70px rgba(0, 0, 0, 0.48);
           backdrop-filter: blur(18px);
           opacity: 0;
-          transform: translateY(-8px);
+          transform: translateY(-6px) scale(0.98);
           pointer-events: none;
-          transition: opacity 220ms ease, transform 220ms ease;
+          transform-origin: top left;
+          transition: opacity 180ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .collector-menu-panel.is-open {
           opacity: 1;
-          transform: translateY(0);
+          transform: translateY(0) scale(1);
           pointer-events: auto;
         }
 
         .collector-menu-header {
-          padding: 18px 20px 16px;
+          padding: 22px 22px 18px;
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .collector-menu-logo {
-          display: block;
-          width: 116px;
-          height: auto;
-          margin-bottom: 14px;
-          padding: 5px;
-          border: 1px solid rgba(212, 175, 55, 0.2);
-          background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 242, 232, 0.96));
-          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
         }
 
         .collector-menu-kicker {
           font-size: 11px;
-          letter-spacing: 0.24em;
+          letter-spacing: 0.28em;
           text-transform: uppercase;
           color: #d4af37;
         }
 
         .collector-menu-title {
-          margin-top: 10px;
-          font-size: 20px;
-          font-weight: 600;
+          margin-top: 12px;
+          font-size: 18px;
+          font-weight: 500;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
           color: #f7f2e8;
         }
 
@@ -184,15 +166,16 @@ export default function CollectorMenu() {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 18px 20px;
+          padding: 16px 22px;
           color: rgba(247, 242, 232, 0.9);
           text-decoration: none;
-          transition: background 180ms ease, color 180ms ease;
+          transition: background 180ms ease, color 180ms ease, padding-left 180ms ease;
         }
 
         .collector-menu-link:hover {
           background: rgba(255, 255, 255, 0.05);
           color: #f7f2e8;
+          padding-left: 25px;
         }
 
         .collector-menu-link.has-divider {

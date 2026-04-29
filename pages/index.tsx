@@ -698,57 +698,46 @@ export default function Home() {
 
             <div
               style={{
-                marginTop: "30px",
-                fontSize: "12px",
-                letterSpacing: "0.34em",
-                textTransform: "uppercase",
-                color: "rgba(212, 175, 55, 0.78)",
-                fontWeight: 400,
-              }}
-            >
-              Original Works / Private Collector Access
-            </div>
-
-            <div
-              style={{
-                marginTop: "16px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "baseline",
-                flexWrap: "wrap",
+                marginTop: "34px",
+                display: "grid",
                 gap: "12px",
-                whiteSpace: "normal",
+                justifyItems: "center",
               }}
             >
-              <span
+              <div
                 style={{
-                  fontSize: "clamp(22px, 3vw, 34px)",
-                  color: "rgba(247, 242, 233, 0.72)",
-                  fontWeight: 400,
-                }}
-              >
-                PUTTING
-              </span>
-              <span
-                style={{
-                  fontSize: "clamp(34px, 5vw, 56px)",
-                  color: "#ffffff",
-                  fontWeight: 700,
+                  fontSize: "clamp(28px, 4vw, 48px)",
                   lineHeight: 1,
-                  letterSpacing: "0.04em",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "rgba(247, 242, 233, 0.92)",
+                  fontWeight: 500,
                 }}
               >
-                YOU
-              </span>
-              <span
+                ARTWURK
+                <span
+                  style={{
+                    fontSize: "0.28em",
+                    verticalAlign: "top",
+                    marginLeft: "6px",
+                    color: "rgba(212, 175, 55, 0.74)",
+                    fontWeight: 400,
+                  }}
+                >
+                  {"\u2122"}
+                </span>
+              </div>
+              <div
                 style={{
-                  fontSize: "clamp(22px, 3vw, 34px)",
-                  color: "rgba(247, 242, 233, 0.72)",
+                  fontSize: "12px",
+                  letterSpacing: "0.42em",
+                  textTransform: "uppercase",
+                  color: "rgba(212, 175, 55, 0.78)",
                   fontWeight: 400,
                 }}
               >
-                IN ART
-              </span>
+                Original Works
+              </div>
             </div>
 
             <button
