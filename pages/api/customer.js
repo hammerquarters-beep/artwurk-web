@@ -1,18 +1,38 @@
+import { upsertCollector, upsertEmailSignup } from "../../lib/crm-database";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ success: false, error: "Method not allowed" });
   }
 
-  const { email } = req.body ?? {};
+  const { email, name, phone, source } = req.body ?? {};
 
-  const customer = {
-    email,
-    createdAt: new Date().toISOString(),
-    firstTimeBuyer: true,
-  };
+  try {
+    const customer = await upsertCollector({
+      email,
+      name,
+      phone,
+      source: source ?? "customer_api",
+      metadata: {
+        firstTimeBuyer: true,
+      },
+    });
 
-  console.log("CUSTOMER:", customer);
+    await upsertEmailSignup({
+      email,
+      name,
+      source: source ?? "customer_api",
+      metadata: {
+        firstTimeBuyer: true,
+      },
+    });
 
-  return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, customer });
+  } catch (issue) {
+    return res.status(503).json({
+      success: false,
+      error: issue instanceof Error ? issue.message : "Unable to persist customer",
+    });
+  }
 }

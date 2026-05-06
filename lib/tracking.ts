@@ -1,8 +1,3 @@
-import {
-  appendStoredEvent,
-  appendStoredInquiry,
-  appendStoredLead,
-} from "./crm-store";
 import type {
   ArtwurkEventPayload,
   ArtwurkInquiryPayload,
@@ -173,7 +168,6 @@ export const trackEvent = (
     context: buildTrackingContext(),
   };
 
-  appendStoredEvent(nextPayload);
   dispatchPayload("/api/events", nextPayload);
   return nextPayload;
 };
@@ -189,7 +183,6 @@ export const trackInquiry = (
     context: buildTrackingContext(),
   };
 
-  appendStoredInquiry(nextPayload);
   dispatchPayload("/api/inquiries", nextPayload);
   return nextPayload;
 };
@@ -205,7 +198,6 @@ export const trackLead = (
     context: buildTrackingContext(),
   };
 
-  appendStoredLead(nextPayload);
   dispatchPayload("/api/leads", nextPayload);
   return nextPayload;
 };

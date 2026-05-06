@@ -37,7 +37,16 @@ export default async function handler(
     });
   }
 
-  await appendServerEvent(payload);
+  try {
+    await appendServerEvent(payload);
+  } catch (issue) {
+    return res.status(503).json({
+      ok: false,
+      route: "/api/events",
+      receivedAt: new Date().toISOString(),
+      error: issue instanceof Error ? issue.message : "Unable to persist event",
+    });
+  }
 
   return res.status(200).json({
     ok: true,

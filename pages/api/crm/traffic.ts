@@ -27,7 +27,18 @@ export default async function handler(
     });
   }
 
-  const snapshot = await getCrmSnapshot();
+  let snapshot;
+
+  try {
+    snapshot = await getCrmSnapshot();
+  } catch (issue) {
+    return res.status(503).json({
+      ok: false,
+      route: "/api/crm/traffic",
+      receivedAt: new Date().toISOString(),
+      error: issue instanceof Error ? issue.message : "Unable to load CRM traffic",
+    });
+  }
 
   return res.status(200).json({
     ok: true,

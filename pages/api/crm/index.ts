@@ -16,7 +16,16 @@ export default async function handler(
   res: NextApiResponse<CrmApiResponse>,
 ) {
   if (req.method === "DELETE") {
-    await clearCrmSnapshot();
+    try {
+      await clearCrmSnapshot();
+    } catch (issue) {
+      return res.status(503).json({
+        ok: false,
+        route: "/api/crm",
+        receivedAt: new Date().toISOString(),
+        error: issue instanceof Error ? issue.message : "Unable to clear CRM data",
+      });
+    }
 
     return res.status(200).json({
       ok: true,
@@ -41,10 +50,19 @@ export default async function handler(
     });
   }
 
-  return res.status(200).json({
-    ok: true,
-    route: "/api/crm",
-    receivedAt: new Date().toISOString(),
-    snapshot: await getCrmSnapshot(),
-  });
+  try {
+    return res.status(200).json({
+      ok: true,
+      route: "/api/crm",
+      receivedAt: new Date().toISOString(),
+      snapshot: await getCrmSnapshot(),
+    });
+  } catch (issue) {
+    return res.status(503).json({
+      ok: false,
+      route: "/api/crm",
+      receivedAt: new Date().toISOString(),
+      error: issue instanceof Error ? issue.message : "Unable to load CRM data",
+    });
+  }
 }

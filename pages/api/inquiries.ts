@@ -28,7 +28,18 @@ export default async function handler(
       });
     }
 
-    const payload = await updateInquiryStatus(recordId, status);
+    let payload: ArtwurkInquiryPayload | null = null;
+
+    try {
+      payload = await updateInquiryStatus(recordId, status);
+    } catch (issue) {
+      return res.status(503).json({
+        ok: false,
+        route: "/api/inquiries",
+        receivedAt: new Date().toISOString(),
+        error: issue instanceof Error ? issue.message : "Unable to update inquiry",
+      });
+    }
 
     if (!payload) {
       return res.status(404).json({
@@ -69,7 +80,16 @@ export default async function handler(
     });
   }
 
-  await appendServerInquiry(payload);
+  try {
+    await appendServerInquiry(payload);
+  } catch (issue) {
+    return res.status(503).json({
+      ok: false,
+      route: "/api/inquiries",
+      receivedAt: new Date().toISOString(),
+      error: issue instanceof Error ? issue.message : "Unable to persist inquiry",
+    });
+  }
 
   return res.status(200).json({
     ok: true,

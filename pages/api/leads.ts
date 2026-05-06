@@ -28,7 +28,18 @@ export default async function handler(
       });
     }
 
-    const payload = await updateLeadStatus(recordId, status);
+    let payload: ArtwurkLeadPayload | null = null;
+
+    try {
+      payload = await updateLeadStatus(recordId, status);
+    } catch (issue) {
+      return res.status(503).json({
+        ok: false,
+        route: "/api/leads",
+        receivedAt: new Date().toISOString(),
+        error: issue instanceof Error ? issue.message : "Unable to update lead",
+      });
+    }
 
     if (!payload) {
       return res.status(404).json({
@@ -69,7 +80,16 @@ export default async function handler(
     });
   }
 
-  await appendServerLead(payload);
+  try {
+    await appendServerLead(payload);
+  } catch (issue) {
+    return res.status(503).json({
+      ok: false,
+      route: "/api/leads",
+      receivedAt: new Date().toISOString(),
+      error: issue instanceof Error ? issue.message : "Unable to persist lead",
+    });
+  }
 
   return res.status(200).json({
     ok: true,

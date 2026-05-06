@@ -1,46 +1,38 @@
-const mockClients = [
-  {
-    name: "Collector One",
-    email: "collector1@example.com",
-    phone: "+1 (209) 555-1001",
-    status: "VIP",
-    source: "Gallery Signup",
-  },
-  {
-    name: "Collector Two",
-    email: "collector2@example.com",
-    phone: "+1 (209) 555-1002",
-    status: "First-Time Buyer",
-    source: "Popup Offer",
-  },
-  {
-    name: "Collector Three",
-    email: "collector3@example.com",
-    phone: "+1 (209) 555-1003",
-    status: "Returning",
-    source: "Collector Inquiry",
-  },
-];
+import { getCollectors, upsertCollector } from "../../lib/crm-database";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { name, email, phone, source } = req.body ?? {};
 
-    const client = {
-      name,
-      email,
-      phone,
-      source,
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const client = await upsertCollector({
+        name,
+        email,
+        phone,
+        source: source ?? "api_clients",
+        metadata: {
+          route: "/api/clients",
+        },
+      });
 
-    console.log("NEW CLIENT:", client);
-
-    return res.status(200).json({ success: true, client });
+      return res.status(200).json({ success: true, client });
+    } catch (issue) {
+      return res.status(503).json({
+        success: false,
+        error: issue instanceof Error ? issue.message : "Unable to persist client",
+      });
+    }
   }
 
   if (req.method === "GET") {
-    return res.status(200).json({ clients: mockClients });
+    try {
+      return res.status(200).json({ clients: await getCollectors() });
+    } catch (issue) {
+      return res.status(503).json({
+        clients: [],
+        error: issue instanceof Error ? issue.message : "Unable to load clients",
+      });
+    }
   }
 
   res.setHeader("Allow", "GET, POST");

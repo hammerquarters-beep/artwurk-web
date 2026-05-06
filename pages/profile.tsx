@@ -5,22 +5,57 @@ import { MailIcon, UserIcon } from "../components/ArtwurkIcons";
 import PublicHeader from "../components/PublicHeader";
 import SiteFooter from "../components/SiteFooter";
 import SiteSeo from "../components/SiteSeo";
+import { getSupabaseBrowserClient, isBrowserSupabaseConfigured } from "../lib/supabase-browser";
 import { trackLead } from "../lib/tracking";
 
 export default function ProfilePage() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = () => {
-    if (!email) {
+  const handleSubmit = async () => {
+    if (!email || !password) {
+      setErrorMessage("Email and password are required to create an account.");
+      return;
+    }
+
+    setSubmitting(true);
+    setErrorMessage(null);
+
+    const supabase = getSupabaseBrowserClient();
+
+    if (!supabase) {
+      setSubmitting(false);
+      setErrorMessage(
+        "Supabase Auth is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      );
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+          source: "artwurk_profile",
+        },
+      },
+    });
+
+    if (error) {
+      setSubmitting(false);
+      setErrorMessage(error.message);
       return;
     }
 
     trackLead({
       route: "/profile",
       page: "profile",
-      source: "collector-profile-interest",
+      source: "collector-account-signup",
       status: "new",
       intent: "general",
       customer: {
@@ -34,6 +69,7 @@ export default function ProfilePage() {
     });
 
     setSubmitted(true);
+    setSubmitting(false);
   };
 
   return (
@@ -46,17 +82,23 @@ export default function ProfilePage() {
           <div className="profile-kicker">Collector Access</div>
           <h1>Create / Sign In Profile</h1>
           <p>
-            ARTWURK collector accounts are being prepared for saved preferences, private release
-            access, special pricing, and a more personal acquisition experience.
+            Create private ARTWURK collector access for saved preferences, release priority,
+            special pricing, and a more personal acquisition experience.
           </p>
         </section>
 
         <div className="profile-panel">
           <div className="profile-panel-kicker">Priority Access</div>
-          <div className="profile-panel-title">Join the Collector Waitlist</div>
+          <div className="profile-panel-title">Create Collector Account</div>
           <p className="profile-panel-copy">
-            Leave your details and Hammer HQ can notify you when collector profile access is ready.
+            Create your collector profile. Supabase Auth securely manages passwords and account
+            confirmation for the production flow.
           </p>
+          {!isBrowserSupabaseConfigured() ? (
+            <div className="profile-config-warning">
+              Supabase Auth environment variables are not configured in this deployment yet.
+            </div>
+          ) : null}
 
           {!submitted ? (
             <div className="profile-form">
@@ -79,13 +121,30 @@ export default function ProfilePage() {
                   className="profile-input"
                 />
               </div>
-              <button type="button" className="profile-submit" onClick={handleSubmit}>
-                Request Access
+              <div className="profile-input-row">
+                <UserIcon className="profile-icon" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Create a password"
+                  className="profile-input"
+                />
+              </div>
+              {errorMessage ? <div className="profile-error">{errorMessage}</div> : null}
+              <button
+                type="button"
+                className="profile-submit"
+                onClick={() => void handleSubmit()}
+                disabled={submitting}
+              >
+                {submitting ? "Creating Account" : "Create Account"}
               </button>
             </div>
           ) : (
             <div className="profile-success">
-              Your collector access request has been recorded. Hammer HQ can now follow up from the CRM.
+              Your collector account request has been submitted. Check your email if confirmation
+              is enabled, and Hammer HQ has been notified through the CRM flow.
             </div>
           )}
         </div>
@@ -163,6 +222,23 @@ export default function ProfilePage() {
           color: rgba(247, 242, 232, 0.72);
         }
 
+        .profile-config-warning,
+        .profile-error {
+          margin-top: 18px;
+          border-radius: 18px;
+          border: 1px solid rgba(212, 175, 55, 0.22);
+          background: rgba(212, 175, 55, 0.07);
+          padding: 14px 16px;
+          font-size: 14px;
+          line-height: 1.7;
+          color: rgba(247, 242, 232, 0.78);
+        }
+
+        .profile-error {
+          border-color: rgba(215, 108, 108, 0.35);
+          background: rgba(120, 28, 28, 0.16);
+        }
+
         .profile-form {
           display: grid;
           gap: 14px;
@@ -210,6 +286,11 @@ export default function ProfilePage() {
           letter-spacing: 0.22em;
           text-transform: uppercase;
           cursor: pointer;
+        }
+
+        .profile-submit:disabled {
+          cursor: wait;
+          opacity: 0.72;
         }
 
         .profile-success {
