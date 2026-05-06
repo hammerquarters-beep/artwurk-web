@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 import { appendServerLead, updateLeadStatus } from "../../lib/crm-database";
 import type { ArtwurkLeadPayload, LeadStatus } from "../../lib/crm-types";
+import { requireOwnerApi } from "../../lib/owner-auth";
 
 type LeadsApiResponse = {
   ok: boolean;
@@ -16,6 +17,12 @@ export default async function handler(
   res: NextApiResponse<LeadsApiResponse>,
 ) {
   if (req.method === "PATCH") {
+    const owner = await requireOwnerApi(req, res);
+
+    if (!owner) {
+      return;
+    }
+
     const recordId = String(req.body?.id ?? "");
     const status = req.body?.status as LeadStatus | undefined;
 

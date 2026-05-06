@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 import { clearCrmSnapshot, getCrmSnapshot } from "../../../lib/crm-database";
 import type { ArtwurkCrmSnapshot } from "../../../lib/crm-types";
+import { requireOwnerApi } from "../../../lib/owner-auth";
 
 type CrmApiResponse = {
   ok: boolean;
@@ -15,6 +16,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<CrmApiResponse>,
 ) {
+  const owner = await requireOwnerApi(req, res);
+
+  if (!owner) {
+    return;
+  }
+
   if (req.method === "DELETE") {
     try {
       await clearCrmSnapshot();

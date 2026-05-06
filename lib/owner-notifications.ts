@@ -21,6 +21,7 @@ export const sendOwnerNotification = async ({
   html,
   payload,
 }: OwnerNotificationInput) => {
+  const supabase = isSupabaseConfigured() ? getSupabaseAdmin() : null;
   const notification = {
     type,
     recipient_email: ownerNotificationEmail,
@@ -28,12 +29,57 @@ export const sendOwnerNotification = async ({
     payload: payload ?? {},
     status: resendApiKey ? "queued" : "missing_email_provider",
   };
+  let notificationId: string | null = null;
 
-  if (isSupabaseConfigured()) {
-    await getSupabaseAdmin().from("artwurk_owner_notifications").insert(notification);
+  if (supabase) {
+    const { data, error } = await supabase
+      .from("artwurk_owner_notifications")
+      .insert(notification)
+      .select("id")
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    notificationId = data?.id ?? null;
   }
 
+  const updateNotification = async (fields: Record<string, unknown>) => {
+    if (!supabase || !notificationId) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from("artwurk_owner_notifications")
+      .update(fields)
+      .eq("id", notificationId);
+
+    if (!error) {
+      return;
+    }
+
+    // Production may receive the code before the delivery logging migration is applied.
+    await supabase
+      .from("artwurk_owner_notifications")
+      .update({
+        status: fields.status,
+        payload: {
+          ...(payload ?? {}),
+          resend_message_id: fields.resend_message_id,
+          error_message: fields.error_message,
+          delivery_status: fields.status,
+        },
+      })
+      .eq("id", notificationId);
+  };
+
   if (!resendApiKey) {
+    await updateNotification({
+      status: "missing_email_provider",
+      error_message: "RESEND_API_KEY is not configured.",
+    });
+
     return {
       sent: false,
       reason: "RESEND_API_KEY is not configured.",
@@ -56,13 +102,29 @@ export const sendOwnerNotification = async ({
 
   if (!response.ok) {
     const errorText = await response.text();
+    await updateNotification({
+      status: "failed",
+      error_message: errorText,
+    });
+
     return {
       sent: false,
       reason: errorText,
     };
   }
 
+  const responseBody = (await response.json().catch(() => null)) as { id?: string } | null;
+  const resendMessageId = responseBody?.id ?? null;
+
+  await updateNotification({
+    status: "sent",
+    resend_message_id: resendMessageId,
+    error_message: null,
+    sent_at: new Date().toISOString(),
+  });
+
   return {
     sent: true,
+    resendMessageId,
   };
 };

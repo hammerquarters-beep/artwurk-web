@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRouter } from "next/router";
 
 import BrandLogo from "../components/BrandLogo";
 import { MailIcon, UserIcon } from "../components/ArtwurkIcons";
@@ -9,14 +10,44 @@ import { getSupabaseBrowserClient, isBrowserSupabaseConfigured } from "../lib/su
 import { trackLead } from "../lib/tracking";
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleSubmit = async () => {
+  const getOwnerRedirectPath = () => {
+    const next = router.query.next;
+    return typeof next === "string" && next.startsWith("/") ? next : "/crm";
+  };
+
+  const establishOwnerSession = async (accessToken?: string) => {
+    if (!accessToken) {
+      return false;
+    }
+
+    const response = await fetch("/api/auth/owner-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        accessToken,
+      }),
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    await router.push(getOwnerRedirectPath());
+    return true;
+  };
+
+  const handleCreateAccount = async () => {
     if (!email || !password) {
       setErrorMessage("Email and password are required to create an account.");
       return;
@@ -52,6 +83,14 @@ export default function ProfilePage() {
       return;
     }
 
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (await establishOwnerSession(session?.access_token)) {
+      return;
+    }
+
     trackLead({
       route: "/profile",
       page: "profile",
@@ -69,6 +108,51 @@ export default function ProfilePage() {
     });
 
     setSubmitted(true);
+    setSuccessMessage(
+      "Your collector account request has been submitted. Check your email if confirmation is enabled, and Hammer HQ has been notified through the CRM flow.",
+    );
+    setSubmitting(false);
+  };
+
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      setErrorMessage("Email and password are required to sign in.");
+      return;
+    }
+
+    setSubmitting(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    const supabase = getSupabaseBrowserClient();
+
+    if (!supabase) {
+      setSubmitting(false);
+      setErrorMessage(
+        "Supabase Auth is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      );
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setSubmitting(false);
+      setErrorMessage(error.message);
+      return;
+    }
+
+    if (await establishOwnerSession(data.session?.access_token)) {
+      return;
+    }
+
+    setSubmitted(true);
+    setSuccessMessage(
+      "You are signed in as a collector. Owner-only CRM access is limited to the authorized Hammer HQ account.",
+    );
     setSubmitting(false);
   };
 
@@ -135,16 +219,23 @@ export default function ProfilePage() {
               <button
                 type="button"
                 className="profile-submit"
-                onClick={() => void handleSubmit()}
+                onClick={() => void handleCreateAccount()}
                 disabled={submitting}
               >
                 {submitting ? "Creating Account" : "Create Account"}
               </button>
+              <button
+                type="button"
+                className="profile-submit profile-submit-secondary"
+                onClick={() => void handleSignIn()}
+                disabled={submitting}
+              >
+                {submitting ? "Signing In" : "Sign In"}
+              </button>
             </div>
           ) : (
             <div className="profile-success">
-              Your collector account request has been submitted. Check your email if confirmation
-              is enabled, and Hammer HQ has been notified through the CRM flow.
+              {successMessage}
             </div>
           )}
         </div>
@@ -291,6 +382,11 @@ export default function ProfilePage() {
         .profile-submit:disabled {
           cursor: wait;
           opacity: 0.72;
+        }
+
+        .profile-submit-secondary {
+          background: transparent;
+          color: #f7f2e8;
         }
 
         .profile-success {

@@ -1,4 +1,12 @@
+import { requireOwnerApi } from "../../../lib/owner-auth";
+
 export default async function handler(req, res) {
+  const owner = await requireOwnerApi(req, res);
+
+  if (!owner) {
+    return;
+  }
+
   const sales = [
     { amount: 1050, soldAt: "2026-04-01T10:00:00.000Z", status: "paid" },
     { amount: 2200, soldAt: "2026-04-10T10:00:00.000Z", status: "paid" },

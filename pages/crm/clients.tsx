@@ -3,6 +3,9 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import BrandLogo from "../../components/BrandLogo";
 import SiteSeo from "../../components/SiteSeo";
+import { requireOwnerPage } from "../../lib/owner-auth";
+
+export const getServerSideProps = requireOwnerPage;
 
 type ClientRecord = {
   name: string;

@@ -1,6 +1,13 @@
 import { getCollectors, upsertCollector } from "../../lib/crm-database";
+import { requireOwnerApi } from "../../lib/owner-auth";
 
 export default async function handler(req, res) {
+  const owner = await requireOwnerApi(req, res);
+
+  if (!owner) {
+    return;
+  }
+
   if (req.method === "POST") {
     const { name, email, phone, source } = req.body ?? {};
 

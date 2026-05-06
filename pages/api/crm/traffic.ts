@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { buildTrafficSnapshot } from "../../../lib/crm-analytics";
 import { getCrmSnapshot } from "../../../lib/crm-database";
 import type { ArtwurkTrafficSnapshot } from "../../../lib/crm-types";
+import { requireOwnerApi } from "../../../lib/owner-auth";
 
 type TrafficApiResponse = {
   ok: boolean;
@@ -16,6 +17,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<TrafficApiResponse>,
 ) {
+  const owner = await requireOwnerApi(req, res);
+
+  if (!owner) {
+    return;
+  }
+
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
 

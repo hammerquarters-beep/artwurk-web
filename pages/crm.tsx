@@ -3,11 +3,14 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import BrandLogo from "../components/BrandLogo";
 import SiteSeo from "../components/SiteSeo";
+import { requireOwnerPage } from "../lib/owner-auth";
 import type {
   ArtwurkCrmSnapshot,
   ArtwurkTrafficSnapshot,
   LeadStatus,
 } from "../lib/crm-types";
+
+export const getServerSideProps = requireOwnerPage;
 
 const pageStyle: React.CSSProperties = {
   minHeight: "100vh",
