@@ -1,12 +1,14 @@
 import React, { useMemo, useState } from "react";
 
-import CollectorMenu from "../components/CollectorMenu";
 import {
   ArtworkIcon,
   PhoneIcon,
   TagIcon,
   UploadIcon,
 } from "../components/ArtwurkIcons";
+import PublicHeader from "../components/PublicHeader";
+import SiteFooter from "../components/SiteFooter";
+import SiteSeo from "../components/SiteSeo";
 import { trackLead } from "../lib/tracking";
 
 type AppraisalFormState = {
@@ -136,14 +138,9 @@ export default function AppraisalPage() {
 
   return (
     <div className="appraisal-page">
+      <SiteSeo title="Art Appraisal | ARTWURK\u2122" />
+      <PublicHeader />
       <div className="appraisal-shell">
-        <div className="appraisal-topbar">
-          <CollectorMenu />
-          <a href="/" className="appraisal-back-link">
-            Back to Gallery
-          </a>
-        </div>
-
         <section className="appraisal-hero">
           <div className="appraisal-hero-kicker">Acquisition Intake</div>
           <h1>Artwork Appraisal & Acquisition</h1>
@@ -325,49 +322,21 @@ export default function AppraisalPage() {
           </aside>
         </div>
 
-        <footer className="appraisal-footer">A Hammer HQ LLC company</footer>
       </div>
+      <SiteFooter />
 
       <style jsx>{`
         .appraisal-page {
           min-height: 100vh;
           background: #040404;
           color: #f7f2e8;
-          padding: 32px 16px;
           font-family: "Times New Roman", Georgia, serif;
         }
 
         .appraisal-shell {
           width: min(1280px, 100%);
           margin: 0 auto;
-        }
-
-        .appraisal-topbar {
-          display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          gap: 16px;
-          margin-bottom: 32px;
-        }
-
-        .appraisal-back-link {
-          min-height: 48px;
-          display: inline-flex;
-          align-items: center;
-          border-radius: 999px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          padding: 0 20px;
-          text-decoration: none;
-          font-size: 11px;
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
-          color: rgba(247, 242, 232, 0.85);
-          transition: border-color 180ms ease, color 180ms ease;
-        }
-
-        .appraisal-back-link:hover {
-          border-color: rgba(212, 175, 55, 0.4);
-          color: #f7f2e8;
+          padding: 32px 16px 40px;
         }
 
         .appraisal-hero {
@@ -627,17 +596,6 @@ export default function AppraisalPage() {
           background: rgba(212, 175, 55, 0.06);
         }
 
-        .appraisal-footer {
-          margin-top: 40px;
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
-          padding: 26px 8px 0;
-          text-align: center;
-          font-size: 11px;
-          letter-spacing: 0.24em;
-          text-transform: uppercase;
-          color: rgba(247, 242, 232, 0.42);
-        }
-
         @media (max-width: 1100px) {
           .appraisal-layout {
             grid-template-columns: 1fr;
@@ -652,8 +610,8 @@ export default function AppraisalPage() {
         }
 
         @media (max-width: 640px) {
-          .appraisal-page {
-            padding: 22px 14px;
+          .appraisal-shell {
+            padding: 22px 14px 32px;
           }
 
           .appraisal-hero,
@@ -663,10 +621,6 @@ export default function AppraisalPage() {
             padding: 24px 20px;
           }
 
-          .appraisal-topbar {
-            flex-direction: column;
-            align-items: flex-start;
-          }
         }
       `}</style>
     </div>

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 
-import CollectorMenu from "../../components/CollectorMenu";
+import BrandLogo from "../../components/BrandLogo";
+import SiteSeo from "../../components/SiteSeo";
 
 type ClientRecord = {
   name: string;
@@ -163,6 +164,7 @@ export default function ClientsCampaignsPage() {
 
   return (
     <div style={pageStyle}>
+      <SiteSeo title="Clients & Campaigns | ARTWURK\u2122" />
       <div style={containerStyle}>
         <div
           style={{
@@ -174,7 +176,10 @@ export default function ClientsCampaignsPage() {
             flexWrap: "wrap",
           }}
         >
-          <CollectorMenu />
+          <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
+            <BrandLogo size="crm" />
+            <div style={labelStyle}>Owner-Only CRM Tools</div>
+          </div>
           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
             <Link
               href="/crm"

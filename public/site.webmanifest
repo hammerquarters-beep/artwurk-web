@@ -1,0 +1,20 @@
+{
+  "name": "ARTWURK\u2122",
+  "short_name": "ARTWURK",
+  "description": "Luxury original artwork, private collectors, and premium art appraisal services by Hammer HQ LLC.",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#040404",
+  "background_color": "#040404",
+  "display": "standalone"
+}

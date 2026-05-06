@@ -8,7 +8,11 @@ import {
   UserIcon,
 } from "./ArtwurkIcons";
 
-export default function CollectorMenu() {
+type CollectorMenuProps = {
+  align?: "left" | "right";
+};
+
+export default function CollectorMenu({ align = "left" }: CollectorMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
@@ -56,7 +60,7 @@ export default function CollectorMenu() {
         {open ? <CloseIcon className="collector-menu-toggle-icon" /> : <MenuIcon className="collector-menu-toggle-icon" />}
       </button>
 
-      <div className={`collector-menu-panel${open ? " is-open" : ""}`}>
+      <div className={`collector-menu-panel align-${align}${open ? " is-open" : ""}`}>
         <div className="collector-menu-header">
           <div className="collector-menu-kicker">Collector Access</div>
           <div className="collector-menu-title">ARTWURK Menu</div>
@@ -124,6 +128,12 @@ export default function CollectorMenu() {
           pointer-events: none;
           transform-origin: top left;
           transition: opacity 180ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .collector-menu-panel.align-right {
+          left: auto;
+          right: 0;
+          transform-origin: top right;
         }
 
         .collector-menu-panel.is-open {

@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 
-import CollectorMenu from "../components/CollectorMenu";
+import BrandLogo from "../components/BrandLogo";
 import { MailIcon, UserIcon } from "../components/ArtwurkIcons";
+import PublicHeader from "../components/PublicHeader";
+import SiteFooter from "../components/SiteFooter";
+import SiteSeo from "../components/SiteSeo";
 import { trackLead } from "../lib/tracking";
 
 export default function ProfilePage() {
@@ -35,15 +38,11 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-page">
+      <SiteSeo title="Create / Sign In | ARTWURK\u2122" />
+      <PublicHeader />
       <div className="profile-shell">
-        <div className="profile-topbar">
-          <CollectorMenu />
-          <a href="/" className="profile-back-link">
-            Back to Gallery
-          </a>
-        </div>
-
         <section className="profile-hero">
+          <div className="profile-logo"><BrandLogo size="profile" /></div>
           <div className="profile-kicker">Collector Access</div>
           <h1>Create / Sign In Profile</h1>
           <p>
@@ -91,43 +90,21 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <footer className="profile-footer">A Hammer HQ LLC company</footer>
       </div>
+      <SiteFooter />
 
       <style jsx>{`
         .profile-page {
           min-height: 100vh;
           background: #040404;
           color: #f7f2e8;
-          padding: 32px 16px;
           font-family: "Times New Roman", Georgia, serif;
         }
 
         .profile-shell {
           width: min(980px, 100%);
           margin: 0 auto;
-        }
-
-        .profile-topbar {
-          display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          gap: 16px;
-          margin-bottom: 32px;
-        }
-
-        .profile-back-link {
-          min-height: 48px;
-          display: inline-flex;
-          align-items: center;
-          border-radius: 999px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          padding: 0 20px;
-          text-decoration: none;
-          font-size: 11px;
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
-          color: rgba(247, 242, 232, 0.85);
+          padding: 32px 16px 40px;
         }
 
         .profile-hero {
@@ -136,6 +113,10 @@ export default function ProfilePage() {
           background: radial-gradient(circle at top, rgba(212, 175, 55, 0.12), transparent 28%), #070707;
           padding: 42px 30px;
           text-align: center;
+        }
+
+        .profile-logo {
+          margin-bottom: 24px;
         }
 
         .profile-kicker,
@@ -241,25 +222,9 @@ export default function ProfilePage() {
           line-height: 1.8;
         }
 
-        .profile-footer {
-          margin-top: 40px;
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
-          padding: 26px 8px 0;
-          text-align: center;
-          font-size: 11px;
-          letter-spacing: 0.24em;
-          text-transform: uppercase;
-          color: rgba(247, 242, 232, 0.42);
-        }
-
         @media (max-width: 640px) {
-          .profile-page {
-            padding: 22px 14px;
-          }
-
-          .profile-topbar {
-            flex-direction: column;
-            align-items: flex-start;
+          .profile-shell {
+            padding: 22px 14px 32px;
           }
 
           .profile-hero,

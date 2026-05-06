@@ -1,11 +1,13 @@
 import React from "react";
 
-import CollectorMenu from "../components/CollectorMenu";
 import {
   MailIcon,
   MessageSquareIcon,
   PhoneIcon,
 } from "../components/ArtwurkIcons";
+import PublicHeader from "../components/PublicHeader";
+import SiteFooter from "../components/SiteFooter";
+import SiteSeo from "../components/SiteSeo";
 
 const whatsappHref =
   "https://wa.me/12096842964?text=Hello%20Hammer%20HQ%2C%20I%20have%20a%20question%20about%20ARTWURK.";
@@ -13,14 +15,9 @@ const whatsappHref =
 export default function ContactPage() {
   return (
     <div className="contact-page">
+      <SiteSeo title="Contact | ARTWURK\u2122" />
+      <PublicHeader />
       <div className="contact-shell">
-        <div className="contact-topbar">
-          <CollectorMenu />
-          <a href="/" className="contact-back-link">
-            Back to Gallery
-          </a>
-        </div>
-
         <section className="contact-hero">
           <div className="contact-kicker">Hammer HQ</div>
           <h1>Collector Contact</h1>
@@ -53,43 +50,21 @@ export default function ContactPage() {
           </a>
         </div>
 
-        <footer className="contact-footer">A Hammer HQ LLC company</footer>
       </div>
+      <SiteFooter />
 
       <style jsx>{`
         .contact-page {
           min-height: 100vh;
           background: #040404;
           color: #f7f2e8;
-          padding: 32px 16px;
           font-family: "Times New Roman", Georgia, serif;
         }
 
         .contact-shell {
           width: min(1180px, 100%);
           margin: 0 auto;
-        }
-
-        .contact-topbar {
-          display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          gap: 16px;
-          margin-bottom: 32px;
-        }
-
-        .contact-back-link {
-          min-height: 48px;
-          display: inline-flex;
-          align-items: center;
-          border-radius: 999px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          padding: 0 20px;
-          text-decoration: none;
-          font-size: 11px;
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
-          color: rgba(247, 242, 232, 0.85);
+          padding: 32px 16px 40px;
         }
 
         .contact-hero {
@@ -167,17 +142,6 @@ export default function ContactPage() {
           color: rgba(247, 242, 232, 0.7);
         }
 
-        .contact-footer {
-          margin-top: 40px;
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
-          padding: 26px 8px 0;
-          text-align: center;
-          font-size: 11px;
-          letter-spacing: 0.24em;
-          text-transform: uppercase;
-          color: rgba(247, 242, 232, 0.42);
-        }
-
         @media (max-width: 960px) {
           .contact-grid {
             grid-template-columns: 1fr;
@@ -185,13 +149,8 @@ export default function ContactPage() {
         }
 
         @media (max-width: 640px) {
-          .contact-page {
-            padding: 22px 14px;
-          }
-
-          .contact-topbar {
-            flex-direction: column;
-            align-items: flex-start;
+          .contact-shell {
+            padding: 22px 14px 32px;
           }
 
           .contact-hero,

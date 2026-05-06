@@ -1,6 +1,8 @@
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 
+import BrandLogo from "../components/BrandLogo";
+import SiteSeo from "../components/SiteSeo";
 import type {
   ArtwurkCrmSnapshot,
   ArtwurkTrafficSnapshot,
@@ -40,6 +42,18 @@ const statusOptions: LeadStatus[] = [
   "offer_sent",
   "sold",
   "archived",
+];
+
+const ownerOnlyAreas = [
+  "Leads",
+  "Traffic Analytics",
+  "Contacts",
+  "Campaigns",
+  "Email Blast",
+  "SMS Blast",
+  "Conversions",
+  "Orders",
+  "Collectors",
 ];
 
 const emptySnapshot: ArtwurkCrmSnapshot = {
@@ -340,6 +354,7 @@ export default function CrmPage() {
 
   return (
     <div style={pageStyle}>
+      <SiteSeo title="Owner CRM | ARTWURK\u2122" />
       <div style={containerStyle}>
         <section
           style={{
@@ -347,10 +362,21 @@ export default function CrmPage() {
             padding: "30px 24px",
           }}
         >
-          <div style={labelStyle}>Hammer HQ Internal</div>
           <div
             style={{
-              marginTop: "14px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "18px",
+              flexWrap: "wrap",
+            }}
+          >
+            <BrandLogo size="crm" />
+            <div style={{ ...labelStyle, color: "#D4AF37" }}>Owner-Only Dashboard</div>
+          </div>
+          <div
+            style={{
+              marginTop: "24px",
               display: "flex",
               justifyContent: "space-between",
               gap: "18px",
@@ -383,6 +409,31 @@ export default function CrmPage() {
                 inquiries, high-intent purchase signals, and financing interest as
                 ARTWURK scales.
               </p>
+              <div
+                style={{
+                  marginTop: "20px",
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "10px",
+                }}
+              >
+                {ownerOnlyAreas.map((area) => (
+                  <span
+                    key={area}
+                    style={{
+                      border: "1px solid rgba(212, 175, 55, 0.2)",
+                      background: "rgba(212, 175, 55, 0.06)",
+                      padding: "9px 11px",
+                      color: "rgba(247, 242, 233, 0.76)",
+                      fontSize: "10px",
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {area}
+                  </span>
+                ))}
+              </div>
             </div>
 
             <div
