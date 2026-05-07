@@ -24,15 +24,17 @@ const slugify = (value: string) =>
 const getArtworkPathId = (artwork: ArtworkRecord) => slugify(`${artwork.id}-${artwork.name}`);
 
 export const getStaticPaths: GetStaticPaths = () => ({
-  paths: artworks.map((artwork) => ({
-    params: { id: getArtworkPathId(artwork) },
-  })),
+  paths: artworks.flatMap((artwork) => [
+    { params: { id: getArtworkPathId(artwork) } },
+    ...(artwork.slugAliases ?? []).map((alias) => ({ params: { id: alias } })),
+  ]),
   fallback: false,
 });
 
 export const getStaticProps: GetStaticProps<ArtworkPageProps> = ({ params }) => {
   const id = typeof params?.id === "string" ? params.id : "";
-  const artwork = artworks.find((item) => getArtworkPathId(item) === id) ?? null;
+  const artwork =
+    artworks.find((item) => getArtworkPathId(item) === id || item.slugAliases?.includes(id)) ?? null;
 
   if (!artwork) {
     return { notFound: true };

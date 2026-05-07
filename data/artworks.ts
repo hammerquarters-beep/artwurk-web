@@ -1,6 +1,7 @@
 export type ArtworkRecord = {
   id: string;
   displayId?: string;
+  slugAliases?: string[];
   name: string;
   image: string;
   price: string;
@@ -222,13 +223,14 @@ const artworks: ArtworkRecord[] = [
   },
   {
     id: "ART-045",
-    name: "Golden Divide",
-    image: "/artwork/art-045-golden-divide.png",
+    slugAliases: ["art-045-golden-divide"],
+    name: "Ophir",
+    image: "/artwork/art-045-ophir.png",
     price: "$2,520",
     dimensions: "24 x 48 in",
     story:
-      "Golden Divide captures the tension between chaos and precision through flowing metallic gold currents layered against deep black contrast. The piece balances movement, luxury, and controlled aggression in a collector-focused abstract composition.",
-    category: "Premium Abstract Collection",
+      "Named for Ophir, the ancient land associated with pure gold in 1 Kings 9:28 KJV, this collector-focused abstract captures flowing metallic currents against deep black contrast. The composition reads like a prophetic map of treasure, judgment, and controlled force.",
+    category: "Ophir / Prophetic Gold",
     status: "available",
   },
   {
