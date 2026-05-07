@@ -24,7 +24,12 @@ export type ArtwurkEventName =
   | "inquire_click"
   | "buy_now_click"
   | "pay_in_4_click"
-  | "inquiry_submit";
+  | "inquiry_submit"
+  | "cart_add"
+  | "cart_remove"
+  | "cart_view"
+  | "checkout_start"
+  | "purchase_complete";
 
 export type ArtworkTrackingRecord = {
   id: string;
@@ -117,6 +122,86 @@ export type ArtwurkCrmSnapshot = {
   events: ArtwurkEventPayload[];
   inquiries: ArtwurkInquiryPayload[];
   leads: ArtwurkLeadPayload[];
+  carts?: ArtwurkCartSessionRecord[];
+  cartEvents?: ArtwurkCartEventRecord[];
+  cartFollowups?: ArtwurkCartFollowupRecord[];
+  customerEmails?: ArtwurkCustomerEmailRecord[];
+  collectors?: ArtwurkCollectorRecord[];
+};
+
+export type ArtwurkCartItemRecord = {
+  id: string;
+  artworkId: string;
+  displayId?: string;
+  title: string;
+  image?: string;
+  dimensions?: string;
+  priceLabel?: string;
+  unitAmount?: number | null;
+  quantity: number;
+  status: string;
+};
+
+export type ArtwurkCartSessionRecord = {
+  id: string;
+  userId?: string | null;
+  email?: string | null;
+  status: string;
+  subtotal: number;
+  currency: string;
+  lastActivityAt: string;
+  abandonedAfter?: string | null;
+  createdAt: string;
+  items: ArtwurkCartItemRecord[];
+};
+
+export type ArtwurkCartEventRecord = {
+  id: string;
+  sessionId?: string | null;
+  email?: string | null;
+  eventName: string;
+  artworkId?: string | null;
+  payload: Record<string, unknown>;
+  createdAt: string;
+};
+
+export type ArtwurkCartFollowupRecord = {
+  id: string;
+  sessionId?: string | null;
+  email?: string | null;
+  type: string;
+  status: string;
+  resendMessageId?: string | null;
+  errorMessage?: string | null;
+  scheduledFor?: string | null;
+  sentAt?: string | null;
+  createdAt: string;
+};
+
+export type ArtwurkCustomerEmailRecord = {
+  id: string;
+  email: string;
+  type: string;
+  status: string;
+  resendMessageId?: string | null;
+  errorMessage?: string | null;
+  sentAt?: string | null;
+  createdAt: string;
+};
+
+export type ArtwurkCollectorRecord = {
+  id: string;
+  email: string;
+  name?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  displayName?: string | null;
+  phone?: string | null;
+  marketingConsent: boolean;
+  smsConsent: boolean;
+  source?: string | null;
+  status: string;
+  createdAt: string;
 };
 
 export type ArtwurkTrafficDay = {

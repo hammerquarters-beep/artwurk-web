@@ -5,6 +5,7 @@ import type {
   ArtwurkLeadPayload,
   LeadStatus,
 } from "./crm-types";
+import { getCartCrmData } from "./cart-database";
 import { sendOwnerNotification } from "./owner-notifications";
 import { getSupabaseAdmin } from "./supabase-server";
 
@@ -15,10 +16,15 @@ type PayloadRow<T> = {
 type CollectorInput = {
   email?: string;
   name?: string;
+  firstName?: string;
+  lastName?: string;
+  displayName?: string;
   phone?: string;
   preferredContact?: string;
   source: string;
   status?: string;
+  marketingConsent?: boolean;
+  smsConsent?: boolean;
   metadata?: Record<string, unknown>;
 };
 
@@ -39,7 +45,7 @@ const requirePayload = <T>(row: PayloadRow<T>) => row.payload;
 export const getCrmSnapshot = async (): Promise<ArtwurkCrmSnapshot> => {
   const supabase = getSupabaseAdmin();
 
-  const [eventsResult, inquiriesResult, leadsResult] = await Promise.all([
+  const [eventsResult, inquiriesResult, leadsResult, cartData] = await Promise.all([
     supabase
       .from("artwurk_events")
       .select("payload")
@@ -55,6 +61,7 @@ export const getCrmSnapshot = async (): Promise<ArtwurkCrmSnapshot> => {
       .select("payload")
       .order("occurred_at", { ascending: false })
       .limit(5000),
+    getCartCrmData(),
   ]);
 
   if (eventsResult.error) {
@@ -75,6 +82,7 @@ export const getCrmSnapshot = async (): Promise<ArtwurkCrmSnapshot> => {
       requirePayload,
     ),
     leads: ((leadsResult.data ?? []) as PayloadRow<ArtwurkLeadPayload>[]).map(requirePayload),
+    ...cartData,
   };
 };
 
@@ -103,10 +111,15 @@ export const clearCrmSnapshot = async () => {
 export const upsertCollector = async ({
   email,
   name,
+  firstName,
+  lastName,
+  displayName,
   phone,
   preferredContact,
   source,
   status = "new",
+  marketingConsent,
+  smsConsent,
   metadata = {},
 }: CollectorInput) => {
   const normalizedEmail = normalizeEmail(email);
@@ -121,10 +134,15 @@ export const upsertCollector = async ({
       {
         email: normalizedEmail,
         name,
+        first_name: firstName,
+        last_name: lastName,
+        display_name: displayName,
         phone,
         preferred_contact: preferredContact,
         source,
         status,
+        marketing_consent: marketingConsent,
+        sms_consent: smsConsent,
         metadata,
       },
       { onConflict: "email" },
@@ -182,7 +200,7 @@ export const upsertEmailSignup = async ({
 export const getCollectors = async () => {
   const { data, error } = await getSupabaseAdmin()
     .from("artwurk_collectors")
-    .select("name,email,phone,status,source,created_at")
+    .select("name,email,first_name,last_name,display_name,phone,marketing_consent,sms_consent,status,source,created_at")
     .order("created_at", { ascending: false })
     .limit(1000);
 
@@ -193,7 +211,12 @@ export const getCollectors = async () => {
   return (data ?? []).map((collector) => ({
     name: collector.name ?? "Collector",
     email: collector.email,
+    firstName: collector.first_name,
+    lastName: collector.last_name,
+    displayName: collector.display_name,
     phone: collector.phone,
+    marketingConsent: Boolean(collector.marketing_consent),
+    smsConsent: Boolean(collector.sms_consent),
     status: collector.status ?? "new",
     source: collector.source ?? "unknown",
   }));

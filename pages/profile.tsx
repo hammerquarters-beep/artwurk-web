@@ -13,7 +13,12 @@ export default function ProfilePage() {
   const router = useRouter();
   const [mode, setMode] = useState<"create" | "signin">("create");
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [marketingConsent, setMarketingConsent] = useState(true);
+  const [smsConsent, setSmsConsent] = useState(false);
   const [password, setPassword] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -57,6 +62,49 @@ export default function ProfilePage() {
     return true;
   };
 
+  const buildProfileName = () =>
+    displayName.trim() || [firstName.trim(), lastName.trim()].filter(Boolean).join(" ");
+
+  const syncCustomerProfile = async (accessToken?: string, source = "collector-profile") => {
+    if (!accessToken) {
+      return;
+    }
+
+    await fetch("/api/customer/profile", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firstName: firstName.trim() || undefined,
+        lastName: lastName.trim() || undefined,
+        displayName: buildProfileName() || undefined,
+        phone: phone.trim() || undefined,
+        marketingConsent,
+        smsConsent,
+        source,
+      }),
+    });
+  };
+
+  const sendWelcomeEmail = async (accessToken?: string) => {
+    if (!accessToken) {
+      return;
+    }
+
+    await fetch("/api/customer/welcome", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        displayName: buildProfileName() || undefined,
+      }),
+    });
+  };
+
   const handleCreateAccount = async () => {
     if (!email || !password) {
       setErrorMessage("Email and password are required to create an account.");
@@ -82,7 +130,13 @@ export default function ProfilePage() {
       password,
       options: {
         data: {
-          name,
+          name: buildProfileName(),
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          display_name: buildProfileName(),
+          phone: phone.trim(),
+          marketing_consent: marketingConsent,
+          sms_consent: smsConsent,
           source: "artwurk_profile",
         },
       },
@@ -102,6 +156,9 @@ export default function ProfilePage() {
       return;
     }
 
+    await syncCustomerProfile(session?.access_token, "collector-account-signup");
+    await sendWelcomeEmail(session?.access_token);
+
     trackLead({
       route: "/profile",
       page: "profile",
@@ -109,7 +166,7 @@ export default function ProfilePage() {
       status: "new",
       intent: "general",
       customer: {
-        name,
+        name: buildProfileName(),
         email,
         preferredContact: "email",
       },
@@ -159,6 +216,8 @@ export default function ProfilePage() {
     if (await establishOwnerSession(data.session?.access_token)) {
       return;
     }
+
+    await syncCustomerProfile(data.session?.access_token, "collector-signin");
 
     setSubmitted(true);
     setSuccessMessage(
@@ -225,14 +284,61 @@ export default function ProfilePage() {
           {!submitted ? (
             <div className="profile-form">
               {mode === "create" ? (
-                <div className="profile-input-row">
-                  <UserIcon className="profile-icon" />
-                  <input
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    placeholder="Your name"
-                    className="profile-input"
-                  />
+                <div className="profile-name-grid">
+                  <div className="profile-input-row">
+                    <UserIcon className="profile-icon" />
+                    <input
+                      value={firstName}
+                      onChange={(event) => setFirstName(event.target.value)}
+                      placeholder="First name"
+                      className="profile-input"
+                    />
+                  </div>
+                  <div className="profile-input-row">
+                    <UserIcon className="profile-icon" />
+                    <input
+                      value={lastName}
+                      onChange={(event) => setLastName(event.target.value)}
+                      placeholder="Last name"
+                      className="profile-input"
+                    />
+                  </div>
+                  <div className="profile-input-row profile-wide-input">
+                    <UserIcon className="profile-icon" />
+                    <input
+                      value={displayName}
+                      onChange={(event) => setDisplayName(event.target.value)}
+                      placeholder="Display name (optional)"
+                      className="profile-input"
+                    />
+                  </div>
+                  <div className="profile-input-row profile-wide-input">
+                    <UserIcon className="profile-icon" />
+                    <input
+                      value={phone}
+                      onChange={(event) => setPhone(event.target.value)}
+                      placeholder="Phone number (optional)"
+                      className="profile-input"
+                    />
+                  </div>
+                  <label className="profile-consent profile-wide-input">
+                    <input
+                      type="checkbox"
+                      checked={marketingConsent}
+                      onChange={(event) => setMarketingConsent(event.target.checked)}
+                    />
+                    <span>Email me private releases, collector follow-ups, and ARTWURK updates.</span>
+                  </label>
+                  <label className="profile-consent profile-wide-input">
+                    <input
+                      type="checkbox"
+                      checked={smsConsent}
+                      onChange={(event) => setSmsConsent(event.target.checked)}
+                    />
+                    <span>
+                      I consent to future SMS follow-up. ARTWURK will not text without this consent.
+                    </span>
+                  </label>
                 </div>
               ) : null}
               <div className="profile-input-row">
@@ -418,6 +524,16 @@ export default function ProfilePage() {
           margin-top: 24px;
         }
 
+        .profile-name-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 14px;
+        }
+
+        .profile-wide-input {
+          grid-column: 1 / -1;
+        }
+
         .profile-input-row {
           display: flex;
           align-items: center;
@@ -427,6 +543,24 @@ export default function ProfilePage() {
           background: rgba(255, 255, 255, 0.03);
           padding: 16px 18px;
           color: #d4af37;
+        }
+
+        .profile-consent {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          border-radius: 18px;
+          border: 1px solid rgba(255, 255, 255, 0.09);
+          background: rgba(255, 255, 255, 0.025);
+          padding: 14px 16px;
+          color: rgba(247, 242, 232, 0.72);
+          font-size: 13px;
+          line-height: 1.6;
+        }
+
+        .profile-consent input {
+          margin-top: 3px;
+          accent-color: #d4af37;
         }
 
         .profile-icon {
@@ -500,6 +634,10 @@ export default function ProfilePage() {
           }
 
           .profile-mode-switch {
+            grid-template-columns: 1fr;
+          }
+
+          .profile-name-grid {
             grid-template-columns: 1fr;
           }
         }

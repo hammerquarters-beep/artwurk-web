@@ -70,6 +70,8 @@ const run = async () => {
     { path: "/api/crm/traffic", method: "GET" },
     { path: "/api/campaign/send", method: "POST" },
     { path: "/api/crm/revenue", method: "GET" },
+    { path: "/api/cart", method: "GET" },
+    { path: "/api/cart/followups", method: "POST" },
   ];
 
   for (const path of publicPagePaths) {

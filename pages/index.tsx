@@ -3,11 +3,13 @@ import Script from "next/script";
 import React, { FormEvent, useEffect, useState } from "react";
 
 import BrandLogo from "../components/BrandLogo";
+import { useCart } from "../components/CartProvider";
 import PromoPopup from "../components/PromoPopup";
 import PublicHeader from "../components/PublicHeader";
 import SiteFooter from "../components/SiteFooter";
 import SiteSeo from "../components/SiteSeo";
 import artworks, { type ArtworkRecord } from "../data/artworks";
+import { parsePriceToAmount } from "../lib/cart-types";
 import type { ArtworkTrackingRecord, InquiryIntent, LeadStatus } from "../lib/crm-types";
 import {
   getTrackingSessionState,
@@ -193,6 +195,7 @@ const formatStatusLabel = (status?: string) => {
 };
 
 export default function Home() {
+  const { addItem } = useCart();
   const [missingImages, setMissingImages] = useState<Record<string, boolean>>({});
   const [selectedArtwork, setSelectedArtwork] = useState<ArtworkRecord | null>(null);
   const [hoveredArtworkId, setHoveredArtworkId] = useState<string | null>(null);
@@ -632,6 +635,27 @@ export default function Home() {
         intent: collectorIntent,
         destination: inquiryWhatsAppDisplay,
       },
+    });
+  };
+
+  const handleAddToCart = async (artwork: ArtworkRecord) => {
+    await addItem({
+      artworkId: artwork.id,
+      displayId: artwork.displayId,
+      title: artwork.name,
+      image: artwork.image,
+      dimensions: artwork.dimensions,
+      priceLabel: artwork.price,
+      unitAmount: parsePriceToAmount(artwork.price),
+      quantity: 1,
+    });
+
+    trackEvent({
+      event: "cart_add",
+      route: "/",
+      page: "gallery",
+      source: "artwork-modal",
+      artwork: toTrackingArtwork(artwork),
     });
   };
 
@@ -1180,6 +1204,50 @@ export default function Home() {
                       Certificate of authenticity included
                     </div>
                   </div>
+                </div>
+
+                <div
+                  style={{
+                    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                    paddingTop: "24px",
+                  }}
+                >
+                  <div style={modalMetaStyle}>Collector Cart</div>
+                  <button
+                    type="button"
+                    className="artwurk-inquire-button"
+                    onClick={() => void handleAddToCart(selectedArtwork)}
+                    style={{
+                      width: "100%",
+                      marginTop: "14px",
+                      padding: "16px 20px",
+                      border: "1px solid rgba(212, 175, 55, 0.58)",
+                      background:
+                        "linear-gradient(180deg, rgba(212, 175, 55, 0.16), rgba(212, 175, 55, 0.05))",
+                      color: "#faf6ef",
+                      cursor: "pointer",
+                      fontSize: "13px",
+                      fontWeight: 700,
+                      letterSpacing: "0.22em",
+                      textTransform: "uppercase",
+                      transition:
+                        "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease",
+                      boxShadow: "0 18px 40px rgba(0, 0, 0, 0.25)",
+                    }}
+                  >
+                    Add to Collector Cart
+                  </button>
+                  <p
+                    style={{
+                      margin: "12px 0 0",
+                      color: "rgba(247, 242, 233, 0.62)",
+                      fontSize: "14px",
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    Save this one-of-one piece for checkout, invoice support, or private collector
+                    follow-up.
+                  </p>
                 </div>
 
                 {!shouldShowTheWatcherCheckout ? (

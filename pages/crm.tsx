@@ -57,6 +57,9 @@ const ownerOnlyAreas = [
   "Conversions",
   "Orders",
   "Collectors",
+  "Carts",
+  "Abandoned Carts",
+  "Welcome Emails",
 ];
 
 const emptySnapshot: ArtwurkCrmSnapshot = {
@@ -202,6 +205,18 @@ export default function CrmPage() {
       {
         label: "Hot Leads",
         value: snapshot.leads.filter((item) => item.intent === "buy_now").length,
+      },
+      {
+        label: "Carts",
+        value: snapshot.carts?.length ?? 0,
+      },
+      {
+        label: "Abandoned Follow-Ups",
+        value: snapshot.cartFollowups?.filter((item) => item.type === "abandoned_cart").length ?? 0,
+      },
+      {
+        label: "Signed Collectors",
+        value: snapshot.collectors?.length ?? 0,
       },
     ],
     [snapshot, traffic],
@@ -768,6 +783,132 @@ export default function CrmPage() {
               ) : (
                 <div style={{ color: "rgba(247, 242, 233, 0.62)", lineHeight: 1.8 }}>
                   No source attribution captured yet.
+                </div>
+              )}
+            </div>
+          </article>
+        </section>
+
+        <section
+          style={{
+            marginTop: "24px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "18px",
+          }}
+        >
+          <article style={{ ...panelStyle, padding: "22px" }}>
+            <div style={labelStyle}>Collector Carts</div>
+            <div style={{ marginTop: "18px", display: "grid", gap: "14px" }}>
+              {snapshot.carts?.length ? (
+                snapshot.carts.slice(0, 12).map((cart) => (
+                  <div
+                    key={cart.id}
+                    style={{
+                      paddingBottom: "14px",
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.07)",
+                    }}
+                  >
+                    <div style={labelStyle}>{formatTimestamp(cart.lastActivityAt)}</div>
+                    <div style={{ marginTop: "8px", fontSize: "20px" }}>
+                      {cart.email ?? "Signed-in collector"}
+                    </div>
+                    <div style={{ marginTop: "8px", color: "#D4AF37" }}>
+                      ${cart.subtotal.toLocaleString()} | {cart.status.replaceAll("_", " ")}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "8px",
+                        color: "rgba(247, 242, 233, 0.68)",
+                        fontSize: "14px",
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      {cart.items.map((item) => item.title).join(", ") || "No active items"}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ color: "rgba(247, 242, 233, 0.62)", lineHeight: 1.8 }}>
+                  No collector carts created yet.
+                </div>
+              )}
+            </div>
+          </article>
+
+          <article style={{ ...panelStyle, padding: "22px" }}>
+            <div style={labelStyle}>Cart Follow-Up Status</div>
+            <div style={{ marginTop: "18px", display: "grid", gap: "14px" }}>
+              {snapshot.cartFollowups?.length ? (
+                snapshot.cartFollowups.slice(0, 12).map((followup) => (
+                  <div
+                    key={followup.id}
+                    style={{
+                      paddingBottom: "14px",
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.07)",
+                    }}
+                  >
+                    <div style={labelStyle}>{formatTimestamp(followup.scheduledFor ?? followup.createdAt)}</div>
+                    <div style={{ marginTop: "8px", fontSize: "20px" }}>
+                      {followup.email ?? "No email"}
+                    </div>
+                    <div style={{ marginTop: "8px", color: "#D4AF37", textTransform: "capitalize" }}>
+                      {followup.status.replaceAll("_", " ")}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "8px",
+                        color: "rgba(247, 242, 233, 0.68)",
+                        fontSize: "14px",
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      Message ID: {followup.resendMessageId ?? "pending"}
+                      {followup.errorMessage ? ` | Error: ${followup.errorMessage}` : ""}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ color: "rgba(247, 242, 233, 0.62)", lineHeight: 1.8 }}>
+                  No abandoned cart follow-ups queued yet.
+                </div>
+              )}
+            </div>
+          </article>
+
+          <article style={{ ...panelStyle, padding: "22px" }}>
+            <div style={labelStyle}>Collector Welcome Emails</div>
+            <div style={{ marginTop: "18px", display: "grid", gap: "14px" }}>
+              {snapshot.customerEmails?.length ? (
+                snapshot.customerEmails.slice(0, 12).map((email) => (
+                  <div
+                    key={email.id}
+                    style={{
+                      paddingBottom: "14px",
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.07)",
+                    }}
+                  >
+                    <div style={labelStyle}>{formatTimestamp(email.sentAt ?? email.createdAt)}</div>
+                    <div style={{ marginTop: "8px", fontSize: "20px" }}>{email.email}</div>
+                    <div style={{ marginTop: "8px", color: "#D4AF37", textTransform: "capitalize" }}>
+                      {email.type} | {email.status.replaceAll("_", " ")}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "8px",
+                        color: "rgba(247, 242, 233, 0.68)",
+                        fontSize: "14px",
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      Message ID: {email.resendMessageId ?? "pending"}
+                      {email.errorMessage ? ` | Error: ${email.errorMessage}` : ""}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ color: "rgba(247, 242, 233, 0.62)", lineHeight: 1.8 }}>
+                  No collector email deliveries logged yet.
                 </div>
               )}
             </div>

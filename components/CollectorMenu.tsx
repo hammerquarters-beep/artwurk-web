@@ -10,9 +10,11 @@ import {
 
 type CollectorMenuProps = {
   align?: "left" | "right";
+  accountLabel?: string | null;
+  onSignOut?: () => void | Promise<void>;
 };
 
-export default function CollectorMenu({ align = "left" }: CollectorMenuProps) {
+export default function CollectorMenu({ align = "left", accountLabel, onSignOut }: CollectorMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
@@ -42,11 +44,26 @@ export default function CollectorMenu({ align = "left" }: CollectorMenuProps) {
       label: "Contact Us",
       icon: <MailIcon className="collector-menu-icon" />,
     },
-    {
-      href: "/profile",
-      label: "Create / Sign In",
-      icon: <UserIcon className="collector-menu-icon" />,
-    },
+    accountLabel
+      ? {
+          href: "/profile",
+          label: accountLabel,
+          icon: <UserIcon className="collector-menu-icon" />,
+        }
+      : {
+          href: "/profile",
+          label: "Create / Sign In",
+          icon: <UserIcon className="collector-menu-icon" />,
+        },
+    ...(accountLabel
+      ? [
+          {
+            href: "/cart",
+            label: "My Cart",
+            icon: <TagIcon className="collector-menu-icon" />,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -77,6 +94,12 @@ export default function CollectorMenu({ align = "left" }: CollectorMenuProps) {
               <span>{item.label}</span>
             </a>
           ))}
+          {accountLabel && onSignOut ? (
+            <button type="button" className="collector-menu-link collector-menu-button" onClick={onSignOut}>
+              <UserIcon className="collector-menu-icon" />
+              <span>Sign Out</span>
+            </button>
+          ) : null}
         </nav>
       </div>
 
@@ -175,6 +198,16 @@ export default function CollectorMenu({ align = "left" }: CollectorMenuProps) {
           color: rgba(247, 242, 232, 0.9);
           text-decoration: none;
           transition: background 180ms ease, color 180ms ease, padding-left 180ms ease;
+        }
+
+        .collector-menu-button {
+          width: 100%;
+          border: 0;
+          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          background: transparent;
+          font-family: inherit;
+          font-size: 15px;
+          cursor: pointer;
         }
 
         .collector-menu-link:hover {

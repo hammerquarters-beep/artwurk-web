@@ -95,6 +95,16 @@ export function MessageSquareIcon({ className }: IconProps) {
   );
 }
 
+export function CartIcon({ className }: IconProps) {
+  return (
+    <svg {...baseProps} className={className}>
+      <path d="M7 8.5h10l1 11H6z" />
+      <path d="M9 8.5a3 3 0 0 1 6 0" />
+      <path d="M9.5 12.5h5" />
+    </svg>
+  );
+}
+
 export function PercentIcon({ className }: IconProps) {
   return (
     <svg {...baseProps} className={className}>
