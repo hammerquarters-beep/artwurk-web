@@ -224,11 +224,11 @@ const artworks: ArtworkRecord[] = [
     id: "ART-045",
     name: "Golden Divide",
     image: "/artwork/art-045-golden-divide.png",
-    price: "$2,040",
-    dimensions: "30 x 40 in",
+    price: "$2,520",
+    dimensions: "24 x 48 in",
     story:
-      "Golden Divide balances black voids, molten gold movement, and white fluid disruption into a modern abstract composition centered around contrast, separation, and controlled energy.",
-    category: "Luxury / Metallic",
+      "Golden Divide captures the tension between chaos and precision through flowing metallic gold currents layered against deep black contrast. The piece balances movement, luxury, and controlled aggression in a collector-focused abstract composition.",
+    category: "Premium Abstract Collection",
     status: "available",
   },
   {
