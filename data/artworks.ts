@@ -275,6 +275,17 @@ const artworks: ArtworkRecord[] = [
     category: "Pastel / Modern Statement",
     status: "available",
   },
+  {
+    id: "ART-050",
+    name: "Gold Standard",
+    image: "/artwork/art-050-gold-standard.png",
+    price: "$2,520",
+    dimensions: "24 x 48 in",
+    story:
+      "Gold Standard blends aggressive black contrast with layered metallic gold movement to create a bold minimalist composition centered around prestige, pressure, and identity.",
+    category: "Luxury / Metallic",
+    status: "available",
+  },
 ];
 
 export default artworks;
