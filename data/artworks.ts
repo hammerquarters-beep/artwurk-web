@@ -198,6 +198,17 @@ const artworks: ArtworkRecord[] = [
     category: "Luxury / Metallic",
     status: "available",
   },
+  {
+    id: "ART-043",
+    name: "Faces of the Forgotten",
+    image: "/artwork/art-043-faces-of-the-forgotten.png",
+    price: "$1,740",
+    dimensions: "24 x 48 in",
+    story:
+      "Faces of the Forgotten explores identity, memory, and distorted emotion through surreal character forms layered against a warm metallic backdrop. The composition blends playful abstraction with underlying psychological tension.",
+    category: "Character / IP",
+    status: "available",
+  },
 ];
 
 export default artworks;
