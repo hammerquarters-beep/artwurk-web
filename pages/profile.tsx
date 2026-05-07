@@ -11,6 +11,7 @@ import { trackLead } from "../lib/tracking";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const [mode, setMode] = useState<"create" | "signin">("create");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -22,6 +23,15 @@ export default function ProfilePage() {
   const getOwnerRedirectPath = () => {
     const next = router.query.next;
     return typeof next === "string" && next.startsWith("/") ? next : "/crm";
+  };
+
+  const isOwnerRedirect = router.query.owner === "required";
+
+  const switchMode = (nextMode: "create" | "signin") => {
+    setMode(nextMode);
+    setSubmitted(false);
+    setErrorMessage(null);
+    setSuccessMessage(null);
   };
 
   const establishOwnerSession = async (accessToken?: string) => {
@@ -55,6 +65,7 @@ export default function ProfilePage() {
 
     setSubmitting(true);
     setErrorMessage(null);
+    setSuccessMessage(null);
 
     const supabase = getSupabaseBrowserClient();
 
@@ -164,37 +175,66 @@ export default function ProfilePage() {
         <section className="profile-hero">
           <div className="profile-logo"><BrandLogo size="profile" /></div>
           <div className="profile-kicker">Collector Access</div>
-          <h1>Create / Sign In Profile</h1>
+          <h1>Private Profile</h1>
           <p>
-            Create private ARTWURK collector access for saved preferences, release priority,
-            special pricing, and a more personal acquisition experience.
+            Create collector access for release priority and personal acquisition support,
+            or sign in as the Hammer HQ owner to enter the protected CRM.
           </p>
         </section>
 
         <div className="profile-panel">
-          <div className="profile-panel-kicker">Priority Access</div>
-          <div className="profile-panel-title">Create Collector Account</div>
+          <div className="profile-panel-kicker">
+            {mode === "create" ? "Priority Access" : "Owner Access"}
+          </div>
+          <div className="profile-panel-title">
+            {mode === "create" ? "Create Collector Account" : "Sign In"}
+          </div>
           <p className="profile-panel-copy">
-            Create your collector profile. Supabase Auth securely manages passwords and account
-            confirmation for the production flow.
+            {mode === "create"
+              ? "Create your collector profile. Supabase Auth securely manages passwords and account confirmation for the production flow."
+              : "Use the authorized Hammer HQ owner account to open CRM dashboards, client data, campaigns, and protected analytics."}
           </p>
+          {isOwnerRedirect ? (
+            <div className="profile-owner-notice">
+              Owner verification is required before opening the ARTWURK CRM.
+            </div>
+          ) : null}
           {!isBrowserSupabaseConfigured() ? (
             <div className="profile-config-warning">
               Supabase Auth environment variables are not configured in this deployment yet.
             </div>
           ) : null}
 
+          <div className="profile-mode-switch" aria-label="Profile access type">
+            <button
+              type="button"
+              className={mode === "create" ? "profile-mode-active" : ""}
+              onClick={() => switchMode("create")}
+            >
+              Collector Profile
+            </button>
+            <button
+              type="button"
+              className={mode === "signin" ? "profile-mode-active" : ""}
+              onClick={() => switchMode("signin")}
+            >
+              Owner Sign In
+            </button>
+          </div>
+
           {!submitted ? (
             <div className="profile-form">
-              <div className="profile-input-row">
-                <UserIcon className="profile-icon" />
-                <input
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Your name"
-                  className="profile-input"
-                />
-              </div>
+              {mode === "create" ? (
+                <div className="profile-input-row">
+                  <UserIcon className="profile-icon" />
+                  <input
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder="Your name"
+                    className="profile-input"
+                  />
+                </div>
+              ) : null}
               <div className="profile-input-row">
                 <MailIcon className="profile-icon" />
                 <input
@@ -219,19 +259,22 @@ export default function ProfilePage() {
               <button
                 type="button"
                 className="profile-submit"
-                onClick={() => void handleCreateAccount()}
+                onClick={() => void (mode === "create" ? handleCreateAccount() : handleSignIn())}
                 disabled={submitting}
               >
-                {submitting ? "Creating Account" : "Create Account"}
+                {submitting
+                  ? mode === "create"
+                    ? "Creating Account"
+                    : "Signing In"
+                  : mode === "create"
+                    ? "Create Account"
+                    : "Sign In"}
               </button>
-              <button
-                type="button"
-                className="profile-submit profile-submit-secondary"
-                onClick={() => void handleSignIn()}
-                disabled={submitting}
-              >
-                {submitting ? "Signing In" : "Sign In"}
-              </button>
+              <p className="profile-helper">
+                {mode === "create"
+                  ? "Collector profiles are for private releases, acquisition support, and future saved preferences."
+                  : "Only the configured owner email can open CRM routes after sign in."}
+              </p>
             </div>
           ) : (
             <div className="profile-success">
@@ -314,7 +357,8 @@ export default function ProfilePage() {
         }
 
         .profile-config-warning,
-        .profile-error {
+        .profile-error,
+        .profile-owner-notice {
           margin-top: 18px;
           border-radius: 18px;
           border: 1px solid rgba(212, 175, 55, 0.22);
@@ -325,9 +369,47 @@ export default function ProfilePage() {
           color: rgba(247, 242, 232, 0.78);
         }
 
+        .profile-owner-notice {
+          border-color: rgba(212, 175, 55, 0.35);
+          background: rgba(212, 175, 55, 0.1);
+          color: #f7f2e8;
+        }
+
         .profile-error {
           border-color: rgba(215, 108, 108, 0.35);
           background: rgba(120, 28, 28, 0.16);
+        }
+
+        .profile-mode-switch {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+          margin-top: 24px;
+          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.025);
+          padding: 8px;
+        }
+
+        .profile-mode-switch button {
+          min-height: 48px;
+          border: 1px solid transparent;
+          border-radius: 14px;
+          background: transparent;
+          color: rgba(247, 242, 232, 0.62);
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+        }
+
+        .profile-mode-switch button:hover,
+        .profile-mode-switch .profile-mode-active {
+          border-color: rgba(212, 175, 55, 0.32);
+          background: rgba(212, 175, 55, 0.08);
+          color: #f7f2e8;
         }
 
         .profile-form {
@@ -389,6 +471,14 @@ export default function ProfilePage() {
           color: #f7f2e8;
         }
 
+        .profile-helper {
+          margin: 0;
+          font-size: 13px;
+          line-height: 1.7;
+          color: rgba(247, 242, 232, 0.56);
+          text-align: center;
+        }
+
         .profile-success {
           margin-top: 22px;
           border-radius: 20px;
@@ -407,6 +497,10 @@ export default function ProfilePage() {
           .profile-hero,
           .profile-panel {
             padding: 24px 20px;
+          }
+
+          .profile-mode-switch {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>
