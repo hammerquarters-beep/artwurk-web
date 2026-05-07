@@ -286,6 +286,17 @@ const artworks: ArtworkRecord[] = [
     category: "Luxury / Metallic",
     status: "available",
   },
+  {
+    id: "ART-051",
+    name: "Velvet Static",
+    image: "/artwork/art-051-velvet-static.png",
+    price: "$2,520",
+    dimensions: "24 x 48 in",
+    story:
+      "Velvet Static merges vivid magenta fields with metallic gold and soft neutral textures into a luxury abstract composition built around contrast, movement, and expressive energy.",
+    category: "Luxury / Expressive Abstract",
+    status: "available",
+  },
 ];
 
 export default artworks;
