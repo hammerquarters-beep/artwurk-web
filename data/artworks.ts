@@ -231,6 +231,17 @@ const artworks: ArtworkRecord[] = [
     category: "Luxury / Metallic",
     status: "available",
   },
+  {
+    id: "ART-046",
+    name: "Imperial Drift",
+    image: "/artwork/art-046-imperial-drift.png",
+    price: "$2,520",
+    dimensions: "24 x 48 in",
+    story:
+      "Imperial Drift merges molten gold movement, deep obsidian currents, and fluid atmospheric textures into a cinematic abstract composition centered around motion, pressure, and controlled chaos.",
+    category: "Luxury / Metallic",
+    status: "available",
+  },
 ];
 
 export default artworks;
