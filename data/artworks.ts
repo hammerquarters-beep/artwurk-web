@@ -253,6 +253,17 @@ const artworks: ArtworkRecord[] = [
     category: "Imperial Drift Collection",
     status: "available",
   },
+  {
+    id: "ART-048",
+    name: "Soft Currency",
+    image: "/artwork/art-048-soft-currency.png",
+    price: "$1,950",
+    dimensions: "24 x 36 in",
+    story:
+      "Soft Currency layers cream, lavender, blush, and muted gray tones into a textured abstract composition centered around softness, luxury, and emotional balance.",
+    category: "Pastel / Minimalist Abstract",
+    status: "available",
+  },
 ];
 
 export default artworks;
