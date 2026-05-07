@@ -242,6 +242,17 @@ const artworks: ArtworkRecord[] = [
     category: "Luxury / Metallic",
     status: "available",
   },
+  {
+    id: "ART-047",
+    name: "Imperial Drift II: Obsidian Tide",
+    image: "/artwork/art-047-imperial-drift-ii-obsidian-tide.png",
+    price: "$2,880",
+    dimensions: "24 x 48 in",
+    story:
+      "Imperial Drift II: Obsidian Tide expands the Imperial Drift collection through deeper contrast, molten gold movement, and obsidian fluid textures layered against atmospheric blue currents. The composition captures motion, pressure, and controlled collision.",
+    category: "Imperial Drift Collection",
+    status: "available",
+  },
 ];
 
 export default artworks;
