@@ -15,7 +15,7 @@ const whatsappHref =
 export default function ContactPage() {
   return (
     <div className="contact-page">
-      <SiteSeo title="Contact | ARTWURK\u2122" />
+      <SiteSeo title="Contact | ARTWURK™" />
       <PublicHeader />
       <div className="contact-shell">
         <section className="contact-hero">

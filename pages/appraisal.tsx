@@ -138,7 +138,7 @@ export default function AppraisalPage() {
 
   return (
     <div className="appraisal-page">
-      <SiteSeo title="Art Appraisal | ARTWURK\u2122" />
+      <SiteSeo title="Art Appraisal | ARTWURK™" />
       <PublicHeader />
       <div className="appraisal-shell">
         <section className="appraisal-hero">

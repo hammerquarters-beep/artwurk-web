@@ -357,7 +357,7 @@ export default function CrmPage() {
 
   return (
     <div style={pageStyle}>
-      <SiteSeo title="Owner CRM | ARTWURK\u2122" />
+      <SiteSeo title="Owner CRM | ARTWURK™" />
       <div style={containerStyle}>
         <section
           style={{

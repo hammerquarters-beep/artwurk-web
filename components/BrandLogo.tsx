@@ -3,7 +3,7 @@ import Link from "next/link";
 import React from "react";
 
 export const brandLogoSrc = "/brand/artwurk-logo-transparent.png";
-export const brandLogoAlt = "ARTWURK\u2122 luxury art brand logo";
+export const brandLogoAlt = "ARTWURK™ luxury art brand logo";
 
 type BrandLogoProps = {
   href?: string;

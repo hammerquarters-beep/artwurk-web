@@ -12,14 +12,14 @@ type SiteSeoProps = {
 };
 
 export default function SiteSeo({
-  title = "ARTWURK\u2122",
+  title = "ARTWURK™",
   description = defaultDescription,
 }: SiteSeoProps) {
   return (
     <Head>
       <title>{title}</title>
       <meta name="description" content={description} />
-      <meta name="application-name" content="ARTWURK\u2122" />
+      <meta name="application-name" content="ARTWURK™" />
       <meta name="apple-mobile-web-app-title" content="ARTWURK" />
       <meta name="theme-color" content="#040404" />
       <meta property="og:type" content="website" />

@@ -167,7 +167,7 @@ export default function ClientsCampaignsPage() {
 
   return (
     <div style={pageStyle}>
-      <SiteSeo title="Clients & Campaigns | ARTWURK\u2122" />
+      <SiteSeo title="Clients & Campaigns | ARTWURK™" />
       <div style={containerStyle}>
         <div
           style={{

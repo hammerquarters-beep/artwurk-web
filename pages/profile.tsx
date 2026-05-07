@@ -169,7 +169,7 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-page">
-      <SiteSeo title="Create / Sign In | ARTWURK\u2122" />
+      <SiteSeo title="Create / Sign In | ARTWURK™" />
       <PublicHeader />
       <div className="profile-shell">
         <section className="profile-hero">

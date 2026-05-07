@@ -679,8 +679,8 @@ export default function Home() {
   return (
     <div style={pageStyle}>
       <SiteSeo
-        title="ARTWURK\u2122 | Luxury Original Artwork"
-        description="ARTWURK\u2122 presents luxury original artwork, private collector acquisition, secure checkout, and premium art appraisal services by Hammer HQ LLC."
+        title="ARTWURK™ | Luxury Original Artwork"
+        description="ARTWURK™ presents luxury original artwork, private collector acquisition, secure checkout, and premium art appraisal services by Hammer HQ LLC."
       />
       <PublicHeader />
       <PromoPopup enabled={showGallery && !selectedArtwork} />
@@ -696,7 +696,7 @@ export default function Home() {
               <div className="landing-copy">
                 <p className="landing-kicker">Private original artwork</p>
                 <h1 id="landing-title" className="landing-title">
-                  ARTWURK<span>{"\u2122"}</span>
+                  ARTWURK<span>™</span>
                 </h1>
                 <p className="landing-subtitle">Original works for collectors who want presence.</p>
                 <p className="landing-description">
@@ -825,7 +825,7 @@ export default function Home() {
                 <div className="gallery-logo-mark"><BrandLogo size="profile" /></div>
                 <h1 className="gallery-brand">
                   ARTWURK
-                  <span className="gallery-brand-mark">{"\u2122"}</span>
+                  <span className="gallery-brand-mark">™</span>
                 </h1>
                 <p className="gallery-description">
                   Explore one-of-one paintings built for private collectors, statement
