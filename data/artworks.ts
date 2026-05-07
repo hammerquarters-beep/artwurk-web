@@ -220,6 +220,17 @@ const artworks: ArtworkRecord[] = [
     category: "Spiritual / Symbolic",
     status: "available",
   },
+  {
+    id: "ART-045",
+    name: "Golden Divide",
+    image: "/artwork/art-045-golden-divide.png",
+    price: "$2,040",
+    dimensions: "30 x 40 in",
+    story:
+      "Golden Divide balances black voids, molten gold movement, and white fluid disruption into a modern abstract composition centered around contrast, separation, and controlled energy.",
+    category: "Luxury / Metallic",
+    status: "available",
+  },
 ];
 
 export default artworks;
