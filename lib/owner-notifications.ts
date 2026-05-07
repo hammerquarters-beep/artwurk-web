@@ -64,6 +64,7 @@ export const sendOwnerNotification = async ({
       .from("artwurk_owner_notifications")
       .update({
         status: fields.status,
+        delivery_status: fields.delivery_status ?? fields.status,
         payload: {
           ...(payload ?? {}),
           resend_message_id: fields.resend_message_id,
@@ -77,6 +78,7 @@ export const sendOwnerNotification = async ({
   if (!resendApiKey) {
     await updateNotification({
       status: "missing_email_provider",
+      delivery_status: "missing_email_provider",
       error_message: "RESEND_API_KEY is not configured.",
     });
 
@@ -104,6 +106,7 @@ export const sendOwnerNotification = async ({
     const errorText = await response.text();
     await updateNotification({
       status: "failed",
+      delivery_status: "failed",
       error_message: errorText,
     });
 
@@ -118,6 +121,7 @@ export const sendOwnerNotification = async ({
 
   await updateNotification({
     status: "sent",
+    delivery_status: "sent",
     resend_message_id: resendMessageId,
     error_message: null,
     sent_at: new Date().toISOString(),
