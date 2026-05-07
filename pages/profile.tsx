@@ -6,6 +6,7 @@ import { MailIcon, UserIcon } from "../components/ArtwurkIcons";
 import PublicHeader from "../components/PublicHeader";
 import SiteFooter from "../components/SiteFooter";
 import SiteSeo from "../components/SiteSeo";
+import { getCustomerDisplayName, syncCustomerSession } from "../lib/customer-auth-client";
 import { getSupabaseBrowserClient, isBrowserSupabaseConfigured } from "../lib/supabase-browser";
 import { trackLead } from "../lib/tracking";
 
@@ -68,6 +69,10 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
+    if (!router.isReady) {
+      return;
+    }
+
     const supabase = getSupabaseBrowserClient();
 
     if (!supabase) {
@@ -91,16 +96,30 @@ export default function ProfilePage() {
       setEmail(session.user.email ?? "");
 
       const metadata = session.user.user_metadata ?? {};
-      setFirstName(typeof metadata.first_name === "string" ? metadata.first_name : "");
-      setLastName(typeof metadata.last_name === "string" ? metadata.last_name : "");
-      setDisplayName(
-        typeof metadata.display_name === "string"
-          ? metadata.display_name
-          : typeof metadata.name === "string"
-            ? metadata.name
-            : "",
-      );
+      const fullName = typeof metadata.full_name === "string" ? metadata.full_name.trim() : "";
+      const nameParts = fullName ? fullName.split(" ") : [];
+      const metadataFirstName = typeof metadata.first_name === "string" ? metadata.first_name : "";
+      const metadataLastName = typeof metadata.last_name === "string" ? metadata.last_name : "";
+      setFirstName(metadataFirstName || nameParts[0] || "");
+      setLastName(metadataLastName || nameParts.slice(1).join(" "));
+      setDisplayName(getCustomerDisplayName(session));
       setPhone(typeof metadata.phone === "string" ? metadata.phone : "");
+
+      const authProvider =
+        typeof router.query.auth === "string"
+          ? router.query.auth
+          : typeof session.user.app_metadata?.provider === "string"
+            ? session.user.app_metadata.provider
+            : "email";
+
+      await syncCustomerSession({
+        session,
+        source:
+          authProvider === "google" || authProvider === "apple"
+            ? `collector-${authProvider}-oauth`
+            : "collector-profile-session",
+        notifyOwner: authProvider === "google" || authProvider === "apple",
+      });
 
       const response = await fetch("/api/customer/profile", {
         headers: {
@@ -117,7 +136,7 @@ export default function ProfilePage() {
     };
 
     void hydrateSession();
-  }, []);
+  }, [router.isReady, router.query.auth]);
 
   const establishOwnerSession = async (accessToken?: string) => {
     if (!accessToken) {

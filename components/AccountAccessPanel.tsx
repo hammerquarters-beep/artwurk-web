@@ -16,6 +16,14 @@ type AccountAccessPanelProps = {
 
 type AuthMode = "signin" | "create";
 
+const getOAuthRedirectUrl = (provider: "google" | "apple") => {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  return `${window.location.origin}/profile?auth=${provider}`;
+};
+
 export default function AccountAccessPanel({
   open,
   customerName,
@@ -77,10 +85,7 @@ export default function AccountAccessPanel({
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo:
-          typeof window === "undefined"
-            ? undefined
-            : `${window.location.origin}/profile?auth=${provider}`,
+        redirectTo: getOAuthRedirectUrl(provider),
       },
     });
 
