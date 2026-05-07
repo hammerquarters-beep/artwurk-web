@@ -321,6 +321,17 @@ const artworks: ArtworkRecord[] = [
     category: "Pop / Street Character",
     status: "available",
   },
+  {
+    id: "ART-054",
+    name: "Jachin & Boaz",
+    image: "/artwork/art-054-jachin-boaz.png",
+    price: "$2,880",
+    dimensions: "24 x 48 in combined",
+    story:
+      "Jachin & Boaz draws inspiration from the twin pillars of Solomon's Temple described in the King James Version. The mirrored structure symbolizes balance, division, strength, and sacred architectural order through layered gold textures against deep midnight tones.",
+    category: "Kings Collection / Temple Series",
+    status: "available",
+  },
 ];
 
 export default artworks;
