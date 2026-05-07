@@ -308,6 +308,17 @@ const artworks: ArtworkRecord[] = [
     category: "Pastel / Modern Statement",
     status: "available",
   },
+  {
+    id: "ART-053",
+    name: "Street Cheese",
+    image: "/artwork/art-053-street-cheese.png",
+    price: "$1,740",
+    dimensions: "24 x 48 in",
+    story:
+      "Street Cheese blends playful distortion, exaggerated character design, and bold contrast into a rebellious pop-inspired composition centered around humor, survival, and raw creative identity.",
+    category: "Pop / Street Character",
+    status: "available",
+  },
 ];
 
 export default artworks;
