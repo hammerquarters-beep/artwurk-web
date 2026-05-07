@@ -297,6 +297,17 @@ const artworks: ArtworkRecord[] = [
     category: "Luxury / Expressive Abstract",
     status: "available",
   },
+  {
+    id: "ART-052",
+    name: "Electric Bloom",
+    image: "/artwork/art-052-electric-bloom.png",
+    price: "$1,950",
+    dimensions: "24 x 36 in",
+    story:
+      "Electric Bloom combines mint, aqua, ivory, and neon-yellow movement into a fresh contemporary abstract composition centered around energy, renewal, and expressive motion.",
+    category: "Pastel / Modern Statement",
+    status: "available",
+  },
 ];
 
 export default artworks;
