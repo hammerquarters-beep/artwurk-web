@@ -154,6 +154,17 @@ const artworks: ArtworkRecord[] = [
     category: "Luxury / Metallic",
     status: "available",
   },
+  {
+    id: "ART-039",
+    name: "Gilded Current",
+    image: "/artwork/art-039-gilded-current.png",
+    price: "Price on request",
+    dimensions: "Dimensions pending",
+    story:
+      "A commanding vertical abstract piece in deep teal, bronze, and gold. Gilded Current moves like molten energy across a dark field, creating the feeling of force, movement, and luxury suspended in motion.",
+    category: "Luxury / Metallic",
+    status: "available",
+  },
 ];
 
 export default artworks;
