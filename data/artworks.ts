@@ -209,6 +209,17 @@ const artworks: ArtworkRecord[] = [
     category: "Character / IP",
     status: "available",
   },
+  {
+    id: "ART-044",
+    name: "Ascension Theory",
+    image: "/artwork/art-044-ascension-theory.png",
+    price: "$2,520",
+    dimensions: "24 x 48 in",
+    story:
+      "Ascension Theory explores transformation, energy, and spiritual elevation through metallic gold form layered against a dark radiating field. The composition balances fragility, motion, and power within a symbolic abstract figure.",
+    category: "Spiritual / Symbolic",
+    status: "available",
+  },
 ];
 
 export default artworks;
