@@ -176,6 +176,17 @@ const artworks: ArtworkRecord[] = [
     category: "Luxury / Metallic",
     status: "available",
   },
+  {
+    id: "ART-041",
+    name: "Silent Frequency",
+    image: "/artwork/art-041-silent-frequency.png",
+    price: "$1,740",
+    dimensions: "24 x 48 in",
+    story:
+      "Silent Frequency explores expression, pressure, and distorted communication through vivid contrast and surreal form. The piece balances playful visual language with underlying emotional intensity.",
+    category: "Character / IP",
+    status: "available",
+  },
 ];
 
 export default artworks;
