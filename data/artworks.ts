@@ -264,6 +264,17 @@ const artworks: ArtworkRecord[] = [
     category: "Pastel / Minimalist Abstract",
     status: "available",
   },
+  {
+    id: "ART-049",
+    name: "Rose Pressure",
+    image: "/artwork/art-049-rose-pressure.png",
+    price: "$1,950",
+    dimensions: "24 x 36 in",
+    story:
+      "Rose Pressure combines coral, blush, magenta, and muted gray movement into a bold abstract composition exploring emotion, tension, and modern luxury.",
+    category: "Pastel / Modern Statement",
+    status: "available",
+  },
 ];
 
 export default artworks;
