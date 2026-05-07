@@ -332,6 +332,17 @@ const artworks: ArtworkRecord[] = [
     category: "Kings Collection / Temple Series",
     status: "available",
   },
+  {
+    id: "ART-055",
+    name: "THE TRUE VINE",
+    image: "/artwork/art-055-the-true-vine.png",
+    price: "$2,520",
+    dimensions: "24 x 36 in",
+    story:
+      "THE TRUE VINE explores connection, fracture, and divine restoration through intertwining gold structures emerging from a silent canvas. Inspired by John 15 in the King James Version, the work symbolizes spiritual roots strengthened through pressure, refinement, and endurance.",
+    category: "Covenant Collection / Roots Series / Kingdom Collection",
+    status: "available",
+  },
 ];
 
 export default artworks;
