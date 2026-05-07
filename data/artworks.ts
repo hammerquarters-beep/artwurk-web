@@ -187,6 +187,17 @@ const artworks: ArtworkRecord[] = [
     category: "Character / IP",
     status: "available",
   },
+  {
+    id: "ART-042",
+    name: "Midnight Monarch",
+    image: "/artwork/art-042-midnight-monarch.png",
+    price: "$2,520",
+    dimensions: "24 x 48 in",
+    story:
+      "Midnight Monarch blends deep shadow, molten orange, emerald movement, and violet undertones into a commanding abstract composition centered around pressure, control, and luxury.",
+    category: "Luxury / Metallic",
+    status: "available",
+  },
 ];
 
 export default artworks;
