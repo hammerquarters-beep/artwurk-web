@@ -770,12 +770,9 @@ export default function Home() {
                     width={1254}
                     height={1254}
                     priority
-                    sizes="(max-width: 760px) 84vw, 520px"
+                    sizes="(max-width: 760px) 92vw, 760px"
                     className="landing-full-logo"
                   />
-                </span>
-                <span className="landing-slogan">
-                  Putting <strong>YOU</strong> in Art
                 </span>
                 <span id="entry-title" className="entry-enter-text">Click logo to enter</span>
               </span>
@@ -862,8 +859,8 @@ export default function Home() {
                               fill
                               sizes="(max-width: 640px) 100vw, (max-width: 980px) 50vw, 33vw"
                               style={{
-                                objectFit: "cover",
-                                transform: isHovered ? "scale(1.03)" : "scale(1)",
+                                objectFit: "contain",
+                                transform: isHovered ? "scale(1.018)" : "scale(1)",
                                 transition: "transform 0.4s ease",
                               }}
                               onError={() =>
@@ -942,8 +939,8 @@ export default function Home() {
             onClick={(event) => event.stopPropagation()}
             className="artwurk-modal-card"
             style={{
-              width: "min(1280px, 100%)",
-              maxHeight: "calc(100vh - 48px)",
+              width: "min(1440px, calc(100vw - 28px))",
+              maxHeight: "calc(100vh - 32px)",
               overflow: "auto",
               background: "#060606",
               border: "1px solid rgba(255, 255, 255, 0.08)",
@@ -964,7 +961,7 @@ export default function Home() {
                 className="artwurk-modal-art"
                 style={{
                   position: "relative",
-                  minHeight: "min(80vh, 860px)",
+                  minHeight: "min(84vh, 920px)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -978,7 +975,7 @@ export default function Home() {
                   style={{
                     position: "relative",
                     width: "100%",
-                    height: "min(80vh, 820px)",
+                    height: "min(84vh, 880px)",
                   }}
                 >
                   <Image
@@ -1827,8 +1824,8 @@ export default function Home() {
         }
 
         .entry-logo-button:hover .landing-full-logo-frame {
-          transform: translateY(-3px);
-          box-shadow: 0 28px 70px rgba(17, 16, 14, 0.1);
+          transform: translateY(-4px) scale(1.01);
+          filter: drop-shadow(0 24px 42px rgba(17, 16, 14, 0.08));
         }
 
         .entry-enter-text {
@@ -1869,41 +1866,26 @@ export default function Home() {
         .landing-logo-wrap {
           display: grid;
           justify-items: center;
-          gap: 12px;
+          gap: 18px;
           filter: none;
         }
 
         .landing-full-logo-frame {
           display: block;
-          width: min(520px, 84vw);
-          overflow: hidden;
-          border: 1px solid rgba(45, 32, 18, 0.1);
-          border-radius: 38px;
-          background: #ffffff;
-          box-shadow: 0 20px 54px rgba(17, 16, 14, 0.06);
-          transition: transform 220ms ease, box-shadow 220ms ease;
+          width: min(760px, 92vw);
+          overflow: visible;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          box-shadow: none;
+          filter: drop-shadow(0 18px 34px rgba(17, 16, 14, 0.045));
+          transition: transform 220ms ease, filter 220ms ease;
         }
 
         .landing-full-logo {
           width: 100%;
           height: auto;
           display: block;
-        }
-
-        .landing-slogan {
-          margin: 0;
-          color: rgba(23, 19, 15, 0.68);
-          font-size: clamp(1.05rem, 3.6vw, 1.55rem);
-          letter-spacing: 0.22em;
-          line-height: 1.2;
-          text-transform: none;
-        }
-
-        .landing-slogan strong {
-          color: #17130f;
-          font-size: 1.28em;
-          font-weight: 900;
-          letter-spacing: 0.12em;
         }
 
         .landing-copy {
@@ -2280,7 +2262,7 @@ export default function Home() {
         }
 
         .gallery-grid {
-          width: min(1280px, 100%);
+          width: min(1360px, 100%);
           margin: 0 auto;
           display: grid;
           grid-template-columns: 1fr;
@@ -2321,14 +2303,14 @@ export default function Home() {
         .gallery-image-wrap {
           position: relative;
           background: #0b0b0b;
-          aspect-ratio: 1 / 1;
+          aspect-ratio: 4 / 5;
           overflow: hidden;
         }
 
         .gallery-image-wrap img {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
           display: block;
           transition: transform 0.4s ease;
         }
