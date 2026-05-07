@@ -178,7 +178,7 @@ export default function ProfilePage() {
           <h1>Private Profile</h1>
           <p>
             Create collector access for release priority and personal acquisition support,
-            or sign in as the Hammer HQ owner to enter the protected CRM.
+            or sign in with an approved Hammer HQ admin account to enter the protected CRM.
           </p>
         </section>
 
@@ -192,11 +192,11 @@ export default function ProfilePage() {
           <p className="profile-panel-copy">
             {mode === "create"
               ? "Create your collector profile. Supabase Auth securely manages passwords and account confirmation for the production flow."
-              : "Use the authorized Hammer HQ owner account to open CRM dashboards, client data, campaigns, and protected analytics."}
+              : "Use an approved Hammer HQ admin account to open CRM dashboards, client data, campaigns, and protected analytics."}
           </p>
           {isOwnerRedirect ? (
             <div className="profile-owner-notice">
-              Owner verification is required before opening the ARTWURK CRM.
+              Approved admin verification is required before opening the ARTWURK CRM.
             </div>
           ) : null}
           {!isBrowserSupabaseConfigured() ? (
@@ -273,7 +273,7 @@ export default function ProfilePage() {
               <p className="profile-helper">
                 {mode === "create"
                   ? "Collector profiles are for private releases, acquisition support, and future saved preferences."
-                  : "Only the configured owner email can open CRM routes after sign in."}
+                  : "Only emails approved in CRM_ALLOWED_EMAILS can open CRM routes after sign in."}
               </p>
             </div>
           ) : (

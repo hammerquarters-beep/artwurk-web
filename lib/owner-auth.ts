@@ -14,16 +14,35 @@ const extractEmail = (value?: string) => {
   return match?.[0].toLowerCase() ?? "";
 };
 
-export const getOwnerEmail = () =>
-  extractEmail(
-    process.env.OWNER_EMAIL ??
-      process.env.ARTWURK_OWNER_EMAIL ??
-      process.env.ARTWURK_OWNER_NOTIFICATION_EMAIL ??
-      "hammerhq@outlook.com",
+const extractEmails = (value?: string) =>
+  value
+    ?.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi)
+    ?.map((email) => email.toLowerCase()) ?? [];
+
+export const getCrmAllowedEmails = () => {
+  const configured = extractEmails(process.env.CRM_ALLOWED_EMAILS);
+
+  if (configured.length) {
+    return Array.from(new Set(configured));
+  }
+
+  return Array.from(
+    new Set(
+      [
+        ...extractEmails(process.env.OWNER_EMAIL),
+        ...extractEmails(process.env.ARTWURK_OWNER_EMAIL),
+        ...extractEmails(process.env.ARTWURK_OWNER_NOTIFICATION_EMAIL),
+        "hammerhq@outlook.com",
+        "hammer.quarters@gmail.com",
+      ].filter(Boolean),
+    ),
   );
+};
+
+export const getOwnerEmail = () => getCrmAllowedEmails()[0] ?? "hammerhq@outlook.com";
 
 export const isOwnerEmail = (email?: string | null) =>
-  Boolean(email && extractEmail(email) === getOwnerEmail());
+  Boolean(email && getCrmAllowedEmails().includes(extractEmail(email)));
 
 const parseCookies = (cookieHeader?: string) =>
   Object.fromEntries(
@@ -62,7 +81,7 @@ export const verifyOwnerAccessToken = async (accessToken?: string): Promise<Owne
   }
 
   if (!isOwnerEmail(email)) {
-    throw new Error("Owner email is not authorized.");
+    throw new Error("This account is not approved for CRM access.");
   }
 
   return {
@@ -70,6 +89,9 @@ export const verifyOwnerAccessToken = async (accessToken?: string): Promise<Owne
     email,
   };
 };
+
+export const getOwnerAuthFailureStatus = (message: string) =>
+  message.includes("not authorized") || message.includes("not approved") ? 403 : 401;
 
 export const requireOwnerApi = async (
   req: NextApiRequest,
@@ -79,7 +101,7 @@ export const requireOwnerApi = async (
     return await verifyOwnerAccessToken(getOwnerAccessTokenFromRequest(req));
   } catch (issue) {
     const message = issue instanceof Error ? issue.message : "Owner authorization failed.";
-    const status = message.includes("not authorized") ? 403 : 401;
+    const status = getOwnerAuthFailureStatus(message);
 
     res.status(status).json({
       ok: false,

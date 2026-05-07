@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import {
   buildOwnerSessionCookie,
   clearOwnerSessionCookie,
-  getOwnerEmail,
+  getOwnerAuthFailureStatus,
   verifyOwnerAccessToken,
 } from "../../../lib/owner-auth";
 
@@ -39,11 +39,11 @@ export default async function handler(
     });
   } catch (issue) {
     res.setHeader("Set-Cookie", clearOwnerSessionCookie());
+    const message = issue instanceof Error ? issue.message : "Owner authorization failed.";
 
-    return res.status(403).json({
+    return res.status(getOwnerAuthFailureStatus(message)).json({
       ok: false,
-      ownerEmail: getOwnerEmail(),
-      error: issue instanceof Error ? issue.message : "Owner authorization failed.",
+      error: message,
     });
   }
 }
