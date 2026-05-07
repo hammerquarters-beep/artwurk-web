@@ -1,7 +1,7 @@
 import Head from "next/head";
 import React from "react";
 
-import { brandLogoAlt, brandLogoSrc } from "./BrandLogo";
+import { brandLogoAlt, brandLogoSrc, brandMonogramSrc } from "./BrandLogo";
 
 const defaultDescription =
   "Luxury original artwork, private collectors, and premium art appraisal services by Hammer HQ LLC.";
@@ -32,6 +32,7 @@ export default function SiteSeo({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={brandLogoSrc} />
       <link rel="shortcut icon" href="/favicon.ico" />
+      <link rel="icon" type="image/svg+xml" href={brandMonogramSrc} />
       <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
       <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
       <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />

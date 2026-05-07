@@ -2,9 +2,11 @@ import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 
 import { CartIcon, UserIcon } from "./ArtwurkIcons";
+import AccountAccessPanel from "./AccountAccessPanel";
 import BrandLogo from "./BrandLogo";
 import { useCart } from "./CartProvider";
 import CollectorMenu from "./CollectorMenu";
+import { getCustomerDisplayName, syncCustomerSession } from "../lib/customer-auth-client";
 import { getSupabaseBrowserClient } from "../lib/supabase-browser";
 
 const publicNavItems = [
@@ -16,7 +18,7 @@ export default function PublicHeader() {
   const { count } = useCart();
   const [customerName, setCustomerName] = useState<string | null>(null);
   const [accountOpen, setAccountOpen] = useState(false);
-  const accountRef = useRef<HTMLDivElement | null>(null);
+  const oauthSyncRef = useRef<string | null>(null);
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
@@ -29,17 +31,22 @@ export default function PublicHeader() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      const metadata = session?.user.user_metadata ?? {};
-      const firstName = typeof metadata.first_name === "string" ? metadata.first_name : "";
-      const lastName = typeof metadata.last_name === "string" ? metadata.last_name : "";
-      const displayName =
-        typeof metadata.display_name === "string" && metadata.display_name.trim()
-          ? metadata.display_name.trim()
-          : typeof metadata.name === "string" && metadata.name.trim()
-            ? metadata.name.trim()
-            : [firstName, lastName].filter(Boolean).join(" ").trim();
+      const displayName = getCustomerDisplayName(session);
 
-      setCustomerName(displayName || session?.user.email?.split("@")[0] || null);
+      setCustomerName(displayName || null);
+
+      if (session?.user.id && oauthSyncRef.current !== session.user.id) {
+        const provider =
+          typeof session.user.app_metadata?.provider === "string"
+            ? session.user.app_metadata.provider
+            : "email";
+        oauthSyncRef.current = session.user.id;
+        void syncCustomerSession({
+          session,
+          source: `collector-${provider}-session`,
+          notifyOwner: provider === "google" || provider === "apple",
+        });
+      }
     };
 
     void applyUser();
@@ -52,21 +59,6 @@ export default function PublicHeader() {
       data.subscription.unsubscribe();
     };
   }, []);
-
-  useEffect(() => {
-    if (!accountOpen) {
-      return;
-    }
-
-    const handlePointerDown = (event: MouseEvent) => {
-      if (!accountRef.current?.contains(event.target as Node)) {
-        setAccountOpen(false);
-      }
-    };
-
-    window.addEventListener("mousedown", handlePointerDown);
-    return () => window.removeEventListener("mousedown", handlePointerDown);
-  }, [accountOpen]);
 
   const handleSignOut = async () => {
     const supabase = getSupabaseBrowserClient();
@@ -87,37 +79,6 @@ export default function PublicHeader() {
                 {item.label}
               </Link>
             ))}
-            {customerName ? (
-              <div ref={accountRef} className="account-menu">
-                <button
-                  type="button"
-                  className="public-nav-link account-trigger"
-                  onClick={() => setAccountOpen((current) => !current)}
-                  aria-expanded={accountOpen}
-                >
-                  <UserIcon className="account-icon" />
-                  {customerName}
-                </button>
-                <div className={`account-panel${accountOpen ? " is-open" : ""}`}>
-                  <Link href="/profile" className="account-link">
-                    My Profile
-                  </Link>
-                  <Link href="/cart" className="account-link">
-                    Go to Cart
-                  </Link>
-                  <Link href="/profile" className="account-link">
-                    Update Profile
-                  </Link>
-                  <button type="button" className="account-link account-button" onClick={handleSignOut}>
-                    Sign Out
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <Link href="/profile" className="public-nav-link">
-                Create / Sign In
-              </Link>
-            )}
           </nav>
 
           <Link href="/cart" className="cart-link" aria-label={`Open cart with ${count} items`}>
@@ -125,11 +86,35 @@ export default function PublicHeader() {
             {count ? <span className="cart-count">{count}</span> : null}
           </Link>
 
+          <button
+            type="button"
+            className="account-icon-link"
+            onClick={() => setAccountOpen(true)}
+            aria-label={customerName ? `Open account for ${customerName}` : "Open account sign in"}
+          >
+            <UserIcon className="account-icon" />
+            {customerName ? <span className="account-name">{customerName}</span> : null}
+          </button>
+
           <div className="public-menu">
             <CollectorMenu align="right" accountLabel={customerName} onSignOut={handleSignOut} />
           </div>
         </div>
       </div>
+
+      <AccountAccessPanel
+        open={accountOpen}
+        customerName={customerName}
+        onClose={() => setAccountOpen(false)}
+        onAuthChanged={async () => {
+          const supabase = getSupabaseBrowserClient();
+          const {
+            data: { session },
+          } = supabase ? await supabase.auth.getSession() : { data: { session: null } };
+
+          setCustomerName(getCustomerDisplayName(session) || null);
+        }}
+      />
 
       <style jsx>{`
         .public-header {
@@ -159,6 +144,7 @@ export default function PublicHeader() {
         }
 
         .public-nav-link,
+        .account-icon-link,
         .cart-link {
           min-height: 44px;
           display: inline-flex;
@@ -181,6 +167,7 @@ export default function PublicHeader() {
         }
 
         .public-nav-link:hover,
+        .account-icon-link:hover,
         .cart-link:hover {
           transform: translateY(-1px);
           border-color: rgba(23, 19, 15, 0.12);
@@ -196,6 +183,15 @@ export default function PublicHeader() {
           background: rgba(239, 226, 201, 0.42);
         }
 
+        .account-icon-link {
+          min-width: 48px;
+          padding: 0 13px;
+          border-color: rgba(23, 19, 15, 0.1);
+          background: rgba(239, 226, 201, 0.42);
+          cursor: pointer;
+          font-family: inherit;
+        }
+
         .cart-icon,
         .account-icon {
           width: 18px;
@@ -203,8 +199,15 @@ export default function PublicHeader() {
         }
 
         .account-icon {
-          margin-right: 8px;
           color: #8f6d32;
+        }
+
+        .account-name {
+          max-width: 112px;
+          overflow: hidden;
+          margin-left: 8px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .cart-count {
@@ -222,65 +225,6 @@ export default function PublicHeader() {
           font-size: 10px;
           font-weight: 900;
           letter-spacing: 0;
-        }
-
-        .account-menu {
-          position: relative;
-        }
-
-        .account-trigger {
-          cursor: pointer;
-          background: transparent;
-          font-family: inherit;
-        }
-
-        .account-panel {
-          position: absolute;
-          top: 54px;
-          right: 0;
-          width: 220px;
-          overflow: hidden;
-          border-radius: 24px;
-          border: 1px solid rgba(23, 19, 15, 0.12);
-          background: rgba(236, 224, 201, 0.98);
-          box-shadow: 0 28px 70px rgba(63, 42, 20, 0.2);
-          opacity: 0;
-          pointer-events: none;
-          transform: translateY(-6px) scale(0.98);
-          transition: opacity 180ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        .account-panel.is-open {
-          opacity: 1;
-          pointer-events: auto;
-          transform: translateY(0) scale(1);
-        }
-
-        .account-link {
-          width: 100%;
-          min-height: 50px;
-          display: flex;
-          align-items: center;
-          border: 0;
-          border-bottom: 1px solid rgba(23, 19, 15, 0.08);
-          background: transparent;
-          padding: 0 18px;
-          color: #17130f;
-          text-decoration: none;
-          font-family: inherit;
-          font-size: 13px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: background 180ms ease, padding-left 180ms ease;
-        }
-
-        .account-link:hover {
-          background: rgba(255, 248, 235, 0.56);
-          padding-left: 22px;
-        }
-
-        .account-button {
-          text-align: left;
         }
 
         .public-menu {

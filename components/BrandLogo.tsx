@@ -3,7 +3,7 @@ import Link from "next/link";
 import React from "react";
 
 export const brandLogoSrc = "/brand/artwurk-logo-mark-wordmark.png";
-export const brandHeaderLogoSrc = "/brand/artwurk-a-mark.png";
+export const brandMonogramSrc = "/brand/artwurk-monogram.svg";
 export const brandLogoAlt = "ARTWURK™ luxury art brand logo";
 export const brandHeaderLogoAlt = "ARTWURK™ luxury art brand mark";
 
@@ -28,27 +28,27 @@ export default function BrandLogo({
   priority = false,
   className = "",
 }: BrandLogoProps) {
-  const isHeader = size === "header";
+  const isMonogram = size === "header" || size === "footer" || size === "crm";
   const logo = (
     <span className={`brand-logo-frame ${sizeClassName[size]} ${className}`}>
       <Image
-        src={isHeader ? brandHeaderLogoSrc : brandLogoSrc}
-        alt={isHeader ? brandHeaderLogoAlt : brandLogoAlt}
-        width={isHeader ? 650 : 1254}
-        height={isHeader ? 560 : 770}
+        src={isMonogram ? brandMonogramSrc : brandLogoSrc}
+        alt={isMonogram ? brandHeaderLogoAlt : brandLogoAlt}
+        width={isMonogram ? 512 : 1254}
+        height={isMonogram ? 512 : 770}
         priority={priority}
         sizes={
           size === "hero"
             ? "(max-width: 640px) 86vw, 540px"
-            : isHeader
+            : isMonogram
               ? "56px"
               : "(max-width: 640px) 120px, 180px"
         }
         style={{
           width: "100%",
-          height: isHeader ? "100%" : "auto",
+          height: isMonogram ? "100%" : "auto",
           display: "block",
-          objectFit: isHeader ? "contain" : undefined,
+          objectFit: isMonogram ? "contain" : undefined,
         }}
       />
 
@@ -79,13 +79,16 @@ export default function BrandLogo({
         }
 
         .brand-logo-footer {
-          width: 180px;
-          padding: 8px 12px;
+          width: 76px;
+          height: 76px;
+          padding: 8px;
+          border-radius: 24px;
         }
 
         .brand-logo-crm {
-          width: 112px;
-          padding: 6px;
+          width: 70px;
+          height: 70px;
+          padding: 7px;
           background: rgba(255, 255, 255, 0.96);
         }
 
