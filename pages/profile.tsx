@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 import BrandLogo from "../components/BrandLogo";
@@ -17,9 +17,17 @@ export default function ProfilePage() {
   const [lastName, setLastName] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [shippingCity, setShippingCity] = useState("");
+  const [shippingState, setShippingState] = useState("");
+  const [shippingZip, setShippingZip] = useState("");
+  const [shippingCountry, setShippingCountry] = useState("United States");
+  const [preferredContact, setPreferredContact] = useState("email");
   const [marketingConsent, setMarketingConsent] = useState(true);
   const [smsConsent, setSmsConsent] = useState(false);
   const [password, setPassword] = useState("");
+  const [signedIn, setSignedIn] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -38,6 +46,78 @@ export default function ProfilePage() {
     setErrorMessage(null);
     setSuccessMessage(null);
   };
+
+  const applyProfile = (profile: Record<string, any> | null | undefined) => {
+    if (!profile) {
+      return;
+    }
+
+    setEmail(profile.email ?? "");
+    setFirstName(profile.firstName ?? "");
+    setLastName(profile.lastName ?? "");
+    setDisplayName(profile.displayName ?? profile.name ?? "");
+    setPhone(profile.phone ?? "");
+    setPreferredContact(profile.preferredContact ?? "email");
+    setShippingAddress(profile.shippingAddress ?? "");
+    setShippingCity(profile.shippingCity ?? "");
+    setShippingState(profile.shippingState ?? "");
+    setShippingZip(profile.shippingZip ?? "");
+    setShippingCountry(profile.shippingCountry ?? "United States");
+    setMarketingConsent(Boolean(profile.marketingConsent));
+    setSmsConsent(Boolean(profile.smsConsent));
+  };
+
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+
+    if (!supabase) {
+      setProfileLoading(false);
+      return;
+    }
+
+    const hydrateSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        setSignedIn(false);
+        setProfileLoading(false);
+        return;
+      }
+
+      setSignedIn(true);
+      setMode("create");
+      setEmail(session.user.email ?? "");
+
+      const metadata = session.user.user_metadata ?? {};
+      setFirstName(typeof metadata.first_name === "string" ? metadata.first_name : "");
+      setLastName(typeof metadata.last_name === "string" ? metadata.last_name : "");
+      setDisplayName(
+        typeof metadata.display_name === "string"
+          ? metadata.display_name
+          : typeof metadata.name === "string"
+            ? metadata.name
+            : "",
+      );
+      setPhone(typeof metadata.phone === "string" ? metadata.phone : "");
+
+      const response = await fetch("/api/customer/profile", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (response.ok) {
+        const body = await response.json();
+        applyProfile(body.collector);
+      }
+
+      setProfileLoading(false);
+    };
+
+    void hydrateSession();
+  }, []);
 
   const establishOwnerSession = async (accessToken?: string) => {
     if (!accessToken) {
@@ -70,7 +150,7 @@ export default function ProfilePage() {
       return;
     }
 
-    await fetch("/api/customer/profile", {
+    const response = await fetch("/api/customer/profile", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -81,11 +161,22 @@ export default function ProfilePage() {
         lastName: lastName.trim() || undefined,
         displayName: buildProfileName() || undefined,
         phone: phone.trim() || undefined,
+        preferredContact,
+        shippingAddress: shippingAddress.trim() || undefined,
+        shippingCity: shippingCity.trim() || undefined,
+        shippingState: shippingState.trim() || undefined,
+        shippingZip: shippingZip.trim() || undefined,
+        shippingCountry: shippingCountry.trim() || undefined,
         marketingConsent,
         smsConsent,
         source,
       }),
     });
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      throw new Error(body?.error ?? "Unable to save collector profile.");
+    }
   };
 
   const sendWelcomeEmail = async (accessToken?: string) => {
@@ -135,6 +226,12 @@ export default function ProfilePage() {
           last_name: lastName.trim(),
           display_name: buildProfileName(),
           phone: phone.trim(),
+          preferred_contact: preferredContact,
+          shipping_address: shippingAddress.trim(),
+          shipping_city: shippingCity.trim(),
+          shipping_state: shippingState.trim(),
+          shipping_zip: shippingZip.trim(),
+          shipping_country: shippingCountry.trim(),
           marketing_consent: marketingConsent,
           sms_consent: smsConsent,
           source: "artwurk_profile",
@@ -159,6 +256,10 @@ export default function ProfilePage() {
     await syncCustomerProfile(session?.access_token, "collector-account-signup");
     await sendWelcomeEmail(session?.access_token);
 
+    if (session?.access_token) {
+      setSignedIn(true);
+    }
+
     trackLead({
       route: "/profile",
       page: "profile",
@@ -168,7 +269,7 @@ export default function ProfilePage() {
       customer: {
         name: buildProfileName(),
         email,
-        preferredContact: "email",
+        preferredContact: preferredContact as "email" | "whatsapp" | "phone",
       },
       metadata: {
         accessType: "collector-profile-waitlist",
@@ -219,11 +320,53 @@ export default function ProfilePage() {
 
     await syncCustomerProfile(data.session?.access_token, "collector-signin");
 
-    setSubmitted(true);
+    setSignedIn(true);
+    setSubmitted(false);
     setSuccessMessage(
       "You are signed in as a collector. Owner-only CRM access is limited to the authorized Hammer HQ account.",
     );
     setSubmitting(false);
+  };
+
+  const handleSaveProfile = async () => {
+    setSubmitting(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    const supabase = getSupabaseBrowserClient();
+    const sessionResult = supabase ? await supabase.auth.getSession() : null;
+    const session = sessionResult?.data.session ?? null;
+
+    if (!session?.access_token) {
+      setSubmitting(false);
+      setErrorMessage("Please sign in again before updating your collector profile.");
+      return;
+    }
+
+    await syncCustomerProfile(session.access_token, "collector-profile-update");
+    await supabase?.auth.updateUser({
+      data: {
+        name: buildProfileName(),
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        display_name: buildProfileName(),
+        phone: phone.trim(),
+        preferred_contact: preferredContact,
+        marketing_consent: marketingConsent,
+        sms_consent: smsConsent,
+      },
+    });
+    setSuccessMessage("Your collector profile has been saved for future checkout and shipping support.");
+    setSubmitted(false);
+    setSubmitting(false);
+  };
+
+  const handleSignOut = async () => {
+    await getSupabaseBrowserClient()?.auth.signOut();
+    setSignedIn(false);
+    setEmail("");
+    setPassword("");
+    setSuccessMessage("You have been signed out.");
   };
 
   return (
@@ -243,13 +386,15 @@ export default function ProfilePage() {
 
         <div className="profile-panel">
           <div className="profile-panel-kicker">
-            {mode === "create" ? "Priority Access" : "Owner Access"}
+            {signedIn ? "Saved Collector Details" : mode === "create" ? "Priority Access" : "Owner Access"}
           </div>
           <div className="profile-panel-title">
-            {mode === "create" ? "Create Collector Account" : "Sign In"}
+            {signedIn ? "Update Your Profile" : mode === "create" ? "Create Collector Account" : "Sign In"}
           </div>
           <p className="profile-panel-copy">
-            {mode === "create"
+            {signedIn
+              ? "Keep your collector identity, preferred contact path, and shipping details ready for future checkout, invoices, and private acquisition support."
+              : mode === "create"
               ? "Create your collector profile. Supabase Auth securely manages passwords and account confirmation for the production flow."
               : "Use an approved Hammer HQ admin account to open CRM dashboards, client data, campaigns, and protected analytics."}
           </p>
@@ -264,24 +409,172 @@ export default function ProfilePage() {
             </div>
           ) : null}
 
-          <div className="profile-mode-switch" aria-label="Profile access type">
-            <button
-              type="button"
-              className={mode === "create" ? "profile-mode-active" : ""}
-              onClick={() => switchMode("create")}
-            >
-              Collector Profile
-            </button>
-            <button
-              type="button"
-              className={mode === "signin" ? "profile-mode-active" : ""}
-              onClick={() => switchMode("signin")}
-            >
-              Owner Sign In
-            </button>
-          </div>
+          {!signedIn ? (
+            <div className="profile-mode-switch" aria-label="Profile access type">
+              <button
+                type="button"
+                className={mode === "create" ? "profile-mode-active" : ""}
+                onClick={() => switchMode("create")}
+              >
+                Collector Profile
+              </button>
+              <button
+                type="button"
+                className={mode === "signin" ? "profile-mode-active" : ""}
+                onClick={() => switchMode("signin")}
+              >
+                Owner Sign In
+              </button>
+            </div>
+          ) : null}
 
-          {!submitted ? (
+          {profileLoading ? (
+            <div className="profile-success">Preparing your private collector profile.</div>
+          ) : signedIn ? (
+            <div className="profile-form">
+              <div className="profile-name-grid">
+                <div className="profile-input-row">
+                  <UserIcon className="profile-icon" />
+                  <input
+                    value={firstName}
+                    onChange={(event) => setFirstName(event.target.value)}
+                    placeholder="First name"
+                    className="profile-input"
+                  />
+                </div>
+                <div className="profile-input-row">
+                  <UserIcon className="profile-icon" />
+                  <input
+                    value={lastName}
+                    onChange={(event) => setLastName(event.target.value)}
+                    placeholder="Last name"
+                    className="profile-input"
+                  />
+                </div>
+                <div className="profile-input-row profile-wide-input">
+                  <UserIcon className="profile-icon" />
+                  <input
+                    value={displayName}
+                    onChange={(event) => setDisplayName(event.target.value)}
+                    placeholder="Display name"
+                    className="profile-input"
+                  />
+                </div>
+                <div className="profile-input-row profile-wide-input">
+                  <MailIcon className="profile-icon" />
+                  <input value={email} disabled className="profile-input" aria-label="Account email" />
+                </div>
+                <div className="profile-input-row profile-wide-input">
+                  <UserIcon className="profile-icon" />
+                  <input
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                    placeholder="Phone number"
+                    className="profile-input"
+                  />
+                </div>
+                <div className="profile-input-row profile-wide-input">
+                  <UserIcon className="profile-icon" />
+                  <select
+                    value={preferredContact}
+                    onChange={(event) => setPreferredContact(event.target.value)}
+                    className="profile-input"
+                    aria-label="Preferred contact method"
+                  >
+                    <option value="email">Email</option>
+                    <option value="phone">Phone</option>
+                    <option value="whatsapp">WhatsApp</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="profile-section-label">Shipping readiness</div>
+              <div className="profile-name-grid">
+                <div className="profile-input-row profile-wide-input">
+                  <UserIcon className="profile-icon" />
+                  <input
+                    value={shippingAddress}
+                    onChange={(event) => setShippingAddress(event.target.value)}
+                    placeholder="Shipping address"
+                    className="profile-input"
+                  />
+                </div>
+                <div className="profile-input-row">
+                  <UserIcon className="profile-icon" />
+                  <input
+                    value={shippingCity}
+                    onChange={(event) => setShippingCity(event.target.value)}
+                    placeholder="City"
+                    className="profile-input"
+                  />
+                </div>
+                <div className="profile-input-row">
+                  <UserIcon className="profile-icon" />
+                  <input
+                    value={shippingState}
+                    onChange={(event) => setShippingState(event.target.value)}
+                    placeholder="State"
+                    className="profile-input"
+                  />
+                </div>
+                <div className="profile-input-row">
+                  <UserIcon className="profile-icon" />
+                  <input
+                    value={shippingZip}
+                    onChange={(event) => setShippingZip(event.target.value)}
+                    placeholder="ZIP code"
+                    className="profile-input"
+                  />
+                </div>
+                <div className="profile-input-row">
+                  <UserIcon className="profile-icon" />
+                  <input
+                    value={shippingCountry}
+                    onChange={(event) => setShippingCountry(event.target.value)}
+                    placeholder="Country"
+                    className="profile-input"
+                  />
+                </div>
+                <label className="profile-consent profile-wide-input">
+                  <input
+                    type="checkbox"
+                    checked={marketingConsent}
+                    onChange={(event) => setMarketingConsent(event.target.checked)}
+                  />
+                  <span>Email me private releases, collector follow-ups, and ARTWURK updates.</span>
+                </label>
+                <label className="profile-consent profile-wide-input">
+                  <input
+                    type="checkbox"
+                    checked={smsConsent}
+                    onChange={(event) => setSmsConsent(event.target.checked)}
+                  />
+                  <span>I consent to future SMS follow-up. ARTWURK will not text without this consent.</span>
+                </label>
+              </div>
+              {errorMessage ? <div className="profile-error">{errorMessage}</div> : null}
+              {successMessage ? <div className="profile-success">{successMessage}</div> : null}
+              <button
+                type="button"
+                className="profile-submit"
+                onClick={() => void handleSaveProfile()}
+                disabled={submitting}
+              >
+                {submitting ? "Saving Profile" : "Save Profile"}
+              </button>
+              <button
+                type="button"
+                className="profile-submit profile-submit-secondary"
+                onClick={() => void handleSignOut()}
+              >
+                Sign Out
+              </button>
+              <p className="profile-helper">
+                These details stay connected to your collector account so future checkout,
+                invoice, shipping, and private acquisition support can move faster.
+              </p>
+            </div>
+          ) : !submitted ? (
             <div className="profile-form">
               {mode === "create" ? (
                 <div className="profile-name-grid">
@@ -321,6 +614,64 @@ export default function ProfilePage() {
                       className="profile-input"
                     />
                   </div>
+                  <div className="profile-input-row profile-wide-input">
+                    <UserIcon className="profile-icon" />
+                    <select
+                      value={preferredContact}
+                      onChange={(event) => setPreferredContact(event.target.value)}
+                      className="profile-input"
+                      aria-label="Preferred contact method"
+                    >
+                      <option value="email">Preferred contact: Email</option>
+                      <option value="phone">Preferred contact: Phone</option>
+                      <option value="whatsapp">Preferred contact: WhatsApp</option>
+                    </select>
+                  </div>
+                  <div className="profile-input-row profile-wide-input">
+                    <UserIcon className="profile-icon" />
+                    <input
+                      value={shippingAddress}
+                      onChange={(event) => setShippingAddress(event.target.value)}
+                      placeholder="Shipping address (optional)"
+                      className="profile-input"
+                    />
+                  </div>
+                  <div className="profile-input-row">
+                    <UserIcon className="profile-icon" />
+                    <input
+                      value={shippingCity}
+                      onChange={(event) => setShippingCity(event.target.value)}
+                      placeholder="City"
+                      className="profile-input"
+                    />
+                  </div>
+                  <div className="profile-input-row">
+                    <UserIcon className="profile-icon" />
+                    <input
+                      value={shippingState}
+                      onChange={(event) => setShippingState(event.target.value)}
+                      placeholder="State"
+                      className="profile-input"
+                    />
+                  </div>
+                  <div className="profile-input-row">
+                    <UserIcon className="profile-icon" />
+                    <input
+                      value={shippingZip}
+                      onChange={(event) => setShippingZip(event.target.value)}
+                      placeholder="ZIP code"
+                      className="profile-input"
+                    />
+                  </div>
+                  <div className="profile-input-row">
+                    <UserIcon className="profile-icon" />
+                    <input
+                      value={shippingCountry}
+                      onChange={(event) => setShippingCountry(event.target.value)}
+                      placeholder="Country"
+                      className="profile-input"
+                    />
+                  </div>
                   <label className="profile-consent profile-wide-input">
                     <input
                       type="checkbox"
@@ -357,7 +708,7 @@ export default function ProfilePage() {
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Create a password"
+                  placeholder={mode === "create" ? "Create a password" : "Password"}
                   className="profile-input"
                 />
               </div>
@@ -534,6 +885,15 @@ export default function ProfilePage() {
           grid-column: 1 / -1;
         }
 
+        .profile-section-label {
+          margin-top: 6px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: #d4af37;
+        }
+
         .profile-input-row {
           display: flex;
           align-items: center;
@@ -576,6 +936,15 @@ export default function ProfilePage() {
           color: #f7f2e8;
           font-size: 15px;
           font-family: "Times New Roman", Georgia, serif;
+        }
+
+        .profile-input:disabled {
+          opacity: 0.72;
+        }
+
+        select.profile-input option {
+          color: #17130f;
+          background: #eadbc0;
         }
 
         .profile-input::placeholder {
@@ -659,7 +1028,8 @@ export default function ProfilePage() {
         }
 
         .profile-kicker,
-        .profile-panel-kicker {
+        .profile-panel-kicker,
+        .profile-section-label {
           color: #75552b;
         }
 
@@ -682,6 +1052,12 @@ export default function ProfilePage() {
           background: #17130f;
           border-color: #17130f;
           color: #eadbc0;
+        }
+
+        .profile-submit-secondary {
+          background: rgba(255, 248, 235, 0.36);
+          border-color: rgba(23, 19, 15, 0.12);
+          color: #17130f;
         }
       `}</style>
     </div>

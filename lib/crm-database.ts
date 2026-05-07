@@ -21,6 +21,11 @@ type CollectorInput = {
   displayName?: string;
   phone?: string;
   preferredContact?: string;
+  shippingAddress?: string;
+  shippingCity?: string;
+  shippingState?: string;
+  shippingZip?: string;
+  shippingCountry?: string;
   source: string;
   status?: string;
   marketingConsent?: boolean;
@@ -116,6 +121,11 @@ export const upsertCollector = async ({
   displayName,
   phone,
   preferredContact,
+  shippingAddress,
+  shippingCity,
+  shippingState,
+  shippingZip,
+  shippingCountry,
   source,
   status = "new",
   marketingConsent,
@@ -139,6 +149,11 @@ export const upsertCollector = async ({
         display_name: displayName,
         phone,
         preferred_contact: preferredContact,
+        shipping_address: shippingAddress,
+        shipping_city: shippingCity,
+        shipping_state: shippingState,
+        shipping_zip: shippingZip,
+        shipping_country: shippingCountry,
         source,
         status,
         marketing_consent: marketingConsent,
@@ -200,7 +215,7 @@ export const upsertEmailSignup = async ({
 export const getCollectors = async () => {
   const { data, error } = await getSupabaseAdmin()
     .from("artwurk_collectors")
-    .select("name,email,first_name,last_name,display_name,phone,marketing_consent,sms_consent,status,source,created_at")
+    .select("name,email,first_name,last_name,display_name,phone,preferred_contact,shipping_address,shipping_city,shipping_state,shipping_zip,shipping_country,marketing_consent,sms_consent,status,source,created_at")
     .order("created_at", { ascending: false })
     .limit(1000);
 
@@ -215,6 +230,12 @@ export const getCollectors = async () => {
     lastName: collector.last_name,
     displayName: collector.display_name,
     phone: collector.phone,
+    preferredContact: collector.preferred_contact,
+    shippingAddress: collector.shipping_address,
+    shippingCity: collector.shipping_city,
+    shippingState: collector.shipping_state,
+    shippingZip: collector.shipping_zip,
+    shippingCountry: collector.shipping_country,
     marketingConsent: Boolean(collector.marketing_consent),
     smsConsent: Boolean(collector.sms_consent),
     status: collector.status ?? "new",

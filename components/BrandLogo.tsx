@@ -3,7 +3,9 @@ import Link from "next/link";
 import React from "react";
 
 export const brandLogoSrc = "/brand/artwurk-logo-mark-wordmark.png";
+export const brandHeaderLogoSrc = "/brand/artwurk-a-mark.png";
 export const brandLogoAlt = "ARTWURK™ luxury art brand logo";
+export const brandHeaderLogoAlt = "ARTWURK™ luxury art brand mark";
 
 type BrandLogoProps = {
   href?: string;
@@ -26,23 +28,27 @@ export default function BrandLogo({
   priority = false,
   className = "",
 }: BrandLogoProps) {
+  const isHeader = size === "header";
   const logo = (
     <span className={`brand-logo-frame ${sizeClassName[size]} ${className}`}>
       <Image
-        src={brandLogoSrc}
-        alt={brandLogoAlt}
-        width={1254}
-        height={770}
+        src={isHeader ? brandHeaderLogoSrc : brandLogoSrc}
+        alt={isHeader ? brandHeaderLogoAlt : brandLogoAlt}
+        width={isHeader ? 650 : 1254}
+        height={isHeader ? 560 : 770}
         priority={priority}
         sizes={
           size === "hero"
             ? "(max-width: 640px) 86vw, 540px"
-            : "(max-width: 640px) 120px, 180px"
+            : isHeader
+              ? "56px"
+              : "(max-width: 640px) 120px, 180px"
         }
         style={{
           width: "100%",
-          height: "auto",
+          height: isHeader ? "100%" : "auto",
           display: "block",
+          objectFit: isHeader ? "contain" : undefined,
         }}
       />
 
@@ -59,8 +65,10 @@ export default function BrandLogo({
         }
 
         .brand-logo-header {
-          width: 138px;
-          padding: 6px 10px;
+          width: 58px;
+          height: 58px;
+          padding: 8px;
+          border-radius: 18px;
         }
 
         .brand-logo-hero {
@@ -88,8 +96,9 @@ export default function BrandLogo({
 
         @media (max-width: 640px) {
           .brand-logo-header {
-            width: 112px;
-            padding: 5px 8px;
+            width: 52px;
+            height: 52px;
+            padding: 7px;
           }
 
           .brand-logo-hero {

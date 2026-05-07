@@ -197,6 +197,12 @@ export type ArtwurkCollectorRecord = {
   lastName?: string | null;
   displayName?: string | null;
   phone?: string | null;
+  preferredContact?: string | null;
+  shippingAddress?: string | null;
+  shippingCity?: string | null;
+  shippingState?: string | null;
+  shippingZip?: string | null;
+  shippingCountry?: string | null;
   marketingConsent: boolean;
   smsConsent: boolean;
   source?: string | null;

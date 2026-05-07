@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import PublicHeader from "../components/PublicHeader";
 import SiteFooter from "../components/SiteFooter";
 import SiteSeo from "../components/SiteSeo";
 import { useCart } from "../components/CartProvider";
+import { getSupabaseBrowserClient } from "../lib/supabase-browser";
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat("en-US", {
@@ -17,6 +18,7 @@ const formatCurrency = (amount: number) =>
 export default function CartPage() {
   const { items, subtotal, removeItem, startCheckout, ready } = useCart();
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
+  const [collectorProfile, setCollectorProfile] = useState<Record<string, any> | null>(null);
 
   const hasDirectCheckout = useMemo(
     () => items.some((item) => item.artworkId === "ART-003"),
@@ -31,6 +33,44 @@ export default function CartPage() {
         : "Checkout intent saved. Hammer HQ can follow up with availability, invoice, and reservation details.",
     );
   };
+
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+
+    if (!supabase) {
+      return;
+    }
+
+    const loadCollectorProfile = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        return;
+      }
+
+      const response = await fetch("/api/customer/profile", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (response.ok) {
+        const body = await response.json();
+        setCollectorProfile(body.collector ?? null);
+      }
+    };
+
+    void loadCollectorProfile();
+  }, []);
+
+  const hasShippingProfile = Boolean(
+    collectorProfile?.shippingAddress &&
+      collectorProfile?.shippingCity &&
+      collectorProfile?.shippingState &&
+      collectorProfile?.shippingZip,
+  );
 
   return (
     <div className="cart-page">
@@ -110,6 +150,22 @@ export default function CartPage() {
               Pricing reflects listed artwork values. Framing, delivery, and private invoice terms
               can be finalized directly with Hammer HQ before acquisition.
             </p>
+            {collectorProfile ? (
+              <div className="profile-readiness">
+                <span>Collector profile</span>
+                <strong>{hasShippingProfile ? "Shipping ready" : "Shipping details recommended"}</strong>
+                <p>
+                  {hasShippingProfile
+                    ? `${collectorProfile.shippingCity}, ${collectorProfile.shippingState} is saved for future processing.`
+                    : "Add shipping details in My Profile before checkout to move acquisition support faster."}
+                </p>
+                {!hasShippingProfile ? (
+                  <Link href="/profile" className="profile-readiness-link">
+                    Update Profile
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
             <button
               type="button"
               className="checkout-button"
@@ -298,6 +354,58 @@ export default function CartPage() {
           font-weight: 500;
         }
 
+        .profile-readiness {
+          margin-top: 18px;
+          border-radius: 22px;
+          border: 1px solid rgba(212, 175, 55, 0.18);
+          background: rgba(255, 255, 255, 0.025);
+          padding: 16px;
+        }
+
+        .profile-readiness span {
+          display: block;
+          color: #d4af37;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+        }
+
+        .profile-readiness strong {
+          display: block;
+          margin-top: 8px;
+          color: #f7f2e8;
+          font-size: 18px;
+          font-weight: 500;
+        }
+
+        .profile-readiness p {
+          margin: 10px 0 0;
+          color: rgba(247, 242, 232, 0.68);
+          font-size: 14px;
+          line-height: 1.7;
+        }
+
+        .profile-readiness-link {
+          display: inline-flex;
+          margin-top: 12px;
+          border-radius: 999px;
+          background: rgba(212, 175, 55, 0.1);
+          padding: 9px 12px;
+          color: #f7f2e8;
+          text-decoration: none;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          transition: transform 180ms ease, background 180ms ease;
+        }
+
+        .profile-readiness-link:hover {
+          transform: translateY(-1px);
+          background: rgba(212, 175, 55, 0.18);
+        }
+
         .checkout-button,
         .reserve-button,
         .cart-link-button {
@@ -389,9 +497,25 @@ export default function CartPage() {
         .cart-hero p,
         .cart-copy p,
         .summary-copy,
+        .profile-readiness p,
         .empty-cart p,
         .checkout-message {
           color: rgba(23, 19, 15, 0.68);
+        }
+
+        .profile-readiness {
+          border-color: rgba(23, 19, 15, 0.1);
+          background: rgba(255, 248, 235, 0.32);
+        }
+
+        .profile-readiness span,
+        .profile-readiness strong {
+          color: #75552b;
+        }
+
+        .profile-readiness-link {
+          background: rgba(23, 19, 15, 0.08);
+          color: #17130f;
         }
 
         .cart-availability,

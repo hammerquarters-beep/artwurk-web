@@ -298,7 +298,7 @@ export const getCartCrmData = async () => {
       .limit(200),
     supabase
       .from("artwurk_collectors")
-      .select("id,email,name,first_name,last_name,display_name,phone,marketing_consent,sms_consent,source,status,created_at")
+      .select("id,email,name,first_name,last_name,display_name,phone,preferred_contact,shipping_address,shipping_city,shipping_state,shipping_zip,shipping_country,marketing_consent,sms_consent,source,status,created_at")
       .order("created_at", { ascending: false })
       .limit(500),
   ]);
@@ -379,6 +379,12 @@ export const getCartCrmData = async () => {
       lastName: collector.last_name,
       displayName: collector.display_name,
       phone: collector.phone,
+      preferredContact: collector.preferred_contact,
+      shippingAddress: collector.shipping_address,
+      shippingCity: collector.shipping_city,
+      shippingState: collector.shipping_state,
+      shippingZip: collector.shipping_zip,
+      shippingCountry: collector.shipping_country,
       marketingConsent: Boolean(collector.marketing_consent),
       smsConsent: Boolean(collector.sms_consent),
       source: collector.source,

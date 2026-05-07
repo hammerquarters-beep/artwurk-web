@@ -735,7 +735,20 @@ export default function Home() {
           <section className="landing-hero">
             <div className="landing-hero-shell">
               <div className="landing-logo-wrap">
-                <BrandLogo size="hero" priority />
+                <div className="landing-full-logo-frame" aria-hidden="true">
+                  <Image
+                    src="/brand/artwurk-logo-transparent.png"
+                    alt="ARTWURK™ luxury art brand logo"
+                    width={1254}
+                    height={1254}
+                    priority
+                    sizes="(max-width: 760px) 84vw, 520px"
+                    className="landing-full-logo"
+                  />
+                </div>
+                <p className="landing-slogan">
+                  Putting <strong>YOU</strong> in Art
+                </p>
               </div>
 
               {flagshipArtwork ? (
@@ -1888,7 +1901,41 @@ export default function Home() {
         }
 
         .landing-logo-wrap {
+          display: grid;
+          justify-items: center;
+          gap: 12px;
           filter: drop-shadow(0 28px 72px rgba(0, 0, 0, 0.52));
+        }
+
+        .landing-full-logo-frame {
+          width: min(520px, 84vw);
+          overflow: hidden;
+          border: 1px solid rgba(45, 32, 18, 0.1);
+          border-radius: 38px;
+          background: rgba(255, 252, 245, 0.86);
+          box-shadow: 0 34px 90px rgba(58, 42, 24, 0.2);
+        }
+
+        .landing-full-logo {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+
+        .landing-slogan {
+          margin: 0;
+          color: rgba(23, 19, 15, 0.68);
+          font-size: clamp(1.05rem, 3.6vw, 1.55rem);
+          letter-spacing: 0.22em;
+          line-height: 1.2;
+          text-transform: none;
+        }
+
+        .landing-slogan strong {
+          color: #17130f;
+          font-size: 1.28em;
+          font-weight: 900;
+          letter-spacing: 0.12em;
         }
 
         .landing-copy {

@@ -103,7 +103,10 @@ export default function PublicHeader() {
                     My Profile
                   </Link>
                   <Link href="/cart" className="account-link">
-                    My Cart
+                    Go to Cart
+                  </Link>
+                  <Link href="/profile" className="account-link">
+                    Update Profile
                   </Link>
                   <button type="button" className="account-link account-button" onClick={handleSignOut}>
                     Sign Out
@@ -122,7 +125,7 @@ export default function PublicHeader() {
             {count ? <span className="cart-count">{count}</span> : null}
           </Link>
 
-          <div className="public-mobile-menu">
+          <div className="public-menu">
             <CollectorMenu align="right" accountLabel={customerName} onSignOut={handleSignOut} />
           </div>
         </div>
@@ -280,8 +283,8 @@ export default function PublicHeader() {
           text-align: left;
         }
 
-        .public-mobile-menu {
-          display: none;
+        .public-menu {
+          display: block;
         }
 
         @media (max-width: 840px) {
@@ -292,10 +295,6 @@ export default function PublicHeader() {
 
           .public-nav {
             display: none;
-          }
-
-          .public-mobile-menu {
-            display: block;
           }
 
           .cart-link {

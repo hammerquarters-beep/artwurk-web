@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import {
   CloseIcon,
+  CartIcon,
   MailIcon,
   MenuIcon,
   TagIcon,
@@ -44,10 +45,15 @@ export default function CollectorMenu({ align = "left", accountLabel, onSignOut 
       label: "Contact Us",
       icon: <MailIcon className="collector-menu-icon" />,
     },
+    {
+      href: "/cart",
+      label: "Go to Cart",
+      icon: <CartIcon className="collector-menu-icon" />,
+    },
     accountLabel
       ? {
           href: "/profile",
-          label: accountLabel,
+          label: "My Profile",
           icon: <UserIcon className="collector-menu-icon" />,
         }
       : {
@@ -58,8 +64,8 @@ export default function CollectorMenu({ align = "left", accountLabel, onSignOut 
     ...(accountLabel
       ? [
           {
-            href: "/cart",
-            label: "My Cart",
+            href: "/profile",
+            label: "Update Profile",
             icon: <TagIcon className="collector-menu-icon" />,
           },
         ]
@@ -80,13 +86,13 @@ export default function CollectorMenu({ align = "left", accountLabel, onSignOut 
       <div className={`collector-menu-panel align-${align}${open ? " is-open" : ""}`}>
         <div className="collector-menu-header">
           <div className="collector-menu-kicker">Collector Access</div>
-          <div className="collector-menu-title">ARTWURK Menu</div>
+          <div className="collector-menu-title">{accountLabel ?? "ARTWURK Menu"}</div>
         </div>
 
         <nav className="collector-menu-links">
           {navItems.map((item, index) => (
             <a
-              key={item.href}
+              key={`${item.href}-${item.label}`}
               href={item.href}
               className={`collector-menu-link${index < navItems.length - 1 ? " has-divider" : ""}`}
             >
