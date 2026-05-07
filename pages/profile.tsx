@@ -746,9 +746,7 @@ export default function ProfilePage() {
       <style jsx>{`
         .profile-page {
           min-height: 100vh;
-          background:
-            radial-gradient(circle at top, rgba(255, 248, 235, 0.68), transparent 28%),
-            linear-gradient(180deg, #e7d8bd, #d5bd93 54%, #c7ad82);
+          background: #ffffff;
           color: #17130f;
           font-family: "Times New Roman", Georgia, serif;
         }
@@ -1014,9 +1012,7 @@ export default function ProfilePage() {
         }
 
         .profile-page {
-          background:
-            radial-gradient(circle at top, rgba(255, 248, 235, 0.68), transparent 28%),
-            linear-gradient(180deg, #e7d8bd, #d5bd93 54%, #c7ad82);
+          background: #ffffff;
           color: #17130f;
         }
 

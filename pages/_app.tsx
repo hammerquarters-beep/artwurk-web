@@ -8,7 +8,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <Component {...pageProps} />
       <style jsx global>{`
         :root {
-          --artwurk-cream: #e7d8bd;
+          --artwurk-cream: #ffffff;
           --artwurk-taupe: #c7ad82;
           --artwurk-taupe-deep: #9f8053;
           --artwurk-charcoal: #17130f;
@@ -23,7 +23,8 @@ export default function App({ Component, pageProps }: AppProps) {
 
         body {
           margin: 0;
-          background: var(--artwurk-cream);
+          background: #ffffff;
+          color: var(--artwurk-charcoal);
         }
 
         a {

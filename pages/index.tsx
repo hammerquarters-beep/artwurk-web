@@ -2,7 +2,8 @@ import Image from "next/image";
 import Script from "next/script";
 import React, { FormEvent, useEffect, useState } from "react";
 
-import { CartIcon } from "../components/ArtwurkIcons";
+import { CartIcon, UserIcon } from "../components/ArtwurkIcons";
+import AccountAccessPanel from "../components/AccountAccessPanel";
 import BrandLogo from "../components/BrandLogo";
 import { useCart } from "../components/CartProvider";
 import PromoPopup from "../components/PromoPopup";
@@ -18,6 +19,8 @@ import {
   trackInquiry,
   trackLead,
 } from "../lib/tracking";
+import { getCustomerDisplayName } from "../lib/customer-auth-client";
+import { getSupabaseBrowserClient } from "../lib/supabase-browser";
 
 type CollectorFormState = {
   name: string;
@@ -35,8 +38,7 @@ type SubmissionState = {
 
 const pageStyle: React.CSSProperties = {
   minHeight: "100vh",
-  background:
-    "radial-gradient(circle at 50% 0%, rgba(255, 248, 235, 0.72), transparent 34%), linear-gradient(180deg, #e7d8bd 0%, #dac49e 54%, #c7ad82 100%)",
+  background: "#ffffff",
   color: "#17130f",
   fontFamily: '"Times New Roman", Georgia, serif',
 };
@@ -136,19 +138,6 @@ const galleryCardDescriptions: Partial<Record<ArtworkRecord["id"], string>> = {
   "ART-003": "Stillness, mystery, and quiet authority.",
 };
 
-const collectorTrustPoints = [
-  "Original works",
-  "Private collector inquiries",
-  "Secure checkout",
-  "Art appraisal services",
-  "Hammer HQ LLC",
-];
-
-const landingPreviewArtworkIds = ["ART-003", "ART-005", "ART-038"];
-
-const getArtworkTeaser = (artwork: ArtworkRecord) =>
-  galleryCardDescriptions[artwork.id] ?? artwork.story;
-
 const createInitialCollectorForm = (): CollectorFormState => ({
   name: "",
   email: "",
@@ -219,6 +208,8 @@ export default function Home() {
   const [selectedWatcherFrameId, setSelectedWatcherFrameId] = useState("none");
   const [watcherInquiryOpen, setWatcherInquiryOpen] = useState(false);
   const [cartPulseArtworkId, setCartPulseArtworkId] = useState<string | null>(null);
+  const [entryAccountOpen, setEntryAccountOpen] = useState(false);
+  const [entryCustomerName, setEntryCustomerName] = useState<string | null>(null);
   const [submissionState, setSubmissionState] = useState<SubmissionState>({
     status: "idle",
   });
@@ -264,6 +255,35 @@ export default function Home() {
         source: "session-start",
       });
     }
+  }, []);
+
+  useEffect(() => {
+    const syncEntrySession = async () => {
+      const supabase = getSupabaseBrowserClient();
+      const {
+        data: { session },
+      } = supabase ? await supabase.auth.getSession() : { data: { session: null } };
+
+      setEntryCustomerName(getCustomerDisplayName(session) || null);
+    };
+
+    void syncEntrySession();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const openGalleryFromHash = () => {
+      if (window.location.hash === "#gallery") {
+        setShowGallery(true);
+      }
+    };
+
+    openGalleryFromHash();
+    window.addEventListener("hashchange", openGalleryFromHash);
+    return () => window.removeEventListener("hashchange", openGalleryFromHash);
   }, []);
 
   useEffect(() => {
@@ -695,12 +715,6 @@ export default function Home() {
       .filter((artwork): artwork is ArtworkRecord => Boolean(artwork)),
     ...artworks.filter((artwork) => !galleryPriorityArtworkIds.includes(artwork.id)),
   ];
-  const landingPreviewArtworks = landingPreviewArtworkIds
-    .map((id) => artworks.find((artwork) => artwork.id === id))
-    .filter((artwork): artwork is ArtworkRecord => Boolean(artwork));
-  const flagshipArtwork =
-    artworks.find((artwork) => artwork.id === theWatcherArtworkId) ?? landingPreviewArtworks[0];
-
   const handleAcquireArtwork = () => {
     if (!selectedArtwork) {
       return;
@@ -727,15 +741,29 @@ export default function Home() {
         title="ARTWURK™ | Luxury Original Artwork"
         description="ARTWURK™ presents luxury original artwork, private collector acquisition, secure checkout, and premium art appraisal services by Hammer HQ LLC."
       />
-      <PublicHeader />
+      {showGallery ? <PublicHeader /> : null}
       <PromoPopup enabled={showGallery && !selectedArtwork} />
 
       {!showGallery ? (
-        <main className="landing-page" aria-labelledby="landing-title">
-          <section className="landing-hero">
-            <div className="landing-hero-shell">
-              <div className="landing-logo-wrap">
-                <div className="landing-full-logo-frame" aria-hidden="true">
+        <main className="entry-page" aria-labelledby="entry-title">
+          <button
+            type="button"
+            className="entry-account-button"
+            onClick={() => setEntryAccountOpen(true)}
+            aria-label="Open account sign in"
+          >
+            <UserIcon className="entry-account-icon" />
+          </button>
+
+          <section className="entry-hero">
+            <button
+              type="button"
+              className="entry-logo-button"
+              onClick={enterCollection}
+              aria-label="Enter ARTWURK collection"
+            >
+              <span className="landing-logo-wrap">
+                <span className="landing-full-logo-frame" aria-hidden="true">
                   <Image
                     src="/brand/artwurk-logo-transparent.png"
                     alt="ARTWURK™ luxury art brand logo"
@@ -745,157 +773,30 @@ export default function Home() {
                     sizes="(max-width: 760px) 84vw, 520px"
                     className="landing-full-logo"
                   />
-                </div>
-                <p className="landing-slogan">
+                </span>
+                <span className="landing-slogan">
                   Putting <strong>YOU</strong> in Art
-                </p>
-              </div>
-
-              {flagshipArtwork ? (
-                <button
-                  type="button"
-                  className="landing-editorial"
-                  onClick={() => openArtwork(flagshipArtwork)}
-                  aria-label={`Open ${flagshipArtwork.name} featured artwork`}
-                >
-                  <Image
-                    src={flagshipArtwork.image}
-                    alt={`${flagshipArtwork.name} editorial artwork hero`}
-                    fill
-                    priority
-                    sizes="(max-width: 760px) 92vw, 760px"
-                    style={{ objectFit: "cover" }}
-                  />
-                  <span>Featured original / {flagshipArtwork.price}</span>
-                </button>
-              ) : null}
-
-              <div className="landing-copy">
-                <p className="landing-kicker">Private original artwork</p>
-                <h1 id="landing-title" className="landing-title">
-                  ARTWURK<span>™</span>
-                </h1>
-                <p className="landing-subtitle">Original works with collector-level presence.</p>
-                <p className="landing-description">
-                  A focused art house for one-of-one paintings, private acquisition conversations,
-                  secure checkout, and premium appraisal services through Hammer HQ LLC.
-                </p>
-              </div>
-
-              <div className="landing-cta-row" aria-label="Primary ARTWURK actions">
-                <button type="button" className="luxury-button primary" onClick={enterCollection}>
-                  View Collection
-                </button>
-                <a
-                  href="/appraisal"
-                  className="luxury-button secondary"
-                  onClick={handlePrivateAppraisalClick}
-                >
-                  Request Private Appraisal
-                </a>
-              </div>
-
-              <div className="landing-proof-strip" aria-label="ARTWURK collector trust points">
-                {collectorTrustPoints.map((point) => (
-                  <span key={point}>{point}</span>
-                ))}
-              </div>
-            </div>
+                </span>
+                <span id="entry-title" className="entry-enter-text">Click logo to enter</span>
+              </span>
+            </button>
           </section>
 
-          {flagshipArtwork ? (
-            <section className="flagship-section" aria-labelledby="featured-work-title">
-              <div className="premium-section-heading">
-                <p className="landing-kicker">Featured Work</p>
-                <h2 id="featured-work-title">The flagship collector piece</h2>
-                <p>
-                  The Watcher leads the collection with quiet authority, private collector
-                  availability, and secure checkout options.
-                </p>
-              </div>
+          <AccountAccessPanel
+            open={entryAccountOpen}
+            customerName={entryCustomerName}
+            onClose={() => setEntryAccountOpen(false)}
+            onAuthChanged={async () => {
+              const supabase = getSupabaseBrowserClient();
+              const {
+                data: { session },
+              } = supabase ? await supabase.auth.getSession() : { data: { session: null } };
 
-              <button
-                type="button"
-                className="flagship-card"
-                onClick={() => openArtwork(flagshipArtwork)}
-                aria-label={`Open ${flagshipArtwork.name} collector details`}
-              >
-                <div className="flagship-image">
-                  <Image
-                    src={flagshipArtwork.image}
-                    alt={`${flagshipArtwork.name} original artwork by ARTWURK`}
-                    fill
-                    priority
-                    sizes="(max-width: 760px) 100vw, 48vw"
-                    style={{ objectFit: "cover" }}
-                  />
-                </div>
-                <div className="flagship-copy">
-                  <span className="artwork-badge">One-of-one original</span>
-                  <h3>{flagshipArtwork.name}</h3>
-                  <p>{flagshipArtwork.story}</p>
-                  <div className="flagship-meta">
-                    <span>{flagshipArtwork.dimensions}</span>
-                    <span>{flagshipArtwork.price}</span>
-                  </div>
-                  <span className="reserve-link">Reserve this piece</span>
-                </div>
-              </button>
-            </section>
-          ) : null}
-
-          <section className="preview-section" aria-labelledby="preview-title">
-            <div className="premium-section-heading compact">
-              <p className="landing-kicker">Collector Preview</p>
-              <h2 id="preview-title">Original work, direct owner follow-up</h2>
-            </div>
-
-            <div className="preview-grid">
-              {landingPreviewArtworks.map((artwork) => (
-                <article key={artwork.id} className="preview-card">
-                  <button
-                    type="button"
-                    className="preview-card-main"
-                    onClick={() => openArtwork(artwork)}
-                    aria-label={`Open ${artwork.name} collector details`}
-                  >
-                  <div className="preview-image">
-                    <Image
-                      src={artwork.image}
-                      alt={`${artwork.name} original artwork preview`}
-                      fill
-                      loading="lazy"
-                      sizes="(max-width: 760px) 100vw, 33vw"
-                      style={{ objectFit: "cover" }}
-                    />
-                  </div>
-                  <div className="preview-copy">
-                    <span>{artwork.displayId ?? artwork.id}</span>
-                    <h3>{artwork.name}</h3>
-                    <p>{getArtworkTeaser(artwork)}</p>
-                    <div className="preview-meta">
-                      <span>{artwork.dimensions}</span>
-                      <strong>{artwork.price}</strong>
-                    </div>
-                  </div>
-                  </button>
-                  <button
-                    type="button"
-                    className={`quick-cart-button${cartPulseArtworkId === artwork.id ? " is-added" : ""}`}
-                    onClick={(event) => void handleQuickAddToCart(event, artwork)}
-                    aria-label={`Add ${artwork.name} to cart`}
-                  >
-                    <CartIcon className="quick-cart-icon" />
-                    <span>+</span>
-                  </button>
-                </article>
-              ))}
-            </div>
-          </section>
+              setEntryCustomerName(getCustomerDisplayName(session) || null);
+            }}
+          />
         </main>
       ) : null}
-
-      {!showGallery ? <SiteFooter /> : null}
 
       {showGallery ? (
         <div
@@ -906,7 +807,7 @@ export default function Home() {
           }}
         >
           <main>
-            <section className="gallery-hero">
+            <section id="gallery" className="gallery-hero">
               <div className="gallery-hero-inner">
                 <p className="gallery-kicker">Curated original works</p>
                 <div className="gallery-logo-mark"><BrandLogo size="profile" /></div>
@@ -1871,11 +1772,76 @@ export default function Home() {
           outline-offset: 4px;
         }
 
+        .entry-page {
+          position: relative;
+          min-height: 100svh;
+          overflow: hidden;
+          background: #ffffff;
+          color: #11100e;
+        }
+
+        .entry-account-button {
+          position: fixed;
+          top: 24px;
+          right: 24px;
+          z-index: 20;
+          width: 52px;
+          height: 52px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid rgba(17, 16, 14, 0.12);
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.86);
+          color: #11100e;
+          cursor: pointer;
+          transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+        }
+
+        .entry-account-button:hover {
+          transform: translateY(-1px);
+          background: #ffffff;
+          box-shadow: 0 16px 34px rgba(17, 16, 14, 0.08);
+        }
+
+        .entry-account-icon {
+          width: 19px;
+          height: 19px;
+        }
+
+        .entry-hero {
+          min-height: 100svh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 42px 18px;
+        }
+
+        .entry-logo-button {
+          appearance: none;
+          border: 0;
+          background: transparent;
+          padding: 0;
+          color: inherit;
+          cursor: pointer;
+        }
+
+        .entry-logo-button:hover .landing-full-logo-frame {
+          transform: translateY(-3px);
+          box-shadow: 0 28px 70px rgba(17, 16, 14, 0.1);
+        }
+
+        .entry-enter-text {
+          color: rgba(17, 16, 14, 0.46);
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+        }
+
         .landing-page {
           overflow: hidden;
-          background:
-            radial-gradient(circle at 50% 0%, rgba(255, 248, 235, 0.72), transparent 34%),
-            linear-gradient(180deg, #e7d8bd 0%, #dac49e 54%, #c7ad82 100%);
+          background: #ffffff;
         }
 
         .landing-hero {
@@ -1904,16 +1870,18 @@ export default function Home() {
           display: grid;
           justify-items: center;
           gap: 12px;
-          filter: drop-shadow(0 28px 72px rgba(0, 0, 0, 0.52));
+          filter: none;
         }
 
         .landing-full-logo-frame {
+          display: block;
           width: min(520px, 84vw);
           overflow: hidden;
           border: 1px solid rgba(45, 32, 18, 0.1);
           border-radius: 38px;
-          background: rgba(255, 252, 245, 0.86);
-          box-shadow: 0 34px 90px rgba(58, 42, 24, 0.2);
+          background: #ffffff;
+          box-shadow: 0 20px 54px rgba(17, 16, 14, 0.06);
+          transition: transform 220ms ease, box-shadow 220ms ease;
         }
 
         .landing-full-logo {
@@ -2225,9 +2193,7 @@ export default function Home() {
 
         .gallery-hero {
           padding: 72px 18px 46px;
-          background:
-            radial-gradient(circle at top, rgba(255, 248, 235, 0.62), transparent 28%),
-            #d5bd93;
+          background: #ffffff;
           border-bottom: 1px solid rgba(23, 19, 15, 0.1);
           text-align: center;
         }
@@ -2310,9 +2276,7 @@ export default function Home() {
 
         .gallery-grid-section {
           padding: 28px 16px 72px;
-          background:
-            radial-gradient(circle at top, rgba(255, 248, 235, 0.58), transparent 30%),
-            #d5bd93;
+          background: #ffffff;
         }
 
         .gallery-grid {
@@ -2440,7 +2404,7 @@ export default function Home() {
           letter-spacing: 0.16em;
           text-transform: uppercase;
           color: rgba(247, 242, 233, 0.44);
-          background: #c7ad82;
+          background: #ffffff;
           border-top: 1px solid rgba(23, 19, 15, 0.08);
         }
 
@@ -2452,9 +2416,7 @@ export default function Home() {
         }
 
         .landing-page {
-          background:
-            radial-gradient(circle at 50% 0%, rgba(255, 248, 235, 0.72), transparent 34%),
-            linear-gradient(180deg, #e7d8bd 0%, #dac49e 54%, #c7ad82 100%);
+          background: #ffffff;
         }
 
         .landing-editorial {
@@ -2664,9 +2626,7 @@ export default function Home() {
 
         .gallery-hero,
         .gallery-grid-section {
-          background:
-            radial-gradient(circle at top, rgba(255, 248, 235, 0.58), transparent 30%),
-            #d5bd93;
+          background: #ffffff;
         }
 
         .artwurk-modal-overlay {
@@ -2709,10 +2669,6 @@ export default function Home() {
           .landing-cta-row,
           .gallery-hero-actions {
             grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-
-          .landing-proof-strip {
-            grid-template-columns: repeat(5, minmax(0, 1fr));
           }
 
           .flagship-card {

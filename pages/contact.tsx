@@ -143,9 +143,7 @@ export default function ContactPage() {
         }
 
         .contact-page {
-          background:
-            radial-gradient(circle at top, rgba(255, 248, 235, 0.68), transparent 28%),
-            linear-gradient(180deg, #e7d8bd, #d5bd93 54%, #c7ad82);
+          background: #ffffff;
           color: #17130f;
         }
 

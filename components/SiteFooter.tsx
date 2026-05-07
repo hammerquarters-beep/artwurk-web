@@ -94,7 +94,7 @@ export default function SiteFooter() {
 
       <style jsx>{`
         .site-footer {
-          background: #c7ad82;
+          background: #ffffff;
           padding: 46px 14px 30px;
           color: #17130f;
         }

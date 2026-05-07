@@ -36,6 +36,11 @@ export default function CollectorMenu({ align = "left", accountLabel, onSignOut 
 
   const navItems = [
     {
+      href: "/#gallery",
+      label: "See Full Gallery",
+      icon: <CartIcon className="collector-menu-icon" />,
+    },
+    {
       href: "/appraisal",
       label: "Art Appraisal",
       icon: <TagIcon className="collector-menu-icon" />,

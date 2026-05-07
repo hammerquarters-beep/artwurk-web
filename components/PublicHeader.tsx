@@ -121,8 +121,8 @@ export default function PublicHeader() {
           position: sticky;
           top: 0;
           z-index: 120;
-          border-bottom: 1px solid rgba(34, 25, 16, 0.08);
-          background: rgba(231, 216, 189, 0.9);
+          border-bottom: 1px solid rgba(17, 16, 14, 0.08);
+          background: rgba(255, 255, 255, 0.88);
           backdrop-filter: blur(20px);
         }
 
@@ -153,12 +153,12 @@ export default function PublicHeader() {
           border: 1px solid transparent;
           border-radius: 999px;
           padding: 0 16px;
-          color: #17130f;
+          color: #11100e;
           text-decoration: none;
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
+          font-size: 13px;
+          font-weight: 500;
+          letter-spacing: 0.04em;
+          text-transform: none;
           transition:
             transform 180ms ease,
             border-color 180ms ease,
@@ -179,15 +179,15 @@ export default function PublicHeader() {
           position: relative;
           min-width: 48px;
           padding: 0 13px;
-          border-color: rgba(23, 19, 15, 0.1);
-          background: rgba(239, 226, 201, 0.42);
+          border-color: rgba(17, 16, 14, 0.1);
+          background: rgba(255, 255, 255, 0.72);
         }
 
         .account-icon-link {
           min-width: 48px;
           padding: 0 13px;
-          border-color: rgba(23, 19, 15, 0.1);
-          background: rgba(239, 226, 201, 0.42);
+          border-color: rgba(17, 16, 14, 0.1);
+          background: rgba(255, 255, 255, 0.72);
           cursor: pointer;
           font-family: inherit;
         }
