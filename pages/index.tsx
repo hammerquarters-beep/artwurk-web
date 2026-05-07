@@ -133,6 +133,19 @@ const galleryCardDescriptions: Partial<Record<ArtworkRecord["id"], string>> = {
   "ART-003": "Stillness, mystery, and quiet authority.",
 };
 
+const collectorTrustPoints = [
+  "Original works",
+  "Private collector inquiries",
+  "Secure checkout",
+  "Art appraisal services",
+  "Hammer HQ LLC",
+];
+
+const landingPreviewArtworkIds = ["ART-003", "ART-005", "ART-038"];
+
+const getArtworkTeaser = (artwork: ArtworkRecord) =>
+  galleryCardDescriptions[artwork.id] ?? artwork.story;
+
 const createInitialCollectorForm = (): CollectorFormState => ({
   name: "",
   email: "",
@@ -360,6 +373,15 @@ export default function Home() {
       source: "landing-cta",
     });
     setShowGallery(true);
+  };
+
+  const handlePrivateAppraisalClick = () => {
+    trackEvent({
+      event: "request_private_appraisal_click",
+      route: "/",
+      page: "landing",
+      source: "landing-secondary-cta",
+    });
   };
 
   const openArtwork = (artwork: ArtworkRecord) => {
@@ -628,6 +650,11 @@ export default function Home() {
       .filter((artwork): artwork is ArtworkRecord => Boolean(artwork)),
     ...artworks.filter((artwork) => !galleryPriorityArtworkIds.includes(artwork.id)),
   ];
+  const landingPreviewArtworks = landingPreviewArtworkIds
+    .map((id) => artworks.find((artwork) => artwork.id === id))
+    .filter((artwork): artwork is ArtworkRecord => Boolean(artwork));
+  const flagshipArtwork =
+    artworks.find((artwork) => artwork.id === theWatcherArtworkId) ?? landingPreviewArtworks[0];
 
   const handleAcquireArtwork = () => {
     if (!selectedArtwork) {
@@ -651,95 +678,134 @@ export default function Home() {
 
   return (
     <div style={pageStyle}>
-      <SiteSeo />
+      <SiteSeo
+        title="ARTWURK\u2122 | Luxury Original Artwork"
+        description="ARTWURK\u2122 presents luxury original artwork, private collector acquisition, secure checkout, and premium art appraisal services by Hammer HQ LLC."
+      />
       <PublicHeader />
       <PromoPopup enabled={showGallery && !selectedArtwork} />
 
       {!showGallery ? (
-        <section
-          style={{
-            minHeight: "calc(100vh - 86px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "24px",
-            animation: "artwurk-fade-in 420ms ease both",
-          }}
-        >
-          <div
-            style={{
-              width: "min(980px, 100%)",
-              textAlign: "center",
-              padding: "48px 24px",
-            }}
-          >
-            <BrandLogo size="hero" priority />
-
-            <div
-              style={{
-                marginTop: "34px",
-                display: "grid",
-                gap: "12px",
-                justifyItems: "center",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "clamp(28px, 4vw, 48px)",
-                  lineHeight: 1,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  color: "rgba(247, 242, 233, 0.92)",
-                  fontWeight: 500,
-                }}
-              >
-                ARTWURK
-                <span
-                  style={{
-                    fontSize: "0.28em",
-                    verticalAlign: "top",
-                    marginLeft: "6px",
-                    color: "rgba(212, 175, 55, 0.74)",
-                    fontWeight: 400,
-                  }}
-                >
-                  {"\u2122"}
-                </span>
+        <main className="landing-page" aria-labelledby="landing-title">
+          <section className="landing-hero">
+            <div className="landing-hero-shell">
+              <div className="landing-logo-wrap">
+                <BrandLogo size="hero" priority />
               </div>
-              <div
-                style={{
-                  fontSize: "12px",
-                  letterSpacing: "0.42em",
-                  textTransform: "uppercase",
-                  color: "rgba(212, 175, 55, 0.78)",
-                  fontWeight: 400,
-                }}
-              >
-                Original Works
+
+              <div className="landing-copy">
+                <p className="landing-kicker">Private original artwork</p>
+                <h1 id="landing-title" className="landing-title">
+                  ARTWURK<span>{"\u2122"}</span>
+                </h1>
+                <p className="landing-subtitle">Original works for collectors who want presence.</p>
+                <p className="landing-description">
+                  A black-room gallery experience for one-of-one paintings, private acquisition
+                  conversations, secure checkout, and premium appraisal services through Hammer HQ LLC.
+                </p>
+              </div>
+
+              <div className="landing-cta-row" aria-label="Primary ARTWURK actions">
+                <button type="button" className="luxury-button primary" onClick={enterCollection}>
+                  View Collection
+                </button>
+                <a
+                  href="/appraisal"
+                  className="luxury-button secondary"
+                  onClick={handlePrivateAppraisalClick}
+                >
+                  Request Private Appraisal
+                </a>
+              </div>
+
+              <div className="landing-proof-strip" aria-label="ARTWURK collector trust points">
+                {collectorTrustPoints.map((point) => (
+                  <span key={point}>{point}</span>
+                ))}
               </div>
             </div>
+          </section>
 
-            <button
-              onClick={enterCollection}
-              style={{
-                marginTop: "42px",
-                padding: "16px 30px",
-                border: "1px solid rgba(255, 255, 255, 0.16)",
-                background: "rgba(255, 255, 255, 0.03)",
-                color: "#f7f2e9",
-                cursor: "pointer",
-                fontSize: "12px",
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                transition:
-                  "transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease",
-                boxShadow: "0 16px 50px rgba(0, 0, 0, 0.26)",
-              }}
-            >
-              View Collection
-            </button>
-          </div>
-        </section>
+          {flagshipArtwork ? (
+            <section className="flagship-section" aria-labelledby="featured-work-title">
+              <div className="premium-section-heading">
+                <p className="landing-kicker">Featured Work</p>
+                <h2 id="featured-work-title">The flagship collector piece</h2>
+                <p>
+                  The Watcher leads the collection with quiet authority, private collector
+                  availability, and secure checkout options.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="flagship-card"
+                onClick={() => openArtwork(flagshipArtwork)}
+                aria-label={`Open ${flagshipArtwork.name} collector details`}
+              >
+                <div className="flagship-image">
+                  <Image
+                    src={flagshipArtwork.image}
+                    alt={`${flagshipArtwork.name} original artwork by ARTWURK`}
+                    fill
+                    priority
+                    sizes="(max-width: 760px) 100vw, 48vw"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+                <div className="flagship-copy">
+                  <span className="artwork-badge">One-of-one original</span>
+                  <h3>{flagshipArtwork.name}</h3>
+                  <p>{flagshipArtwork.story}</p>
+                  <div className="flagship-meta">
+                    <span>{flagshipArtwork.dimensions}</span>
+                    <span>{flagshipArtwork.price}</span>
+                  </div>
+                  <span className="reserve-link">Reserve this piece</span>
+                </div>
+              </button>
+            </section>
+          ) : null}
+
+          <section className="preview-section" aria-labelledby="preview-title">
+            <div className="premium-section-heading compact">
+              <p className="landing-kicker">Collector Preview</p>
+              <h2 id="preview-title">Original work, direct owner follow-up</h2>
+            </div>
+
+            <div className="preview-grid">
+              {landingPreviewArtworks.map((artwork) => (
+                <button
+                  key={artwork.id}
+                  type="button"
+                  className="preview-card"
+                  onClick={() => openArtwork(artwork)}
+                  aria-label={`Open ${artwork.name} collector details`}
+                >
+                  <div className="preview-image">
+                    <Image
+                      src={artwork.image}
+                      alt={`${artwork.name} original artwork preview`}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 760px) 100vw, 33vw"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </div>
+                  <div className="preview-copy">
+                    <span>{artwork.displayId ?? artwork.id}</span>
+                    <h3>{artwork.name}</h3>
+                    <p>{getArtworkTeaser(artwork)}</p>
+                    <div className="preview-meta">
+                      <span>{artwork.dimensions}</span>
+                      <strong>{artwork.price}</strong>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+        </main>
       ) : null}
 
       {!showGallery ? <SiteFooter /> : null}
@@ -755,17 +821,22 @@ export default function Home() {
           <main>
             <section className="gallery-hero">
               <div className="gallery-hero-inner">
-                <p className="gallery-kicker">Curated Original Works</p>
+                <p className="gallery-kicker">Curated original works</p>
                 <div className="gallery-logo-mark"><BrandLogo size="profile" /></div>
                 <h1 className="gallery-brand">
                   ARTWURK
                   <span className="gallery-brand-mark">{"\u2122"}</span>
                 </h1>
                 <p className="gallery-description">
-                  Enter a curated world of bold originals designed to command attention,
-                  elevate interiors, and leave a lasting impression. Each piece is created
-                  to carry presence, emotion, and collector-level distinction.
+                  Explore one-of-one paintings built for private collectors, statement
+                  interiors, and direct Hammer HQ acquisition support.
                 </p>
+                <div className="gallery-hero-actions">
+                  <a href="/appraisal" onClick={handlePrivateAppraisalClick}>
+                    Request Private Appraisal
+                  </a>
+                  <a href="/contact">Contact ARTWURK</a>
+                </div>
               </div>
             </section>
 
@@ -784,6 +855,7 @@ export default function Home() {
                       type="button"
                       className={`gallery-card${isFeatured ? " featured" : ""}`}
                       onClick={() => openArtwork(artwork)}
+                      aria-label={`Open ${artwork.name} artwork details`}
                       onMouseEnter={() => handleArtworkHover(artwork)}
                       onMouseLeave={() =>
                         setHoveredArtworkId((current) =>
@@ -823,10 +895,19 @@ export default function Home() {
                         </div>
 
                         <div className="gallery-card-copy">
-                          <div className="gallery-card-meta">{displayId}</div>
+                          <div className="gallery-card-topline">
+                            <span>{displayId}</span>
+                            <span>{formatStatusLabel(artwork.status)}</span>
+                          </div>
                           <h2>{artwork.name}</h2>
                           <p>{description}</p>
-                          <div className="gallery-card-price">{artwork.price}</div>
+                          <div className="gallery-card-details">
+                            <span>{artwork.dimensions}</span>
+                            <strong>{artwork.price}</strong>
+                          </div>
+                          <div className="gallery-card-cta">
+                            {artwork.id === theWatcherArtworkId ? "Secure checkout available" : "Reserve this piece"}
+                          </div>
                         </div>
                       </div>
                     </button>
@@ -843,6 +924,7 @@ export default function Home() {
       {selectedArtwork ? (
         <div
           onClick={() => closeArtwork("overlay")}
+          className="artwurk-modal-overlay"
           style={{
             position: "fixed",
             inset: 0,
@@ -852,13 +934,14 @@ export default function Home() {
             alignItems: "center",
             justifyContent: "center",
             padding: "24px",
-            zIndex: 80,
+            zIndex: 140,
             opacity: modalVisible ? 1 : 0,
             transition: "opacity 220ms ease, background 220ms ease, backdrop-filter 220ms ease",
           }}
         >
           <div
             onClick={(event) => event.stopPropagation()}
+            className="artwurk-modal-card"
             style={{
               width: "min(1280px, 100%)",
               maxHeight: "calc(100vh - 48px)",
@@ -879,6 +962,7 @@ export default function Home() {
               }}
             >
               <div
+                className="artwurk-modal-art"
                 style={{
                   position: "relative",
                   minHeight: "min(80vh, 860px)",
@@ -909,6 +993,7 @@ export default function Home() {
               </div>
 
               <div
+                className="artwurk-modal-panel"
                 style={{
                   padding: "34px 30px 30px",
                   display: "flex",
@@ -1602,8 +1687,350 @@ export default function Home() {
           }
         }
 
+        @keyframes artwurk-rise {
+          from {
+            opacity: 0;
+            transform: translateY(18px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        * {
+          box-sizing: border-box;
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+          outline: 2px solid rgba(212, 175, 55, 0.9);
+          outline-offset: 4px;
+        }
+
+        .landing-page {
+          overflow: hidden;
+          background:
+            radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.12), transparent 30%),
+            linear-gradient(180deg, #020202 0%, #050505 48%, #020202 100%);
+        }
+
+        .landing-hero {
+          min-height: calc(100svh - 76px);
+          display: flex;
+          align-items: center;
+          padding: 34px 16px 48px;
+        }
+
+        .landing-hero-shell,
+        .flagship-section,
+        .preview-section {
+          width: min(1180px, calc(100vw - 32px));
+          margin: 0 auto;
+        }
+
+        .landing-hero-shell {
+          display: grid;
+          justify-items: center;
+          gap: 28px;
+          text-align: center;
+          animation: artwurk-rise 520ms ease both;
+        }
+
+        .landing-logo-wrap {
+          filter: drop-shadow(0 28px 72px rgba(0, 0, 0, 0.52));
+        }
+
+        .landing-copy {
+          max-width: 780px;
+          display: grid;
+          gap: 14px;
+          justify-items: center;
+        }
+
+        .landing-kicker {
+          margin: 0;
+          font-size: 11px;
+          letter-spacing: 0.34em;
+          text-transform: uppercase;
+          color: rgba(212, 175, 55, 0.82);
+        }
+
+        .landing-title {
+          margin: 0;
+          font-size: clamp(2.75rem, 14vw, 6.8rem);
+          line-height: 0.9;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #fbf7ee;
+          text-shadow:
+            0 0 16px rgba(212, 175, 55, 0.24),
+            0 0 44px rgba(212, 175, 55, 0.12);
+        }
+
+        .landing-title span {
+          margin-left: 6px;
+          vertical-align: top;
+          font-size: 0.18em;
+          color: rgba(212, 175, 55, 0.78);
+        }
+
+        .landing-subtitle {
+          margin: 0;
+          font-size: clamp(1.12rem, 4.8vw, 1.62rem);
+          line-height: 1.35;
+          color: rgba(247, 242, 233, 0.92);
+        }
+
+        .landing-description {
+          max-width: 680px;
+          margin: 0;
+          font-size: clamp(1rem, 3.8vw, 1.12rem);
+          line-height: 1.8;
+          color: rgba(247, 242, 233, 0.7);
+        }
+
+        .landing-cta-row {
+          width: min(100%, 680px);
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+
+        .luxury-button {
+          min-height: 58px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid rgba(212, 175, 55, 0.34);
+          border-radius: 999px;
+          padding: 0 22px;
+          text-decoration: none;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition:
+            transform 180ms ease,
+            box-shadow 180ms ease,
+            border-color 180ms ease,
+            background 180ms ease;
+        }
+
+        .luxury-button.primary {
+          background: linear-gradient(135deg, #d4af37, #f4db83);
+          color: #080808;
+          box-shadow: 0 18px 48px rgba(212, 175, 55, 0.16);
+        }
+
+        .luxury-button.secondary {
+          background: rgba(255, 255, 255, 0.035);
+          color: #f7f2e9;
+        }
+
+        .luxury-button:hover,
+        .luxury-button:active {
+          transform: translateY(-2px);
+          border-color: rgba(212, 175, 55, 0.74);
+          box-shadow: 0 22px 54px rgba(0, 0, 0, 0.34), 0 0 28px rgba(212, 175, 55, 0.13);
+        }
+
+        .luxury-button:active {
+          transform: translateY(0) scale(0.99);
+        }
+
+        .landing-proof-strip {
+          width: 100%;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .landing-proof-strip span {
+          min-height: 44px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.025);
+          color: rgba(247, 242, 233, 0.72);
+          font-size: 11px;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+        }
+
+        .flagship-section,
+        .preview-section {
+          padding: 62px 0;
+        }
+
+        .premium-section-heading {
+          max-width: 760px;
+          margin: 0 auto 26px;
+          text-align: center;
+        }
+
+        .premium-section-heading.compact {
+          margin-bottom: 22px;
+        }
+
+        .premium-section-heading h2 {
+          margin: 14px 0 0;
+          font-size: clamp(2rem, 9vw, 4.4rem);
+          line-height: 0.95;
+          letter-spacing: -0.04em;
+          color: #f7f2e9;
+        }
+
+        .premium-section-heading p:not(.landing-kicker) {
+          margin: 18px auto 0;
+          max-width: 640px;
+          color: rgba(247, 242, 233, 0.68);
+          font-size: 16px;
+          line-height: 1.85;
+        }
+
+        .flagship-card,
+        .preview-card {
+          width: 100%;
+          appearance: none;
+          border: 1px solid rgba(212, 175, 55, 0.18);
+          background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
+            #070707;
+          color: inherit;
+          text-align: left;
+          cursor: pointer;
+          overflow: hidden;
+          transition:
+            transform 220ms ease,
+            border-color 220ms ease,
+            box-shadow 220ms ease;
+        }
+
+        .flagship-card {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+
+        .flagship-card:hover,
+        .preview-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(212, 175, 55, 0.42);
+          box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45), 0 0 36px rgba(212, 175, 55, 0.1);
+        }
+
+        .flagship-card:active,
+        .preview-card:active,
+        .gallery-card:active {
+          transform: scale(0.992);
+        }
+
+        .flagship-image,
+        .preview-image {
+          position: relative;
+          overflow: hidden;
+          background: #0b0b0b;
+        }
+
+        .flagship-image {
+          min-height: 360px;
+          aspect-ratio: 1 / 1.05;
+        }
+
+        .preview-image {
+          aspect-ratio: 1 / 1;
+        }
+
+        .flagship-image :global(img),
+        .preview-image :global(img) {
+          transition: transform 520ms ease;
+        }
+
+        .flagship-card:hover .flagship-image :global(img),
+        .preview-card:hover .preview-image :global(img) {
+          transform: scale(1.035);
+        }
+
+        .flagship-copy,
+        .preview-copy {
+          padding: 24px;
+        }
+
+        .artwork-badge,
+        .preview-copy > span,
+        .gallery-card-topline {
+          font-size: 11px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: rgba(212, 175, 55, 0.78);
+        }
+
+        .flagship-copy h3,
+        .preview-copy h3 {
+          margin: 14px 0 0;
+          font-size: clamp(1.8rem, 8vw, 3.4rem);
+          line-height: 0.98;
+          color: #f8f3ea;
+        }
+
+        .preview-copy h3 {
+          font-size: 1.45rem;
+          line-height: 1.05;
+        }
+
+        .flagship-copy p,
+        .preview-copy p {
+          margin: 16px 0 0;
+          color: rgba(247, 242, 233, 0.68);
+          font-size: 15px;
+          line-height: 1.75;
+        }
+
+        .flagship-meta,
+        .preview-meta,
+        .gallery-card-details {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          gap: 12px;
+          margin-top: 22px;
+          color: rgba(247, 242, 233, 0.74);
+          font-size: 13px;
+          line-height: 1.4;
+        }
+
+        .flagship-meta span:last-child,
+        .preview-meta strong,
+        .gallery-card-details strong {
+          color: #d4af37;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+        }
+
+        .reserve-link,
+        .gallery-card-cta {
+          display: inline-flex;
+          margin-top: 22px;
+          color: #f7f2e9;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+        }
+
+        .preview-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+
         .gallery-hero {
-          padding: 88px 24px 52px;
+          padding: 72px 18px 46px;
           background:
             radial-gradient(circle at top, rgba(212, 175, 55, 0.16), transparent 28%),
             #040404;
@@ -1657,8 +2084,38 @@ export default function Home() {
           color: rgba(247, 242, 233, 0.78);
         }
 
+        .gallery-hero-actions {
+          width: min(100%, 620px);
+          margin: 28px auto 0;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+
+        .gallery-hero-actions a {
+          min-height: 52px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid rgba(212, 175, 55, 0.24);
+          background: rgba(255, 255, 255, 0.025);
+          color: rgba(247, 242, 233, 0.86);
+          text-decoration: none;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+        }
+
+        .gallery-hero-actions a:hover {
+          transform: translateY(-2px);
+          border-color: rgba(212, 175, 55, 0.52);
+          background: rgba(212, 175, 55, 0.06);
+        }
+
         .gallery-grid-section {
-          padding: 42px 24px 72px;
+          padding: 28px 16px 72px;
           background: #040404;
         }
 
@@ -1666,13 +2123,15 @@ export default function Home() {
           width: min(1280px, 100%);
           margin: 0 auto;
           display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 24px;
+          grid-template-columns: 1fr;
+          gap: 18px;
         }
 
         .gallery-card {
           border: 1px solid rgba(255, 255, 255, 0.08);
-          background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
+          background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012)),
+            #060606;
           overflow: hidden;
           transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
           appearance: none;
@@ -1684,9 +2143,9 @@ export default function Home() {
         }
 
         .gallery-card:hover {
-          transform: translateY(-4px);
-          border-color: rgba(212, 175, 55, 0.28);
-          box-shadow: 0 18px 38px rgba(0, 0, 0, 0.38);
+          transform: translateY(-5px);
+          border-color: rgba(212, 175, 55, 0.38);
+          box-shadow: 0 24px 54px rgba(0, 0, 0, 0.44), 0 0 30px rgba(212, 175, 55, 0.08);
         }
 
         .gallery-card.featured {
@@ -1736,7 +2195,14 @@ export default function Home() {
         }
 
         .gallery-card-copy {
-          padding: 18px 18px 20px;
+          padding: 20px;
+        }
+
+        .gallery-card-topline {
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          color: rgba(212, 175, 55, 0.74);
         }
 
         .gallery-card-meta {
@@ -1748,8 +2214,9 @@ export default function Home() {
         }
 
         .gallery-card-copy h2 {
-          margin: 0 0 8px;
-          font-size: 1.2rem;
+          margin: 12px 0 8px;
+          font-size: 1.35rem;
+          line-height: 1.05;
           color: #f7f2e8;
         }
 
@@ -1764,6 +2231,10 @@ export default function Home() {
           font-size: 1rem;
           letter-spacing: 0.06em;
           color: #d4af37;
+        }
+
+        .gallery-card-cta {
+          color: rgba(247, 242, 233, 0.9);
         }
 
         .gallery-footer-note {
@@ -1784,9 +2255,46 @@ export default function Home() {
           background: linear-gradient(180deg, rgba(212, 175, 55, 0.22), rgba(212, 175, 55, 0.08));
         }
 
-        @media (max-width: 980px) {
+        @media (min-width: 700px) {
+          .landing-cta-row,
+          .gallery-hero-actions {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .landing-proof-strip {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+          }
+
+          .flagship-card {
+            grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
+            align-items: stretch;
+          }
+
+          .flagship-image {
+            min-height: 560px;
+            aspect-ratio: auto;
+          }
+
+          .flagship-copy {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 44px;
+          }
+
+          .preview-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+          }
+
           .gallery-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (min-width: 981px) {
+          .gallery-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
           }
         }
 
@@ -1794,9 +2302,42 @@ export default function Home() {
           .artwurk-modal-grid {
             grid-template-columns: 1fr !important;
           }
+
+          .artwurk-modal-overlay {
+            align-items: flex-start !important;
+            padding: 14px !important;
+            overflow: auto !important;
+          }
+
+          .artwurk-modal-card {
+            max-height: none !important;
+            overflow: visible !important;
+          }
+
+          .artwurk-modal-art {
+            min-height: 56vh !important;
+            border-right: none !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+            padding: 14px !important;
+          }
+
+          .artwurk-modal-panel {
+            padding: 24px 18px 28px !important;
+          }
         }
 
         @media (max-width: 640px) {
+          .landing-hero-shell,
+          .flagship-section,
+          .preview-section {
+            width: min(100%, calc(100vw - 28px));
+          }
+
+          .landing-proof-strip span {
+            justify-content: flex-start;
+            padding: 0 16px;
+          }
+
           .gallery-hero {
             padding: 68px 18px 42px;
           }

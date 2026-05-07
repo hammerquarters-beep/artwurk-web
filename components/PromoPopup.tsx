@@ -1,12 +1,11 @@
 import React, { FormEvent, useEffect, useState } from "react";
 
-import { CloseIcon, MailIcon, PercentIcon } from "./ArtwurkIcons";
+import { CloseIcon, MailIcon } from "./ArtwurkIcons";
 import { trackLead } from "../lib/tracking";
 
-const DISCOUNT_CODE = {
-  code: "FIRST20",
-  amountOffPercent: 20,
-  audience: "first_time_email_signup",
+const COLLECTOR_ACCESS = {
+  code: "PRIVATE-LIST",
+  audience: "collector_email_signup",
 };
 
 const DISMISSED_KEY = "artwurk.promo.dismissed";
@@ -68,9 +67,8 @@ export default function PromoPopup({ enabled }: PromoPopupProps) {
         preferredContact: "email",
       },
       metadata: {
-        discountCode: DISCOUNT_CODE.code,
-        audience: DISCOUNT_CODE.audience,
-        amountOffPercent: DISCOUNT_CODE.amountOffPercent,
+        collectorAccess: COLLECTOR_ACCESS.code,
+        audience: COLLECTOR_ACCESS.audience,
       },
     });
 
@@ -78,7 +76,7 @@ export default function PromoPopup({ enabled }: PromoPopupProps) {
     setOpen(true);
 
     if (typeof window !== "undefined") {
-      window.localStorage.setItem(CLAIMED_KEY, DISCOUNT_CODE.code);
+      window.localStorage.setItem(CLAIMED_KEY, COLLECTOR_ACCESS.code);
       window.localStorage.removeItem(DISMISSED_KEY);
     }
   };
@@ -94,12 +92,11 @@ export default function PromoPopup({ enabled }: PromoPopupProps) {
           <CloseIcon className="promo-popup-close-icon" />
         </button>
 
-        <div className="promo-popup-kicker">Private Offer</div>
-        <h2 className="promo-popup-title">20% Off Your First Purchase</h2>
+        <div className="promo-popup-kicker">Private Collector Access</div>
+        <h2 className="promo-popup-title">Join the ARTWURK collector list</h2>
         <p className="promo-popup-copy">
-          Join the ARTWURK collector list with a new email and unlock your first-purchase
-          offer. This also gives Hammer HQ a clean way to invite you to future private
-          drops, event pricing, and collector-only releases.
+          Request first-look access to original works, private viewing notes, appraisal
+          availability, and direct owner follow-up from Hammer HQ.
         </p>
 
         {!submitted ? (
@@ -115,20 +112,19 @@ export default function PromoPopup({ enabled }: PromoPopupProps) {
               />
             </div>
             <button type="submit" className="promo-popup-submit">
-              Unlock Offer
+              Request Access
             </button>
           </form>
         ) : (
           <div className="promo-popup-success">
             <div className="promo-popup-success-label">
-              <PercentIcon className="promo-popup-success-icon" />
-              <span>Discount Unlocked</span>
+              <MailIcon className="promo-popup-success-icon" />
+              <span>Collector request received</span>
             </div>
-            <div className="promo-popup-code">{DISCOUNT_CODE.code}</div>
+            <div className="promo-popup-code">Private List</div>
             <p className="promo-popup-success-copy">
-              Use this code before checkout. Later, this same system can support custom
-              codes for return customers, family members, and anyone on your email or text
-              list.
+              Hammer HQ can now follow up with private availability, acquisition support,
+              and collector-only release notes.
             </p>
           </div>
         )}
@@ -257,6 +253,10 @@ export default function PromoPopup({ enabled }: PromoPopupProps) {
 
           .promo-popup-submit:hover {
             transform: scale(1.01);
+          }
+
+          .promo-popup-submit:active {
+            transform: scale(0.99);
           }
 
           .promo-popup-success {

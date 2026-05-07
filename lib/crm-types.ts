@@ -13,6 +13,7 @@ export type ArtwurkEventName =
   | "session_started"
   | "return_visit"
   | "view_collection_click"
+  | "request_private_appraisal_click"
   | "gallery_view"
   | "artwork_card_hover"
   | "artwork_click"

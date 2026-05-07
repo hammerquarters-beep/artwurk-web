@@ -31,10 +31,11 @@ export default function PublicHeader() {
 
       <style jsx>{`
         .public-header {
-          position: relative;
+          position: sticky;
+          top: 0;
           z-index: 80;
           border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-          background: linear-gradient(180deg, rgba(2, 2, 2, 0.96), rgba(2, 2, 2, 0.82));
+          background: linear-gradient(180deg, rgba(2, 2, 2, 0.96), rgba(2, 2, 2, 0.78));
           backdrop-filter: blur(18px);
         }
 
@@ -63,12 +64,18 @@ export default function PublicHeader() {
           text-decoration: none;
           color: rgba(247, 242, 232, 0.76);
           font-size: 11px;
+          font-weight: 700;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
+          transition:
+            transform 180ms ease,
+            border-color 180ms ease,
+            color 180ms ease,
+            background 180ms ease;
         }
 
         .public-nav-link:hover {
+          transform: translateY(-1px);
           border-color: rgba(212, 175, 55, 0.22);
           background: rgba(255, 255, 255, 0.025);
           color: #f7f2e8;
@@ -81,6 +88,7 @@ export default function PublicHeader() {
         @media (max-width: 780px) {
           .public-header-shell {
             min-height: 76px;
+            width: min(100%, calc(100vw - 24px));
           }
 
           .public-nav {
