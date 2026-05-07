@@ -17,10 +17,6 @@ const footerColumns = [
       { label: "Art Appraisal", href: "/appraisal" },
       { label: "Private Collector Inquiry", href: reserveHref },
       { label: "Reserve a Piece", href: reserveHref },
-      {
-        label: "Commission / Custom Inquiry",
-        href: "mailto:hammerhq@outlook.com?subject=ARTWURK%20commission%20inquiry",
-      },
     ],
   },
   {
@@ -30,7 +26,7 @@ const footerColumns = [
       { label: "General Questions / FAQ", href: "/faq" },
       { label: "Shipping & Handling", href: "/shipping" },
       { label: "Payment Options", href: "/payment-options" },
-      { label: "Returns / Purchase Terms", href: "/purchase-terms" },
+      { label: "Purchase Terms", href: "/purchase-terms" },
     ],
   },
   {
@@ -55,15 +51,14 @@ export default function SiteFooter() {
           <BrandLogo size="footer" />
 
           <div>
-            <div className="site-footer-brand">ARTWURK™</div>
+            <div className="site-footer-brand">ARTWURK™ / Hammer HQ LLC</div>
             <p className="site-footer-description">
-              Luxury original artwork, private collector acquisition, and premium appraisal
-              services from Hammer HQ LLC.
+              Original artwork, private collector acquisition, secure checkout, and appraisal
+              services presented with gallery-level discretion.
             </p>
           </div>
 
           <div className="site-footer-contact">
-            <div>Hammer HQ LLC</div>
             <a href="mailto:hammerhq@outlook.com">hammerhq@outlook.com</a>
             <a href="tel:+12096842964">+1 (209) 684-2964</a>
             <a href={whatsappHref} target="_blank" rel="noreferrer">
@@ -99,23 +94,20 @@ export default function SiteFooter() {
 
       <style jsx>{`
         .site-footer {
-          border-top: 1px solid rgba(212, 175, 55, 0.14);
-          background:
-            radial-gradient(circle at center top, rgba(212, 175, 55, 0.1), transparent 30%),
-            linear-gradient(180deg, #050505, #020202);
-          padding: 42px 14px 28px;
-          color: #f7f2e8;
+          background: #c7ad82;
+          padding: 46px 14px 30px;
+          color: #17130f;
         }
 
         .site-footer-shell {
-          width: min(1240px, 100%);
+          width: min(1260px, 100%);
           margin: 0 auto;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(23, 19, 15, 0.12);
           border-radius: 34px;
           background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
-            rgba(5, 5, 5, 0.94);
-          box-shadow: 0 30px 90px rgba(0, 0, 0, 0.42);
+            radial-gradient(circle at 10% 0%, rgba(255, 248, 235, 0.62), transparent 30%),
+            rgba(231, 216, 189, 0.78);
+          box-shadow: 0 30px 90px rgba(71, 48, 24, 0.16);
           overflow: hidden;
         }
 
@@ -123,42 +115,47 @@ export default function SiteFooter() {
           display: grid;
           gap: 22px;
           padding: 28px 22px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          border-bottom: 1px solid rgba(23, 19, 15, 0.1);
         }
 
         .site-footer-brand {
-          font-size: 22px;
-          letter-spacing: 0.24em;
+          font-size: 18px;
+          font-weight: 800;
+          letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: rgba(247, 242, 232, 0.95);
         }
 
         .site-footer-description {
-          max-width: 560px;
+          max-width: 600px;
           margin: 14px 0 0;
-          color: rgba(247, 242, 232, 0.68);
+          color: rgba(23, 19, 15, 0.68);
           font-size: 15px;
           line-height: 1.8;
         }
 
         .site-footer-contact {
           display: grid;
-          gap: 9px;
-          color: rgba(212, 175, 55, 0.74);
+          gap: 10px;
           font-size: 13px;
-          letter-spacing: 0.08em;
+          font-weight: 700;
+          letter-spacing: 0.06em;
         }
 
         .site-footer-contact a,
         .site-footer-column a {
-          color: rgba(247, 242, 232, 0.7);
+          width: fit-content;
+          border-radius: 999px;
+          color: #17130f;
           text-decoration: none;
-          transition: color 180ms ease, padding-left 180ms ease;
+          transition: background 180ms ease, padding 180ms ease, transform 180ms ease;
         }
 
         .site-footer-contact a:hover,
         .site-footer-column a:hover {
-          color: #f7f2e8;
+          background: rgba(255, 248, 235, 0.46);
+          padding-left: 8px;
+          padding-right: 8px;
+          transform: translateX(2px);
         }
 
         .site-footer-links {
@@ -168,12 +165,12 @@ export default function SiteFooter() {
 
         .site-footer-column {
           padding: 24px 22px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+          border-bottom: 1px solid rgba(23, 19, 15, 0.1);
         }
 
         .site-footer-column h2 {
           margin: 0 0 16px;
-          color: #d4af37;
+          color: #75552b;
           font-size: 11px;
           letter-spacing: 0.24em;
           text-transform: uppercase;
@@ -182,28 +179,25 @@ export default function SiteFooter() {
         .site-footer-column ul {
           list-style: none;
           display: grid;
-          gap: 12px;
+          gap: 11px;
           margin: 0;
           padding: 0;
         }
 
         .site-footer-column a {
+          min-height: 34px;
           display: inline-flex;
-          min-height: 30px;
           align-items: center;
           font-size: 14px;
+          font-weight: 700;
           line-height: 1.45;
-        }
-
-        .site-footer-column a:hover {
-          padding-left: 4px;
         }
 
         .site-footer-bottom {
           display: grid;
           gap: 10px;
           padding: 22px;
-          color: rgba(247, 242, 232, 0.46);
+          color: rgba(23, 19, 15, 0.58);
           font-size: 11px;
           letter-spacing: 0.12em;
           line-height: 1.7;
@@ -214,7 +208,7 @@ export default function SiteFooter() {
           .site-footer-brand-panel {
             grid-template-columns: auto minmax(0, 1fr) auto;
             align-items: center;
-            padding: 32px 30px;
+            padding: 34px 32px;
           }
 
           .site-footer-links {
@@ -222,9 +216,9 @@ export default function SiteFooter() {
           }
 
           .site-footer-column {
-            border-right: 1px solid rgba(255, 255, 255, 0.07);
+            border-right: 1px solid rgba(23, 19, 15, 0.1);
             border-bottom: none;
-            padding: 30px;
+            padding: 32px;
           }
 
           .site-footer-column:last-child {
@@ -234,8 +228,8 @@ export default function SiteFooter() {
           .site-footer-bottom {
             grid-template-columns: 1fr auto;
             align-items: center;
-            padding: 24px 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.07);
+            padding: 24px 32px;
+            border-top: 1px solid rgba(23, 19, 15, 0.1);
           }
         }
       `}</style>

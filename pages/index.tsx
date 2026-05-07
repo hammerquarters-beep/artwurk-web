@@ -2,6 +2,7 @@ import Image from "next/image";
 import Script from "next/script";
 import React, { FormEvent, useEffect, useState } from "react";
 
+import { CartIcon } from "../components/ArtwurkIcons";
 import BrandLogo from "../components/BrandLogo";
 import { useCart } from "../components/CartProvider";
 import PromoPopup from "../components/PromoPopup";
@@ -35,8 +36,8 @@ type SubmissionState = {
 const pageStyle: React.CSSProperties = {
   minHeight: "100vh",
   background:
-    "radial-gradient(circle at top, rgba(196, 154, 89, 0.14), transparent 28%), #020202",
-  color: "#f7f2e9",
+    "radial-gradient(circle at 50% 0%, rgba(255, 248, 235, 0.58), transparent 34%), linear-gradient(180deg, #e7d8bd 0%, #d5bd93 52%, #c7ad82 100%)",
+  color: "#17130f",
   fontFamily: '"Times New Roman", Georgia, serif',
 };
 
@@ -49,14 +50,14 @@ const eyebrowStyle: React.CSSProperties = {
   fontSize: "12px",
   letterSpacing: "0.32em",
   textTransform: "uppercase",
-  color: "rgba(247, 242, 233, 0.58)",
+  color: "rgba(23, 19, 15, 0.58)",
 };
 
 const metaLabelStyle: React.CSSProperties = {
   fontSize: "11px",
   letterSpacing: "0.18em",
   textTransform: "uppercase",
-  color: "rgba(247, 242, 233, 0.48)",
+  color: "rgba(23, 19, 15, 0.48)",
 };
 
 const modalMetaStyle: React.CSSProperties = {
@@ -194,6 +195,12 @@ const formatStatusLabel = (status?: string) => {
   return status.replaceAll("-", " ");
 };
 
+const getArtworkPathId = (artwork: ArtworkRecord) =>
+  `${artwork.id}-${artwork.name}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
 export default function Home() {
   const { addItem } = useCart();
   const [missingImages, setMissingImages] = useState<Record<string, boolean>>({});
@@ -211,6 +218,7 @@ export default function Home() {
   );
   const [selectedWatcherFrameId, setSelectedWatcherFrameId] = useState("none");
   const [watcherInquiryOpen, setWatcherInquiryOpen] = useState(false);
+  const [cartPulseArtworkId, setCartPulseArtworkId] = useState<string | null>(null);
   const [submissionState, setSubmissionState] = useState<SubmissionState>({
     status: "idle",
   });
@@ -657,6 +665,19 @@ export default function Home() {
       source: "artwork-modal",
       artwork: toTrackingArtwork(artwork),
     });
+
+    setCartPulseArtworkId(artwork.id);
+    window.setTimeout(() => {
+      setCartPulseArtworkId((current) => (current === artwork.id ? null : current));
+    }, 900);
+  };
+
+  const handleQuickAddToCart = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    artwork: ArtworkRecord,
+  ) => {
+    event.stopPropagation();
+    await handleAddToCart(artwork);
   };
 
   const shouldShowTheWatcherCheckout = selectedArtwork?.id === theWatcherArtworkId;
@@ -717,15 +738,34 @@ export default function Home() {
                 <BrandLogo size="hero" priority />
               </div>
 
+              {flagshipArtwork ? (
+                <button
+                  type="button"
+                  className="landing-editorial"
+                  onClick={() => openArtwork(flagshipArtwork)}
+                  aria-label={`Open ${flagshipArtwork.name} featured artwork`}
+                >
+                  <Image
+                    src={flagshipArtwork.image}
+                    alt={`${flagshipArtwork.name} editorial artwork hero`}
+                    fill
+                    priority
+                    sizes="(max-width: 760px) 92vw, 760px"
+                    style={{ objectFit: "cover" }}
+                  />
+                  <span>Featured original / {flagshipArtwork.price}</span>
+                </button>
+              ) : null}
+
               <div className="landing-copy">
                 <p className="landing-kicker">Private original artwork</p>
                 <h1 id="landing-title" className="landing-title">
                   ARTWURK<span>™</span>
                 </h1>
-                <p className="landing-subtitle">Original works for collectors who want presence.</p>
+                <p className="landing-subtitle">Original works with collector-level presence.</p>
                 <p className="landing-description">
-                  A black-room gallery experience for one-of-one paintings, private acquisition
-                  conversations, secure checkout, and premium appraisal services through Hammer HQ LLC.
+                  A focused art house for one-of-one paintings, private acquisition conversations,
+                  secure checkout, and premium appraisal services through Hammer HQ LLC.
                 </p>
               </div>
 
@@ -799,13 +839,13 @@ export default function Home() {
 
             <div className="preview-grid">
               {landingPreviewArtworks.map((artwork) => (
-                <button
-                  key={artwork.id}
-                  type="button"
-                  className="preview-card"
-                  onClick={() => openArtwork(artwork)}
-                  aria-label={`Open ${artwork.name} collector details`}
-                >
+                <article key={artwork.id} className="preview-card">
+                  <button
+                    type="button"
+                    className="preview-card-main"
+                    onClick={() => openArtwork(artwork)}
+                    aria-label={`Open ${artwork.name} collector details`}
+                  >
                   <div className="preview-image">
                     <Image
                       src={artwork.image}
@@ -825,7 +865,17 @@ export default function Home() {
                       <strong>{artwork.price}</strong>
                     </div>
                   </div>
-                </button>
+                  </button>
+                  <button
+                    type="button"
+                    className={`quick-cart-button${cartPulseArtworkId === artwork.id ? " is-added" : ""}`}
+                    onClick={(event) => void handleQuickAddToCart(event, artwork)}
+                    aria-label={`Add ${artwork.name} to cart`}
+                  >
+                    <CartIcon className="quick-cart-icon" />
+                    <span>+</span>
+                  </button>
+                </article>
               ))}
             </div>
           </section>
@@ -874,12 +924,9 @@ export default function Home() {
                   const description = galleryCardDescriptions[artwork.id] ?? artwork.story;
 
                   return (
-                    <button
+                    <article
                       key={artwork.id}
-                      type="button"
                       className={`gallery-card${isFeatured ? " featured" : ""}`}
-                      onClick={() => openArtwork(artwork)}
-                      aria-label={`Open ${artwork.name} artwork details`}
                       onMouseEnter={() => handleArtworkHover(artwork)}
                       onMouseLeave={() =>
                         setHoveredArtworkId((current) =>
@@ -887,7 +934,12 @@ export default function Home() {
                         )
                       }
                     >
-                      <div className="gallery-card-link">
+                      <button
+                        type="button"
+                        className="gallery-card-link"
+                        onClick={() => openArtwork(artwork)}
+                        aria-label={`Open ${artwork.name} artwork details`}
+                      >
                         <div className="gallery-image-wrap">
                           {!isMissing ? (
                             <Image
@@ -933,8 +985,17 @@ export default function Home() {
                             {artwork.id === theWatcherArtworkId ? "Secure checkout available" : "Reserve this piece"}
                           </div>
                         </div>
-                      </div>
-                    </button>
+                      </button>
+                      <button
+                        type="button"
+                        className={`quick-cart-button gallery-quick-cart${cartPulseArtworkId === artwork.id ? " is-added" : ""}`}
+                        onClick={(event) => void handleQuickAddToCart(event, artwork)}
+                        aria-label={`Add ${artwork.name} to cart`}
+                      >
+                        <CartIcon className="quick-cart-icon" />
+                        <span>+</span>
+                      </button>
+                    </article>
                   );
                 })}
               </div>
@@ -1248,6 +1309,24 @@ export default function Home() {
                     Save this one-of-one piece for checkout, invoice support, or private collector
                     follow-up.
                   </p>
+                  <a
+                    href={`/artwork/${getArtworkPathId(selectedArtwork)}`}
+                    style={{
+                      display: "inline-flex",
+                      width: "fit-content",
+                      marginTop: "14px",
+                      borderRadius: "999px",
+                      background: "rgba(23, 19, 15, 0.08)",
+                      padding: "10px 14px",
+                      color: "#17130f",
+                      fontSize: "11px",
+                      fontWeight: 800,
+                      letterSpacing: "0.16em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    View Product Page
+                  </a>
                 </div>
 
                 {!shouldShowTheWatcherCheckout ? (
@@ -2321,6 +2400,260 @@ export default function Home() {
           box-shadow: 0 24px 50px rgba(0, 0, 0, 0.32), 0 0 26px rgba(212, 175, 55, 0.14);
           border-color: rgba(212, 175, 55, 0.82);
           background: linear-gradient(180deg, rgba(212, 175, 55, 0.22), rgba(212, 175, 55, 0.08));
+        }
+
+        .landing-page {
+          background:
+            radial-gradient(circle at 50% 0%, rgba(255, 248, 235, 0.72), transparent 34%),
+            linear-gradient(180deg, #e7d8bd 0%, #dac49e 54%, #c7ad82 100%);
+        }
+
+        .landing-editorial {
+          position: relative;
+          width: min(760px, 94vw);
+          aspect-ratio: 16 / 10;
+          overflow: hidden;
+          border: 1px solid rgba(23, 19, 15, 0.12);
+          border-radius: 38px;
+          background: #cab184;
+          color: #eadbc0;
+          cursor: pointer;
+          box-shadow: 0 34px 90px rgba(72, 48, 22, 0.2);
+        }
+
+        .landing-editorial span {
+          position: absolute;
+          left: 18px;
+          bottom: 18px;
+          border-radius: 999px;
+          background: rgba(23, 19, 15, 0.78);
+          padding: 10px 14px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+        }
+
+        .landing-kicker,
+        .gallery-kicker,
+        .artwork-badge,
+        .preview-copy > span,
+        .gallery-card-topline {
+          color: #75552b;
+        }
+
+        .landing-title,
+        .premium-section-heading h2,
+        .flagship-copy h3,
+        .preview-copy h3,
+        .gallery-card-copy h2,
+        .gallery-brand {
+          color: #17130f;
+          text-shadow: none;
+        }
+
+        .landing-title span,
+        .gallery-brand-mark {
+          color: #75552b;
+        }
+
+        .landing-subtitle,
+        .landing-description,
+        .premium-section-heading p:not(.landing-kicker),
+        .flagship-copy p,
+        .preview-copy p,
+        .gallery-description,
+        .gallery-card-copy p {
+          color: rgba(23, 19, 15, 0.68);
+        }
+
+        .luxury-button.primary {
+          background: #17130f;
+          color: #eadbc0;
+          border-color: #17130f;
+          box-shadow: 0 22px 52px rgba(23, 19, 15, 0.16);
+        }
+
+        .luxury-button.secondary,
+        .gallery-hero-actions a {
+          background: rgba(255, 248, 235, 0.36);
+          color: #17130f;
+          border-color: rgba(23, 19, 15, 0.12);
+        }
+
+        .luxury-button:hover,
+        .gallery-hero-actions a:hover {
+          border-color: rgba(23, 19, 15, 0.22);
+          background: rgba(255, 248, 235, 0.62);
+          box-shadow: 0 18px 40px rgba(72, 48, 22, 0.12);
+        }
+
+        .landing-proof-strip span,
+        .flagship-card,
+        .preview-card,
+        .gallery-card {
+          border-color: rgba(23, 19, 15, 0.1);
+          background: rgba(235, 222, 198, 0.72);
+          color: #17130f;
+          box-shadow: 0 18px 48px rgba(72, 48, 22, 0.08);
+        }
+
+        .landing-proof-strip span {
+          color: rgba(23, 19, 15, 0.68);
+          border-radius: 999px;
+        }
+
+        .flagship-card:hover,
+        .preview-card:hover,
+        .gallery-card:hover {
+          border-color: rgba(23, 19, 15, 0.18);
+          box-shadow: 0 30px 70px rgba(72, 48, 22, 0.16);
+        }
+
+        .flagship-image,
+        .preview-image,
+        .gallery-image-wrap {
+          background: #d7bf96;
+        }
+
+        .flagship-meta,
+        .preview-meta,
+        .gallery-card-details {
+          color: rgba(23, 19, 15, 0.64);
+        }
+
+        .flagship-meta span:last-child,
+        .preview-meta strong,
+        .gallery-card-details strong,
+        .gallery-card-price {
+          color: #75552b;
+        }
+
+        .reserve-link,
+        .gallery-card-cta {
+          width: fit-content;
+          border-radius: 999px;
+          background: rgba(23, 19, 15, 0.08);
+          padding: 10px 13px;
+          color: #17130f;
+        }
+
+        .preview-card,
+        .gallery-card {
+          position: relative;
+          border-radius: 28px;
+        }
+
+        .preview-card-main,
+        .gallery-card-link {
+          width: 100%;
+          display: block;
+          border: 0;
+          background: transparent;
+          color: inherit;
+          padding: 0;
+          text-align: left;
+          font: inherit;
+          cursor: pointer;
+        }
+
+        .quick-cart-button {
+          position: absolute;
+          right: 16px;
+          bottom: 16px;
+          z-index: 5;
+          width: 50px;
+          height: 50px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 1px;
+          border: 1px solid rgba(23, 19, 15, 0.16);
+          border-radius: 999px;
+          background: rgba(234, 219, 192, 0.92);
+          color: #17130f;
+          cursor: pointer;
+          box-shadow: 0 14px 28px rgba(62, 42, 22, 0.16);
+          transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+        }
+
+        .quick-cart-button:hover {
+          transform: translateY(-2px) scale(1.03);
+          background: #17130f;
+          color: #eadbc0;
+        }
+
+        .quick-cart-button.is-added {
+          animation: cart-success 720ms ease both;
+        }
+
+        .quick-cart-icon {
+          width: 18px;
+          height: 18px;
+        }
+
+        .quick-cart-button span {
+          margin-top: -12px;
+          font-size: 18px;
+          font-weight: 900;
+          line-height: 1;
+        }
+
+        @keyframes cart-success {
+          0% {
+            transform: scale(1);
+          }
+          35% {
+            transform: scale(1.16);
+            background: #17130f;
+            color: #eadbc0;
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .gallery-hero,
+        .gallery-grid-section {
+          background:
+            radial-gradient(circle at top, rgba(255, 248, 235, 0.58), transparent 30%),
+            #d5bd93;
+        }
+
+        .artwurk-modal-overlay {
+          background: rgba(23, 19, 15, 0.56) !important;
+          backdrop-filter: blur(12px) !important;
+        }
+
+        .artwurk-modal-card {
+          border-color: rgba(23, 19, 15, 0.12) !important;
+          background: #e7d8bd !important;
+          color: #17130f !important;
+          box-shadow: 0 34px 100px rgba(46, 31, 15, 0.34) !important;
+        }
+
+        .artwurk-modal-art {
+          background: #d3b98d !important;
+          border-color: rgba(23, 19, 15, 0.1) !important;
+        }
+
+        .artwurk-modal-panel,
+        .artwurk-modal-panel * {
+          color: #17130f !important;
+        }
+
+        .artwurk-modal-panel p,
+        .artwurk-modal-panel a,
+        .artwurk-modal-panel span,
+        .artwurk-modal-panel div {
+          border-color: rgba(23, 19, 15, 0.1) !important;
+        }
+
+        .artwurk-inquire-button {
+          border-radius: 999px !important;
+          background: #17130f !important;
+          color: #eadbc0 !important;
+          border-color: #17130f !important;
         }
 
         @media (min-width: 700px) {

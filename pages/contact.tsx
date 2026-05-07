@@ -142,6 +142,36 @@ export default function ContactPage() {
           color: rgba(247, 242, 232, 0.7);
         }
 
+        .contact-page {
+          background:
+            radial-gradient(circle at top, rgba(255, 248, 235, 0.68), transparent 28%),
+            linear-gradient(180deg, #e7d8bd, #d5bd93 54%, #c7ad82);
+          color: #17130f;
+        }
+
+        .contact-hero,
+        .contact-card {
+          border-color: rgba(23, 19, 15, 0.1);
+          background: rgba(235, 222, 198, 0.72);
+          box-shadow: 0 18px 48px rgba(72, 48, 22, 0.08);
+        }
+
+        .contact-kicker,
+        .contact-card-kicker,
+        .contact-icon {
+          color: #75552b;
+        }
+
+        .contact-hero p,
+        .contact-card p {
+          color: rgba(23, 19, 15, 0.68);
+        }
+
+        .contact-card:hover {
+          border-color: rgba(23, 19, 15, 0.18);
+          box-shadow: 0 30px 70px rgba(72, 48, 22, 0.16);
+        }
+
         @media (max-width: 960px) {
           .contact-grid {
             grid-template-columns: 1fr;

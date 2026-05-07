@@ -362,6 +362,61 @@ export default function CartPage() {
           line-height: 1.8;
         }
 
+        .cart-page {
+          background:
+            radial-gradient(circle at top, rgba(255, 248, 235, 0.68), transparent 28%),
+            linear-gradient(180deg, #e7d8bd, #d5bd93 54%, #c7ad82);
+          color: #17130f;
+        }
+
+        .cart-hero,
+        .cart-items-panel,
+        .cart-summary,
+        .empty-cart,
+        .cart-item {
+          border-color: rgba(23, 19, 15, 0.1);
+          background: rgba(235, 222, 198, 0.72);
+          box-shadow: 0 18px 48px rgba(72, 48, 22, 0.08);
+        }
+
+        .cart-kicker,
+        .cart-id,
+        .cart-price,
+        .summary-row strong {
+          color: #75552b;
+        }
+
+        .cart-hero p,
+        .cart-copy p,
+        .summary-copy,
+        .empty-cart p,
+        .checkout-message {
+          color: rgba(23, 19, 15, 0.68);
+        }
+
+        .cart-availability,
+        .appraisal-link {
+          color: rgba(23, 19, 15, 0.56);
+        }
+
+        .checkout-button {
+          background: #17130f;
+          border-color: #17130f;
+          color: #eadbc0;
+        }
+
+        .reserve-button,
+        .cart-link-button {
+          background: rgba(255, 248, 235, 0.36);
+          border-color: rgba(23, 19, 15, 0.12);
+          color: #17130f;
+        }
+
+        .cart-price-block button {
+          border-color: rgba(23, 19, 15, 0.12);
+          color: #17130f;
+        }
+
         .empty-cart {
           padding: 44px 28px;
           text-align: center;

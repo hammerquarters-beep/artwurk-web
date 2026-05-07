@@ -21,7 +21,7 @@ export default function SiteSeo({
       <meta name="description" content={description} />
       <meta name="application-name" content="ARTWURK™" />
       <meta name="apple-mobile-web-app-title" content="ARTWURK" />
-      <meta name="theme-color" content="#040404" />
+      <meta name="theme-color" content="#e7d8bd" />
       <meta property="og:type" content="website" />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />

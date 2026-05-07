@@ -115,17 +115,18 @@ export default function CollectorMenu({ align = "left", accountLabel, onSignOut 
           align-items: center;
           justify-content: center;
           border-radius: 999px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          background: rgba(0, 0, 0, 0.3);
-          color: #f7f2e8;
+          border: 1px solid rgba(23, 19, 15, 0.12);
+          background: rgba(239, 226, 201, 0.42);
+          color: #17130f;
           cursor: pointer;
           backdrop-filter: blur(14px);
           transition: border-color 180ms ease, color 180ms ease, transform 180ms ease;
         }
 
         .collector-menu-trigger:hover {
-          border-color: rgba(212, 175, 55, 0.4);
-          color: #d4af37;
+          border-color: rgba(23, 19, 15, 0.22);
+          background: rgba(255, 248, 235, 0.56);
+          color: #17130f;
           transform: translateY(-1px);
         }
 
@@ -142,9 +143,9 @@ export default function CollectorMenu({ align = "left", accountLabel, onSignOut 
           width: 288px;
           overflow: hidden;
           border-radius: 24px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          background: linear-gradient(180deg, rgba(12, 12, 12, 0.98), rgba(4, 4, 4, 0.98));
-          box-shadow: 0 28px 70px rgba(0, 0, 0, 0.48);
+          border: 1px solid rgba(23, 19, 15, 0.12);
+          background: rgba(236, 224, 201, 0.98);
+          box-shadow: 0 28px 70px rgba(63, 42, 20, 0.2);
           backdrop-filter: blur(18px);
           opacity: 0;
           transform: translateY(-6px) scale(0.98);
@@ -167,14 +168,14 @@ export default function CollectorMenu({ align = "left", accountLabel, onSignOut 
 
         .collector-menu-header {
           padding: 22px 22px 18px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          border-bottom: 1px solid rgba(23, 19, 15, 0.08);
         }
 
         .collector-menu-kicker {
           font-size: 11px;
           letter-spacing: 0.28em;
           text-transform: uppercase;
-          color: #d4af37;
+          color: #8f6d32;
         }
 
         .collector-menu-title {
@@ -183,7 +184,7 @@ export default function CollectorMenu({ align = "left", accountLabel, onSignOut 
           font-weight: 500;
           letter-spacing: 0.08em;
           text-transform: uppercase;
-          color: #f7f2e8;
+          color: #17130f;
         }
 
         .collector-menu-links {
@@ -195,7 +196,7 @@ export default function CollectorMenu({ align = "left", accountLabel, onSignOut 
           align-items: center;
           gap: 12px;
           padding: 16px 22px;
-          color: rgba(247, 242, 232, 0.9);
+          color: #17130f;
           text-decoration: none;
           transition: background 180ms ease, color 180ms ease, padding-left 180ms ease;
         }
@@ -203,7 +204,7 @@ export default function CollectorMenu({ align = "left", accountLabel, onSignOut 
         .collector-menu-button {
           width: 100%;
           border: 0;
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          border-top: 1px solid rgba(23, 19, 15, 0.08);
           background: transparent;
           font-family: inherit;
           font-size: 15px;
@@ -211,19 +212,19 @@ export default function CollectorMenu({ align = "left", accountLabel, onSignOut 
         }
 
         .collector-menu-link:hover {
-          background: rgba(255, 255, 255, 0.05);
-          color: #f7f2e8;
+          background: rgba(255, 248, 235, 0.56);
+          color: #17130f;
           padding-left: 25px;
         }
 
         .collector-menu-link.has-divider {
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          border-bottom: 1px solid rgba(23, 19, 15, 0.08);
         }
 
         :global(.collector-menu-icon) {
           width: 16px;
           height: 16px;
-          color: #d4af37;
+          color: #8f6d32;
           flex-shrink: 0;
         }
       `}</style>

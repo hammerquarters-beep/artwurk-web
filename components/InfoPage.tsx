@@ -40,8 +40,10 @@ export default function InfoPage({ title, kicker, description, sections }: InfoP
       <style jsx>{`
         .info-page {
           min-height: 100vh;
-          background: #040404;
-          color: #f7f2e8;
+          background:
+            radial-gradient(circle at top, rgba(255, 248, 235, 0.68), transparent 28%),
+            linear-gradient(180deg, #e7d8bd, #d5bd93 54%, #c7ad82);
+          color: #17130f;
           font-family: "Times New Roman", Georgia, serif;
         }
 
@@ -51,18 +53,21 @@ export default function InfoPage({ title, kicker, description, sections }: InfoP
           padding: 30px 14px 54px;
         }
 
+        .info-hero,
+        .info-card {
+          border: 1px solid rgba(23, 19, 15, 0.1);
+          background: rgba(235, 222, 198, 0.72);
+          box-shadow: 0 18px 48px rgba(72, 48, 22, 0.08);
+        }
+
         .info-hero {
           border-radius: 34px;
-          border: 1px solid rgba(212, 175, 55, 0.16);
-          background:
-            radial-gradient(circle at top, rgba(212, 175, 55, 0.12), transparent 30%),
-            #070707;
           padding: 40px 24px;
           text-align: center;
         }
 
         .info-kicker {
-          color: #d4af37;
+          color: #75552b;
           font-size: 11px;
           letter-spacing: 0.28em;
           text-transform: uppercase;
@@ -71,7 +76,7 @@ export default function InfoPage({ title, kicker, description, sections }: InfoP
         .info-hero h1 {
           margin: 16px auto 0;
           max-width: 820px;
-          color: #f7f2e8;
+          color: #17130f;
           font-size: clamp(2.4rem, 9vw, 5.4rem);
           line-height: 0.95;
           letter-spacing: -0.04em;
@@ -80,7 +85,7 @@ export default function InfoPage({ title, kicker, description, sections }: InfoP
         .info-hero p {
           max-width: 760px;
           margin: 22px auto 0;
-          color: rgba(247, 242, 232, 0.72);
+          color: rgba(23, 19, 15, 0.68);
           font-size: 16px;
           line-height: 1.9;
         }
@@ -92,15 +97,13 @@ export default function InfoPage({ title, kicker, description, sections }: InfoP
         }
 
         .info-card {
-          border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 28px;
-          background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.014));
           padding: 24px;
         }
 
         .info-card h2 {
           margin: 0;
-          color: #d4af37;
+          color: #75552b;
           font-size: 12px;
           letter-spacing: 0.22em;
           text-transform: uppercase;
@@ -108,7 +111,7 @@ export default function InfoPage({ title, kicker, description, sections }: InfoP
 
         .info-card p {
           margin: 14px 0 0;
-          color: rgba(247, 242, 232, 0.72);
+          color: rgba(23, 19, 15, 0.68);
           font-size: 15px;
           line-height: 1.85;
         }

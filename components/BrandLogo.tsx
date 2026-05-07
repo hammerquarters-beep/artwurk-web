@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-export const brandLogoSrc = "/brand/artwurk-logo-transparent.png";
+export const brandLogoSrc = "/brand/artwurk-logo-mark-wordmark.png";
 export const brandLogoAlt = "ARTWURK™ luxury art brand logo";
 
 type BrandLogoProps = {
@@ -32,12 +32,12 @@ export default function BrandLogo({
         src={brandLogoSrc}
         alt={brandLogoAlt}
         width={1254}
-        height={1254}
+        height={770}
         priority={priority}
         sizes={
           size === "hero"
-            ? "(max-width: 640px) 86vw, 520px"
-            : "(max-width: 640px) 150px, 220px"
+            ? "(max-width: 640px) 86vw, 540px"
+            : "(max-width: 640px) 120px, 180px"
         }
         style={{
           width: "100%",
@@ -52,48 +52,48 @@ export default function BrandLogo({
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          border: 1px solid rgba(212, 175, 55, 0.2);
-          background: linear-gradient(
-            180deg,
-            rgba(255, 255, 255, 0.98),
-            rgba(246, 242, 232, 0.96)
-          );
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.36), 0 0 54px rgba(212, 175, 55, 0.08);
+          border: 1px solid rgba(45, 32, 18, 0.1);
+          border-radius: 22px;
+          background: rgba(238, 225, 203, 0.72);
+          box-shadow: 0 18px 48px rgba(58, 42, 24, 0.14);
         }
 
         .brand-logo-header {
-          width: 72px;
-          padding: 4px;
+          width: 138px;
+          padding: 6px 10px;
         }
 
         .brand-logo-hero {
-          width: min(520px, 88vw);
-          padding: 18px;
-          box-shadow: 0 34px 90px rgba(0, 0, 0, 0.48), 0 0 90px rgba(212, 175, 55, 0.1);
+          width: min(540px, 86vw);
+          padding: 18px 22px;
+          border-radius: 34px;
+          box-shadow: 0 34px 90px rgba(58, 42, 24, 0.2);
         }
 
         .brand-logo-footer {
-          width: 116px;
-          padding: 6px;
+          width: 180px;
+          padding: 8px 12px;
         }
 
         .brand-logo-crm {
           width: 112px;
           padding: 6px;
+          background: rgba(255, 255, 255, 0.96);
         }
 
         .brand-logo-profile {
-          width: 150px;
-          padding: 8px;
+          width: 180px;
+          padding: 8px 12px;
         }
 
         @media (max-width: 640px) {
           .brand-logo-header {
-            width: 60px;
+            width: 112px;
+            padding: 5px 8px;
           }
 
           .brand-logo-hero {
-            padding: 14px;
+            padding: 14px 16px;
           }
         }
       `}</style>
