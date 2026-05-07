@@ -165,6 +165,17 @@ const artworks: ArtworkRecord[] = [
     category: "Luxury / Metallic",
     status: "available",
   },
+  {
+    id: "ART-040",
+    name: "Turquoise Dynasty",
+    image: "/artwork/art-040-turquoise-dynasty.png",
+    price: "Price on request",
+    dimensions: "Dimensions pending",
+    story:
+      "A polished horizontal abstract in turquoise, bronze, and gold. Turquoise Dynasty carries a regal studio presence, preserving the texture and movement of the original pour while presenting a clean collector-ready finish.",
+    category: "Luxury / Metallic",
+    status: "available",
+  },
 ];
 
 export default artworks;
