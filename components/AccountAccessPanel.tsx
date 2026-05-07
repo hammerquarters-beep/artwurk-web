@@ -1,5 +1,6 @@
 import Link from "next/link";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { CloseIcon, MailIcon, UserIcon } from "./ArtwurkIcons";
 import BrandLogo from "./BrandLogo";
@@ -30,8 +31,35 @@ export default function AccountAccessPanel({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  if (!open) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open || typeof document === "undefined") {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose, open]);
+
+  if (!open || !mounted) {
     return null;
   }
 
@@ -178,7 +206,7 @@ export default function AccountAccessPanel({
     onClose();
   };
 
-  return (
+  const panel = (
     <div className="account-overlay" role="dialog" aria-modal="true" aria-labelledby="account-title">
       <button type="button" className="account-scrim" aria-label="Close account panel" onClick={onClose} />
       <aside className="account-panel">
@@ -297,9 +325,10 @@ export default function AccountAccessPanel({
         .account-overlay {
           position: fixed;
           inset: 0;
-          z-index: 140;
+          z-index: 9999;
           display: flex;
           justify-content: flex-end;
+          isolation: isolate;
         }
 
         .account-scrim {
@@ -601,15 +630,38 @@ export default function AccountAccessPanel({
         }
 
         @media (max-width: 640px) {
+          .account-overlay {
+            align-items: flex-end;
+          }
+
           .account-panel {
             width: 100%;
+            min-height: min(92vh, 760px);
+            max-height: 92vh;
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0 -28px 70px rgba(17, 16, 14, 0.28);
+            animation-name: sheet-in;
           }
 
           .name-grid {
             grid-template-columns: 1fr;
           }
         }
+
+        @keyframes sheet-in {
+          from {
+            opacity: 0;
+            transform: translateY(38px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
       `}</style>
     </div>
   );
+
+  return createPortal(panel, document.body);
 }

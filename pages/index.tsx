@@ -36,7 +36,7 @@ type SubmissionState = {
 const pageStyle: React.CSSProperties = {
   minHeight: "100vh",
   background:
-    "radial-gradient(circle at 50% 0%, rgba(255, 248, 235, 0.58), transparent 34%), linear-gradient(180deg, #e7d8bd 0%, #d5bd93 52%, #c7ad82 100%)",
+    "radial-gradient(circle at 50% 0%, rgba(255, 248, 235, 0.72), transparent 34%), linear-gradient(180deg, #e7d8bd 0%, #dac49e 54%, #c7ad82 100%)",
   color: "#17130f",
   fontFamily: '"Times New Roman", Georgia, serif',
 };
@@ -1874,8 +1874,8 @@ export default function Home() {
         .landing-page {
           overflow: hidden;
           background:
-            radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.12), transparent 30%),
-            linear-gradient(180deg, #020202 0%, #050505 48%, #020202 100%);
+            radial-gradient(circle at 50% 0%, rgba(255, 248, 235, 0.72), transparent 34%),
+            linear-gradient(180deg, #e7d8bd 0%, #dac49e 54%, #c7ad82 100%);
         }
 
         .landing-hero {
@@ -2226,9 +2226,9 @@ export default function Home() {
         .gallery-hero {
           padding: 72px 18px 46px;
           background:
-            radial-gradient(circle at top, rgba(212, 175, 55, 0.16), transparent 28%),
-            #040404;
-          border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+            radial-gradient(circle at top, rgba(255, 248, 235, 0.62), transparent 28%),
+            #d5bd93;
+          border-bottom: 1px solid rgba(23, 19, 15, 0.1);
           text-align: center;
         }
 
@@ -2310,7 +2310,9 @@ export default function Home() {
 
         .gallery-grid-section {
           padding: 28px 16px 72px;
-          background: #040404;
+          background:
+            radial-gradient(circle at top, rgba(255, 248, 235, 0.58), transparent 30%),
+            #d5bd93;
         }
 
         .gallery-grid {
@@ -2438,8 +2440,8 @@ export default function Home() {
           letter-spacing: 0.16em;
           text-transform: uppercase;
           color: rgba(247, 242, 233, 0.44);
-          background: #040404;
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          background: #c7ad82;
+          border-top: 1px solid rgba(23, 19, 15, 0.08);
         }
 
         .artwurk-inquire-button:hover {

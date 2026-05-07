@@ -191,9 +191,9 @@ export default function CartPage() {
         .cart-page {
           min-height: 100vh;
           background:
-            radial-gradient(circle at top, rgba(212, 175, 55, 0.12), transparent 26%),
-            #040404;
-          color: #f7f2e8;
+            radial-gradient(circle at top, rgba(255, 248, 235, 0.68), transparent 28%),
+            linear-gradient(180deg, #e7d8bd, #d5bd93 54%, #c7ad82);
+          color: #17130f;
           font-family: "Times New Roman", Georgia, serif;
         }
 

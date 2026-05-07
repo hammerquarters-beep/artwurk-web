@@ -120,9 +120,9 @@ export default function PublicHeader() {
         .public-header {
           position: sticky;
           top: 0;
-          z-index: 80;
+          z-index: 120;
           border-bottom: 1px solid rgba(34, 25, 16, 0.08);
-          background: rgba(230, 216, 190, 0.86);
+          background: rgba(231, 216, 189, 0.9);
           backdrop-filter: blur(20px);
         }
 
@@ -235,15 +235,29 @@ export default function PublicHeader() {
           .public-header-shell {
             min-height: 74px;
             width: min(100%, calc(100vw - 22px));
+            gap: 12px;
           }
 
           .public-nav {
             display: none;
           }
 
+          .public-header-right {
+            gap: 8px;
+          }
+
           .cart-link {
             min-height: 48px;
             min-width: 48px;
+          }
+
+          .account-icon-link {
+            min-height: 48px;
+            min-width: 48px;
+          }
+
+          .account-name {
+            display: none;
           }
         }
       `}</style>
