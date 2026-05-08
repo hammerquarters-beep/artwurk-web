@@ -66,6 +66,7 @@ const artworks: ArtworkRecord[] = [
     story: "A diptych installation capturing what remains after intensity passes.",
     category: "Fluid Abstract",
     status: "available",
+    paypalCheckoutUrl: "https://www.paypal.com/ncp/payment/3C3KCYL7W5ZA8",
   },
   {
     id: "ART-008",
