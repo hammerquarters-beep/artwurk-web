@@ -90,6 +90,7 @@ const artworks: ArtworkRecord[] = [
     story: "A controlled-motion abstract with tension, energy, and internal restraint.",
     category: "Bold / Impact",
     status: "available",
+    paypalCheckoutUrl: "https://www.paypal.com/ncp/payment/G6VKVDG3G2J9N",
   },
   {
     id: "ART-013",
