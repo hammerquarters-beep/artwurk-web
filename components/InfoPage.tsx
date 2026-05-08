@@ -12,9 +12,10 @@ type InfoPageProps = {
     title: string;
     body: string;
   }>;
+  children?: React.ReactNode;
 };
 
-export default function InfoPage({ title, kicker, description, sections }: InfoPageProps) {
+export default function InfoPage({ title, kicker, description, sections, children }: InfoPageProps) {
   return (
     <div className="info-page">
       <SiteSeo title={`${title} | ARTWURK™`} description={description} />
@@ -34,6 +35,8 @@ export default function InfoPage({ title, kicker, description, sections }: InfoP
             </article>
           ))}
         </section>
+
+        {children}
       </main>
       <SiteFooter />
 

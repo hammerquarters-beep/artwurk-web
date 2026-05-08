@@ -1,6 +1,7 @@
 import React from "react";
 
 import InfoPage from "../components/InfoPage";
+import PaymentMethods from "../components/PaymentMethods";
 
 export default function PaymentOptionsPage() {
   return (
@@ -11,7 +12,7 @@ export default function PaymentOptionsPage() {
       sections={[
         {
           title: "Secure Checkout",
-          body: "The Watcher currently includes a hosted PayPal checkout experience. Additional checkout options can be coordinated through Hammer HQ.",
+          body: "Available artworks can be paired with secure hosted PayPal checkout links. Eligible payment options may include PayPal, Venmo, Pay Later, card checkout, and other supported methods.",
         },
         {
           title: "Invoice Support",
@@ -22,6 +23,8 @@ export default function PaymentOptionsPage() {
           body: "High-intent purchase requests are routed into the ARTWURK CRM so Hammer HQ can follow up directly with next steps.",
         },
       ]}
-    />
+    >
+      <PaymentMethods />
+    </InfoPage>
   );
 }
