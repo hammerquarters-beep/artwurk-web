@@ -30,7 +30,7 @@ export default function BrandLogo({
 }: BrandLogoProps) {
   const isMonogram = size === "header" || size === "footer" || size === "crm";
   const logo = (
-    <span className={`brand-logo-frame ${sizeClassName[size]} ${className}`}>
+    <span className={`brand-logo-frame ${isMonogram ? "brand-logo-monogram" : "brand-logo-wordmark"} ${sizeClassName[size]} ${className}`}>
       <Image
         src={isMonogram ? brandMonogramSrc : brandLogoSrc}
         alt={isMonogram ? brandHeaderLogoAlt : brandLogoAlt}
@@ -58,17 +58,27 @@ export default function BrandLogo({
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
+        }
+
+        .brand-logo-wordmark {
           border: 1px solid rgba(45, 32, 18, 0.1);
           border-radius: 22px;
           background: rgba(238, 225, 203, 0.72);
           box-shadow: 0 18px 48px rgba(58, 42, 24, 0.14);
         }
 
+        .brand-logo-monogram {
+          border: none;
+          background: transparent;
+          box-shadow: none;
+          filter: drop-shadow(0 10px 18px rgba(23, 19, 15, 0.12))
+            drop-shadow(0 0 10px rgba(212, 175, 55, 0.1));
+        }
+
         .brand-logo-header {
-          width: 58px;
-          height: 58px;
-          padding: 8px;
-          border-radius: 18px;
+          width: 62px;
+          height: 62px;
+          padding: 0;
         }
 
         .brand-logo-hero {
@@ -79,17 +89,15 @@ export default function BrandLogo({
         }
 
         .brand-logo-footer {
-          width: 76px;
-          height: 76px;
-          padding: 8px;
-          border-radius: 24px;
+          width: 84px;
+          height: 84px;
+          padding: 0;
         }
 
         .brand-logo-crm {
-          width: 70px;
-          height: 70px;
-          padding: 7px;
-          background: rgba(255, 255, 255, 0.96);
+          width: 78px;
+          height: 78px;
+          padding: 0;
         }
 
         .brand-logo-profile {
@@ -99,9 +107,8 @@ export default function BrandLogo({
 
         @media (max-width: 640px) {
           .brand-logo-header {
-            width: 52px;
-            height: 52px;
-            padding: 7px;
+            width: 56px;
+            height: 56px;
           }
 
           .brand-logo-hero {

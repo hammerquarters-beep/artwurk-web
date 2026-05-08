@@ -1,16 +1,85 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
   <title id="title">ARTWURK luxury monogram</title>
-  <desc id="desc">A clean ARTWURK A mark for header, favicon, and brand moments.</desc>
+  <desc id="desc">A refined ARTWURK A monogram with the signature painterly brushstroke.</desc>
   <defs>
-    <linearGradient id="brush" x1="108" y1="282" x2="407" y2="219" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#1F6788"/>
-      <stop offset="0.28" stop-color="#833F91"/>
-      <stop offset="0.58" stop-color="#D45443"/>
-      <stop offset="1" stop-color="#D69A28"/>
+    <linearGradient id="artwurkBrush" x1="82" y1="320" x2="442" y2="218" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#126A8A"/>
+      <stop offset="0.22" stop-color="#276DA4"/>
+      <stop offset="0.42" stop-color="#8A3E96"/>
+      <stop offset="0.62" stop-color="#D44362"/>
+      <stop offset="0.82" stop-color="#E97D22"/>
+      <stop offset="1" stop-color="#D4AF37"/>
     </linearGradient>
+    <linearGradient id="artwurkBrushHighlight" x1="122" y1="282" x2="398" y2="220" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E7F8FF" stop-opacity="0.82"/>
+      <stop offset="0.48" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFE1A1" stop-opacity="0.62"/>
+    </linearGradient>
+    <filter id="monogramShadow" x="-18%" y="-16%" width="136%" height="136%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#17130F" flood-opacity="0.12"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#D4AF37" flood-opacity="0.12"/>
+    </filter>
   </defs>
-  <rect width="512" height="512" rx="118" fill="#F3E7D2"/>
-  <path d="M256 76 392 422h-68l-28-79H185l-29 79H90L226 76h30Zm-53 213h75l-37-107-38 107Z" fill="#11100E"/>
-  <path d="M114 298c61-45 124-67 190-67 40 0 73 7 101 21-22 16-53 26-92 31-68 9-132 23-199 15Z" fill="url(#brush)" opacity="0.96"/>
-  <path d="M395 221c14 3 25 11 32 24-13 8-28 13-45 15 7-12 11-25 13-39Z" fill="#11100E"/>
+
+  <g filter="url(#monogramShadow)">
+    <text
+      x="256"
+      y="410"
+      text-anchor="middle"
+      font-family="Georgia, 'Times New Roman', serif"
+      font-size="392"
+      font-weight="700"
+      letter-spacing="-28"
+      fill="#11100E"
+    >A</text>
+
+    <path
+      d="M82 318 C136 276 191 258 249 256 C304 254 356 266 429 214"
+      fill="none"
+      stroke="url(#artwurkBrush)"
+      stroke-width="40"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M111 306 C164 280 213 270 265 270 C314 270 361 258 407 225"
+      fill="none"
+      stroke="url(#artwurkBrushHighlight)"
+      stroke-width="8"
+      stroke-linecap="round"
+      opacity="0.72"
+    />
+    <path
+      d="M91 333 C126 323 163 314 202 300"
+      fill="none"
+      stroke="#0D4E6E"
+      stroke-width="9"
+      stroke-linecap="round"
+      opacity="0.56"
+    />
+    <path
+      d="M420 205 C436 195 451 190 466 192 C458 210 449 225 437 239 C433 226 427 215 420 205Z"
+      fill="#D96A20"
+    />
+    <path
+      d="M423 216 C437 207 449 202 460 200"
+      fill="none"
+      stroke="#F6C24E"
+      stroke-width="5"
+      stroke-linecap="round"
+      opacity="0.78"
+    />
+    <path
+      d="M396 230 L421 207 L438 229 L414 252Z"
+      fill="#101010"
+    />
+    <path
+      d="M402 232 L421 216"
+      fill="none"
+      stroke="#F7F2E8"
+      stroke-width="4"
+      stroke-linecap="round"
+      opacity="0.78"
+    />
+  </g>
 </svg>
