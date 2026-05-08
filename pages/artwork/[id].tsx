@@ -110,6 +110,20 @@ export default function ArtworkProductPage({ artwork }: ArtworkPageProps) {
                 <CartIcon className="product-cart-icon" />
                 {added ? "Added to Cart" : "Add to Cart"}
               </button>
+              {artwork.paypalCheckoutUrl ? (
+                <a
+                  href={artwork.paypalCheckoutUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="buy-now-button"
+                >
+                  PayPal Checkout
+                </a>
+              ) : (
+                <Link href="/contact" className="buy-now-button">
+                  Contact to Acquire
+                </Link>
+              )}
               <a
                 href={`mailto:hammerhq@outlook.com?subject=${encodeURIComponent(
                   `Private inquiry for ${artwork.name}`,
@@ -247,6 +261,7 @@ export default function ArtworkProductPage({ artwork }: ArtworkPageProps) {
         }
 
         .add-cart-button,
+        .buy-now-button,
         .reserve-button {
           min-height: 60px;
           display: inline-flex;
@@ -265,6 +280,12 @@ export default function ArtworkProductPage({ artwork }: ArtworkPageProps) {
           transition: transform 180ms ease, box-shadow 180ms ease;
         }
 
+        .buy-now-button {
+          background: linear-gradient(135deg, #17130f, #3b2d20);
+          border-color: #17130f;
+          color: #f4dfb6;
+        }
+
         .reserve-button {
           background: rgba(255, 248, 235, 0.36);
           color: #17130f;
@@ -272,6 +293,7 @@ export default function ArtworkProductPage({ artwork }: ArtworkPageProps) {
         }
 
         .add-cart-button:hover,
+        .buy-now-button:hover,
         .reserve-button:hover,
         .add-cart-button.is-added {
           transform: translateY(-2px);

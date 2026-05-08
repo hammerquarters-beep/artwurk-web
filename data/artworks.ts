@@ -9,6 +9,7 @@ export type ArtworkRecord = {
   story: string;
   category: string;
   status: "available" | "price-on-request" | "reserved" | "sold";
+  paypalCheckoutUrl?: string;
 };
 
 const artworks: ArtworkRecord[] = [
@@ -33,6 +34,7 @@ const artworks: ArtworkRecord[] = [
     story: "A faceless observer with stillness, mystery, and quiet authority.",
     category: "Character / IP",
     status: "available",
+    paypalCheckoutUrl: "https://www.paypal.com/ncp/payment/EA68DYJEMEDNW",
   },
   {
     id: "ART-004",

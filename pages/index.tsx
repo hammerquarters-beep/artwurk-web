@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Script from "next/script";
 import React, { FormEvent, useEffect, useState } from "react";
 
 import { CartIcon, UserIcon } from "../components/ArtwurkIcons";
@@ -90,17 +89,7 @@ const inquiryEmail = "hammerhq@outlook.com";
 const inquiryWhatsAppLabel = "HQ";
 const inquiryWhatsAppDisplay = "+1 (209) 684-2964";
 const inquiryWhatsAppUrl = "https://wa.me/12096842964";
-const paypalSdkSrc =
-  "https://www.paypal.com/sdk/js?client-id=BAApqENv-0EtbRTyPYL5WXCWQjYvRGMtjcYUpTgN1a9CZ16b5MhC38hZAAa5un2j64qLDI5DwknEPwuFt0&components=hosted-buttons&enable-funding=venmo&currency=USD";
-const theWatcherHostedButtonId = "EA68DYJEMEDNW";
 const theWatcherArtworkId = "ART-003";
-const theWatcherPaypalContainerId = "paypal-container-EA68DYJEMEDNW";
-
-type PayPalHostedButtonsApi = {
-  HostedButtons: (config: { hostedButtonId: string }) => {
-    render: (selector: string) => Promise<void> | void;
-  };
-};
 
 const theWatcherDescription = {
   primary: "A silent presence that commands attention without identity.",
@@ -199,7 +188,6 @@ export default function Home() {
   const [galleryVisible, setGalleryVisible] = useState(false);
   const [hasTrackedGalleryView, setHasTrackedGalleryView] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [paypalSdkReady, setPaypalSdkReady] = useState(false);
   const [collectorIntent, setCollectorIntent] = useState<InquiryIntent>("inquire");
   const [collectorForm, setCollectorForm] = useState<CollectorFormState>(
     createInitialCollectorForm(),
@@ -357,30 +345,6 @@ export default function Home() {
       artwork: toTrackingArtwork(selectedArtwork),
     });
   }, [modalVisible, selectedArtwork]);
-
-  useEffect(() => {
-    const isTheWatcherOpen =
-      selectedArtwork?.id === theWatcherArtworkId && modalVisible && paypalSdkReady;
-
-    if (!isTheWatcherOpen || typeof window === "undefined") {
-      return;
-    }
-
-    const paypal = (window as unknown as Window & { paypal?: PayPalHostedButtonsApi }).paypal;
-    const container = document.getElementById(theWatcherPaypalContainerId);
-
-    if (!paypal?.HostedButtons || !container) {
-      return;
-    }
-
-    container.innerHTML = "";
-
-    void paypal
-      .HostedButtons({
-        hostedButtonId: theWatcherHostedButtonId,
-      })
-      .render(`#${theWatcherPaypalContainerId}`);
-  }, [modalVisible, paypalSdkReady, selectedArtwork]);
 
   useEffect(() => {
     if (!selectedArtwork || modalVisible) {
@@ -902,7 +866,7 @@ export default function Home() {
                             <strong>{artwork.price}</strong>
                           </div>
                           <div className="gallery-card-cta">
-                            {artwork.id === theWatcherArtworkId ? "Secure checkout available" : "Reserve this piece"}
+                            {artwork.paypalCheckoutUrl ? "Secure checkout available" : "Reserve this piece"}
                           </div>
                         </div>
                       </button>
@@ -1249,6 +1213,112 @@ export default function Home() {
                   </a>
                 </div>
 
+                <div
+                  style={{
+                    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                    paddingTop: "24px",
+                  }}
+                >
+                  <div style={modalMetaStyle}>Secure Checkout</div>
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      color: "#d4af37",
+                      fontSize: "22px",
+                      letterSpacing: "0.04em",
+                    }}
+                  >
+                    {selectedArtwork.price}
+                  </div>
+                  {selectedArtwork.paypalCheckoutUrl ? (
+                    <a
+                      href={selectedArtwork.paypalCheckoutUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() => handleAcquireArtwork()}
+                      className="artwurk-inquire-button"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "100%",
+                        marginTop: "16px",
+                        padding: "16px 20px",
+                        border: "1px solid rgba(212, 175, 55, 0.58)",
+                        background:
+                          "linear-gradient(180deg, rgba(212, 175, 55, 0.16), rgba(212, 175, 55, 0.05))",
+                        color: "#faf6ef",
+                        cursor: "pointer",
+                        fontSize: "13px",
+                        fontWeight: 700,
+                        letterSpacing: "0.22em",
+                        textDecoration: "none",
+                        textTransform: "uppercase",
+                        transition:
+                          "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease",
+                        boxShadow: "0 18px 40px rgba(0, 0, 0, 0.25)",
+                      }}
+                    >
+                      PayPal Checkout
+                    </a>
+                  ) : (
+                    <a
+                      href="/contact"
+                      onClick={() => handleCollectorIntent("buy_now")}
+                      className="artwurk-inquire-button"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "100%",
+                        marginTop: "16px",
+                        padding: "16px 20px",
+                        border: "1px solid rgba(212, 175, 55, 0.58)",
+                        background:
+                          "linear-gradient(180deg, rgba(212, 175, 55, 0.16), rgba(212, 175, 55, 0.05))",
+                        color: "#faf6ef",
+                        cursor: "pointer",
+                        fontSize: "13px",
+                        fontWeight: 700,
+                        letterSpacing: "0.22em",
+                        textDecoration: "none",
+                        textTransform: "uppercase",
+                        transition:
+                          "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease",
+                        boxShadow: "0 18px 40px rgba(0, 0, 0, 0.25)",
+                      }}
+                    >
+                      Contact to Acquire
+                    </a>
+                  )}
+                  <div
+                    style={{
+                      marginTop: "14px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                      color: "rgba(247, 242, 233, 0.56)",
+                      fontSize: "12px",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <span>PayPal • Card • Venmo</span>
+                    <span>Secure Checkout</span>
+                  </div>
+                  <p
+                    style={{
+                      margin: "12px 0 0",
+                      color: "rgba(247, 242, 233, 0.58)",
+                      fontSize: "12px",
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    {selectedArtwork.paypalCheckoutUrl
+                      ? "Checkout opens the PayPal payment link configured for this artwork. Venmo, Pay Later, and card options may appear when eligible through PayPal."
+                      : "A PayPal checkout link has not been added for this artwork yet. Contact Hammer HQ to acquire, reserve, or request a private invoice."}
+                  </p>
+                </div>
+
                 {!shouldShowTheWatcherCheckout ? (
                   <div
                     style={{
@@ -1312,7 +1382,7 @@ export default function Home() {
                   </div>
                 ) : null}
 
-                {shouldShowTheWatcherCheckout ? (
+                {false && shouldShowTheWatcherCheckout ? (
                   <div
                     style={{
                       borderTop: "1px solid rgba(255, 255, 255, 0.08)",
@@ -1427,7 +1497,7 @@ export default function Home() {
                           "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))",
                       }}
                     >
-                      <div id={theWatcherPaypalContainerId} />
+                      <div />
                       <div
                         style={{
                           marginTop: "12px",
@@ -1730,18 +1800,6 @@ export default function Home() {
           </div>
         </div>
       ) : null}
-
-      {shouldShowTheWatcherCheckout ? (
-        <Script
-          id="paypal-hosted-buttons-sdk"
-          src={paypalSdkSrc}
-          strategy="afterInteractive"
-          onReady={() => {
-            setPaypalSdkReady(true);
-          }}
-        />
-      ) : null}
-
       <style jsx global>{`
         @keyframes artwurk-fade-in {
           from {

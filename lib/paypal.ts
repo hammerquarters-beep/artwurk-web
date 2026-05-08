@@ -30,7 +30,7 @@ export const getPayPalSdkUrl = () => {
 
   return `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(
     clientId,
-  )}&components=buttons&enable-funding=venmo,paylater&currency=USD`;
+  )}&components=buttons&enable-funding=venmo,paylater&currency=USD&intent=capture`;
 };
 
 const getPayPalAccessToken = async () => {

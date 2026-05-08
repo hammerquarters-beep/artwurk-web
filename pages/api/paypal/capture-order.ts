@@ -83,10 +83,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           email: customer.email,
         },
         {
-        paypalOrderId: orderId,
-        orderId: order?.id,
-        amount,
-        items,
+          paypalOrderId: orderId,
+          orderId: order?.id,
+          amount,
+          items,
         },
       );
     }
