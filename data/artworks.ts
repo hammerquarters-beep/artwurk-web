@@ -149,6 +149,7 @@ const artworks: ArtworkRecord[] = [
     story: "A quiet spiritual collector piece with restrained lift and minimal presence.",
     category: "Fluid Abstract",
     status: "available",
+    paypalCheckoutUrl: "https://www.paypal.com/ncp/payment/QXZ2BRTJ6TNGU",
   },
   {
     id: "ART-038",
