@@ -234,6 +234,7 @@ export default function AccountAccessPanel({
               <Link href="/profile" onClick={onClose}>My Profile</Link>
               <Link href="/profile" onClick={onClose}>Update Profile</Link>
               <Link href="/cart" onClick={onClose}>Go to Cart</Link>
+              <Link href="/orders" onClick={onClose}>Order History</Link>
               <button type="button" onClick={() => void handleSignOut()}>Sign Out</button>
             </div>
           </div>

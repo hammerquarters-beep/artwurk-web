@@ -366,7 +366,7 @@ export default function Home() {
       return;
     }
 
-    const paypal = (window as Window & { paypal?: PayPalHostedButtonsApi }).paypal;
+    const paypal = (window as unknown as Window & { paypal?: PayPalHostedButtonsApi }).paypal;
     const container = document.getElementById(theWatcherPaypalContainerId);
 
     if (!paypal?.HostedButtons || !container) {

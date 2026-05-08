@@ -347,6 +347,35 @@ export default function ProfilePage() {
     setSubmitting(false);
   };
 
+  const handleOAuthSignIn = async (provider: "google" | "apple") => {
+    setSubmitting(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    const supabase = getSupabaseBrowserClient();
+
+    if (!supabase) {
+      setSubmitting(false);
+      setErrorMessage(
+        "Supabase Auth is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      );
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo:
+          typeof window === "undefined" ? undefined : `${window.location.origin}/profile?auth=${provider}`,
+      },
+    });
+
+    if (error) {
+      setSubmitting(false);
+      setErrorMessage(error.message);
+    }
+  };
+
   const handleSaveProfile = async () => {
     setSubmitting(true);
     setErrorMessage(null);
@@ -429,22 +458,32 @@ export default function ProfilePage() {
           ) : null}
 
           {!signedIn ? (
-            <div className="profile-mode-switch" aria-label="Profile access type">
-              <button
-                type="button"
-                className={mode === "create" ? "profile-mode-active" : ""}
-                onClick={() => switchMode("create")}
-              >
-                Collector Profile
-              </button>
-              <button
-                type="button"
-                className={mode === "signin" ? "profile-mode-active" : ""}
-                onClick={() => switchMode("signin")}
-              >
-                Owner Sign In
-              </button>
-            </div>
+            <>
+              <div className="profile-oauth-grid">
+                <button type="button" onClick={() => void handleOAuthSignIn("google")} disabled={submitting}>
+                  Sign in with Google
+                </button>
+                <button type="button" onClick={() => void handleOAuthSignIn("apple")} disabled={submitting}>
+                  Sign in with Apple
+                </button>
+              </div>
+              <div className="profile-mode-switch" aria-label="Profile access type">
+                <button
+                  type="button"
+                  className={mode === "create" ? "profile-mode-active" : ""}
+                  onClick={() => switchMode("create")}
+                >
+                  Collector Profile
+                </button>
+                <button
+                  type="button"
+                  className={mode === "signin" ? "profile-mode-active" : ""}
+                  onClick={() => switchMode("signin")}
+                >
+                  Owner Sign In
+                </button>
+              </div>
+            </>
           ) : null}
 
           {profileLoading ? (

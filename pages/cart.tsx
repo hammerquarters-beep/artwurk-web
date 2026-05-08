@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import React, { useEffect, useMemo, useState } from "react";
 
 import PublicHeader from "../components/PublicHeader";
@@ -15,21 +16,80 @@ const formatCurrency = (amount: number) =>
     maximumFractionDigits: 0,
   }).format(amount);
 
+type PayPalConfig = {
+  configured: boolean;
+  sdkUrl: string;
+  environment: "sandbox" | "live";
+};
+
+type PayPalButtonActions = {
+  disable?: () => void;
+  enable?: () => void;
+};
+
+type PayPalButtonsApi = {
+  Buttons: (config: {
+    style?: Record<string, string | number>;
+    onInit?: (_data: unknown, actions: PayPalButtonActions) => void;
+    createOrder: () => Promise<string>;
+    onApprove: (data: { orderID?: string }) => Promise<void>;
+    onCancel?: () => void;
+    onError?: (error: unknown) => void;
+  }) => {
+    render: (selector: string) => Promise<void> | void;
+    close?: () => Promise<void> | void;
+  };
+};
+
+declare global {
+  interface Window {
+    paypal?: PayPalButtonsApi;
+  }
+}
+
+const getCustomerAccessToken = async () => {
+  const supabase = getSupabaseBrowserClient();
+
+  if (!supabase) {
+    return null;
+  }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return session?.access_token ?? null;
+};
+
 export default function CartPage() {
-  const { items, subtotal, removeItem, startCheckout, ready } = useCart();
+  const { items, subtotal, removeItem, startCheckout, clearLocalCart, ready } = useCart();
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
+  const [paypalMessage, setPayPalMessage] = useState<string | null>(null);
+  const [checkoutBusy, setCheckoutBusy] = useState(false);
+  const [paypalConfig, setPayPalConfig] = useState<PayPalConfig | null>(null);
+  const [paypalReady, setPayPalReady] = useState(false);
   const [collectorProfile, setCollectorProfile] = useState<Record<string, any> | null>(null);
 
-  const hasDirectCheckout = useMemo(
-    () => items.some((item) => item.artworkId === "ART-003"),
+  const payableItems = useMemo(
+    () => items.filter((item) => typeof item.unitAmount === "number" && item.unitAmount > 0),
     [items],
+  );
+  const hasRequestOnlyItems = items.length > payableItems.length;
+  const paypalItemsPayload = useMemo(
+    () =>
+      payableItems.map((item) => ({
+        artworkId: item.artworkId,
+        title: item.title,
+        quantity: item.quantity,
+      })),
+    [payableItems],
   );
 
   const handleCheckout = async () => {
     await startCheckout();
     setCheckoutMessage(
-      hasDirectCheckout
-        ? "Checkout intent saved. Open The Watcher from the collection to complete secure PayPal checkout or request invoice support."
+      payableItems.length
+        ? "Checkout intent saved. Complete secure PayPal Business checkout below or request collector support."
         : "Checkout intent saved. Hammer HQ can follow up with availability, invoice, and reservation details.",
     );
   };
@@ -64,6 +124,139 @@ export default function CartPage() {
 
     void loadCollectorProfile();
   }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadPayPalConfig = async () => {
+      const response = await fetch("/api/paypal/config");
+
+      if (!response.ok) {
+        return;
+      }
+
+      const body = (await response.json()) as PayPalConfig;
+
+      if (active) {
+        setPayPalConfig(body);
+      }
+    };
+
+    void loadPayPalConfig();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!paypalReady || !paypalConfig?.configured || !paypalItemsPayload.length) {
+      return;
+    }
+
+    const container = document.getElementById("paypal-cart-buttons");
+
+    if (!container || !window.paypal?.Buttons) {
+      return;
+    }
+
+    container.innerHTML = "";
+
+    const buttons = window.paypal.Buttons({
+      style: {
+        layout: "vertical",
+        color: "black",
+        shape: "pill",
+        label: "paypal",
+        height: 48,
+      },
+      onInit: (_data, actions) => {
+        if (!payableItems.length) {
+          actions.disable?.();
+        }
+      },
+      createOrder: async () => {
+        setPayPalMessage(null);
+        setCheckoutMessage(null);
+        setCheckoutBusy(true);
+        await startCheckout();
+
+        const accessToken = await getCustomerAccessToken();
+        const response = await fetch("/api/paypal/create-order", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          },
+          body: JSON.stringify({
+            customerEmail: collectorProfile?.email,
+            items: paypalItemsPayload,
+          }),
+        });
+        const body = await response.json().catch(() => null);
+
+        if (!response.ok || !body?.orderId) {
+          setCheckoutBusy(false);
+          throw new Error(body?.error ?? "Unable to create PayPal order.");
+        }
+
+        return body.orderId as string;
+      },
+      onApprove: async (data) => {
+        const accessToken = await getCustomerAccessToken();
+        const response = await fetch("/api/paypal/capture-order", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          },
+          body: JSON.stringify({
+            orderId: data.orderID,
+            items: paypalItemsPayload,
+          }),
+        });
+        const body = await response.json().catch(() => null);
+
+        setCheckoutBusy(false);
+
+        if (!response.ok) {
+          throw new Error(body?.error ?? "Unable to capture PayPal payment.");
+        }
+
+        clearLocalCart();
+        setPayPalMessage(
+          "Payment captured. Hammer HQ has been notified and your ARTWURK order has been saved as paid.",
+        );
+      },
+      onCancel: () => {
+        setCheckoutBusy(false);
+        setPayPalMessage("Checkout cancelled. No payment was captured.");
+      },
+      onError: (error) => {
+        setCheckoutBusy(false);
+        setPayPalMessage(
+          error instanceof Error
+            ? error.message
+            : "PayPal checkout could not start. Please try again or request collector support.",
+        );
+      },
+    });
+
+    void buttons.render("#paypal-cart-buttons");
+
+    return () => {
+      container.innerHTML = "";
+      void buttons.close?.();
+    };
+  }, [
+    clearLocalCart,
+    collectorProfile?.email,
+    payableItems.length,
+    paypalConfig?.configured,
+    paypalItemsPayload,
+    paypalReady,
+    startCheckout,
+  ]);
 
   const hasShippingProfile = Boolean(
     collectorProfile?.shippingAddress &&
@@ -174,6 +367,41 @@ export default function CartPage() {
             >
               Start Checkout
             </button>
+            {payableItems.length ? (
+              <div className="paypal-checkout-panel" aria-live="polite">
+                <p className="cart-kicker">Secure Checkout</p>
+                <h2>PayPal Business Checkout</h2>
+                <p>
+                  Complete acquisition with PayPal, Venmo, Pay Later, or card options when
+                  available through PayPal. ARTWURK records the paid order only after capture.
+                </p>
+                {paypalConfig?.configured ? (
+                  <>
+                    <div
+                      id="paypal-cart-buttons"
+                      className={checkoutBusy ? "paypal-buttons paypal-buttons-busy" : "paypal-buttons"}
+                    />
+                    <div className="paypal-environment">
+                      {paypalConfig.environment === "live"
+                        ? "Live PayPal Business checkout"
+                        : "PayPal sandbox checkout for test transactions"}
+                    </div>
+                  </>
+                ) : (
+                  <div className="paypal-unavailable">
+                    PayPal Business checkout is ready in code. Add PAYPAL_CLIENT_ID,
+                    PAYPAL_CLIENT_SECRET, and PAYPAL_ENV in Vercel to activate transactions.
+                  </div>
+                )}
+                {hasRequestOnlyItems ? (
+                  <div className="paypal-note">
+                    Some selected works are inquiry-first pieces and will remain in the private
+                    collector flow instead of direct PayPal checkout.
+                  </div>
+                ) : null}
+                {paypalMessage ? <div className="checkout-message">{paypalMessage}</div> : null}
+              </div>
+            ) : null}
             <Link href="/contact" className="reserve-button">
               Request Collector Inquiry
             </Link>
@@ -186,6 +414,15 @@ export default function CartPage() {
       </main>
 
       <SiteFooter />
+
+      {paypalConfig?.configured && paypalConfig.sdkUrl ? (
+        <Script
+          id="paypal-cart-sdk"
+          src={paypalConfig.sdkUrl}
+          strategy="afterInteractive"
+          onLoad={() => setPayPalReady(true)}
+        />
+      ) : null}
 
       <style jsx>{`
         .cart-page {
@@ -404,6 +641,51 @@ export default function CartPage() {
           background: rgba(212, 175, 55, 0.18);
         }
 
+        .paypal-checkout-panel {
+          margin-top: 20px;
+          border-radius: 24px;
+          border: 1px solid rgba(212, 175, 55, 0.18);
+          background: rgba(255, 255, 255, 0.025);
+          padding: 18px;
+        }
+
+        .paypal-checkout-panel h2 {
+          margin: 10px 0 0;
+          color: #f7f2e8;
+          font-size: 22px;
+          font-weight: 500;
+        }
+
+        .paypal-checkout-panel p {
+          margin: 10px 0 0;
+          color: rgba(247, 242, 232, 0.68);
+          font-size: 14px;
+          line-height: 1.7;
+        }
+
+        .paypal-buttons {
+          margin-top: 16px;
+          min-height: 96px;
+        }
+
+        .paypal-buttons-busy {
+          opacity: 0.72;
+          pointer-events: none;
+        }
+
+        .paypal-environment,
+        .paypal-note,
+        .paypal-unavailable {
+          margin-top: 12px;
+          border-radius: 16px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.025);
+          padding: 12px;
+          color: rgba(247, 242, 232, 0.62);
+          font-size: 12px;
+          line-height: 1.6;
+        }
+
         .checkout-button,
         .reserve-button,
         .cart-link-button {
@@ -535,6 +817,29 @@ export default function CartPage() {
         .cart-price-block button {
           border-color: rgba(23, 19, 15, 0.12);
           color: #17130f;
+        }
+
+        .paypal-checkout-panel {
+          border-color: rgba(23, 19, 15, 0.1);
+          background: rgba(255, 248, 235, 0.36);
+        }
+
+        .paypal-checkout-panel h2 {
+          color: #17130f;
+        }
+
+        .paypal-checkout-panel p,
+        .paypal-environment,
+        .paypal-note,
+        .paypal-unavailable {
+          color: rgba(23, 19, 15, 0.64);
+        }
+
+        .paypal-environment,
+        .paypal-note,
+        .paypal-unavailable {
+          border-color: rgba(23, 19, 15, 0.09);
+          background: rgba(255, 255, 255, 0.34);
         }
 
         .empty-cart {

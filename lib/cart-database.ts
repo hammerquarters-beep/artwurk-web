@@ -245,6 +245,55 @@ export const markCheckoutStarted = async (customer: CustomerIdentity) => {
   return refreshCartTotals(session.id);
 };
 
+export const markCustomerCartPurchased = async (
+  customer: CustomerIdentity,
+  payload: Record<string, unknown> = {},
+) => {
+  const session = await getOrCreateCustomerCart(customer);
+  const supabase = getSupabaseAdmin();
+  const purchasedAt = new Date().toISOString();
+
+  const sessionResult = await supabase
+    .from("artwurk_cart_sessions")
+    .update({
+      status: "purchased",
+      last_activity_at: purchasedAt,
+      metadata: {
+        ...(session.metadata ?? {}),
+        purchase: payload,
+      },
+    })
+    .eq("id", session.id);
+
+  if (sessionResult.error) {
+    throw sessionResult.error;
+  }
+
+  const itemsResult = await supabase
+    .from("artwurk_cart_items")
+    .update({
+      status: "purchased",
+      metadata: {
+        purchase: payload,
+      },
+    })
+    .eq("session_id", session.id)
+    .eq("status", "active");
+
+  if (itemsResult.error) {
+    throw itemsResult.error;
+  }
+
+  await recordCartEvent({
+    sessionId: session.id,
+    customer,
+    eventName: "purchase_complete",
+    payload,
+  });
+
+  return refreshCartTotals(session.id);
+};
+
 export const queueAbandonedCartFollowup = async (customer: CustomerIdentity, sessionId: string) => {
   const email = normalizeEmail(customer.email);
 

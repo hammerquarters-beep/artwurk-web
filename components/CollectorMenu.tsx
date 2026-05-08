@@ -67,14 +67,19 @@ export default function CollectorMenu({ align = "left", accountLabel, onSignOut 
           icon: <UserIcon className="collector-menu-icon" />,
         },
     ...(accountLabel
-      ? [
-          {
-            href: "/profile",
-            label: "Update Profile",
-            icon: <TagIcon className="collector-menu-icon" />,
-          },
-        ]
-      : []),
+        ? [
+            {
+              href: "/profile",
+              label: "Update Profile",
+              icon: <TagIcon className="collector-menu-icon" />,
+            },
+            {
+              href: "/orders",
+              label: "Order History",
+              icon: <CartIcon className="collector-menu-icon" />,
+            },
+          ]
+        : []),
   ];
 
   return (
