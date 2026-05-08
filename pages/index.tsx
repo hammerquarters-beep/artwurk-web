@@ -4,7 +4,6 @@ import React, { FormEvent, useEffect, useState } from "react";
 import { CartIcon, UserIcon } from "../components/ArtwurkIcons";
 import AccountAccessPanel from "../components/AccountAccessPanel";
 import { useCart } from "../components/CartProvider";
-import PaymentMethods from "../components/PaymentMethods";
 import PromoPopup from "../components/PromoPopup";
 import PublicHeader from "../components/PublicHeader";
 import SiteFooter from "../components/SiteFooter";
@@ -886,7 +885,6 @@ export default function Home() {
               </div>
             </section>
 
-            <PaymentMethods />
             <SiteFooter />
           </main>
         </div>

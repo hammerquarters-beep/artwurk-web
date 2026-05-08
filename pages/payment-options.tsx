@@ -1,7 +1,6 @@
 import React from "react";
 
 import InfoPage from "../components/InfoPage";
-import PaymentMethods from "../components/PaymentMethods";
 
 export default function PaymentOptionsPage() {
   return (
@@ -23,8 +22,6 @@ export default function PaymentOptionsPage() {
           body: "High-intent purchase requests are routed into the ARTWURK CRM so Hammer HQ can follow up directly with next steps.",
         },
       ]}
-    >
-      <PaymentMethods />
-    </InfoPage>
+    />
   );
 }

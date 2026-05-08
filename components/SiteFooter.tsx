@@ -2,6 +2,7 @@ import Link from "next/link";
 import React from "react";
 
 import BrandLogo from "./BrandLogo";
+import PaymentMethods from "./PaymentMethods";
 
 const whatsappHref =
   "https://wa.me/12096842964?text=Hello%20Hammer%20HQ%2C%20I%20have%20a%20question%20about%20ARTWURK.";
@@ -82,6 +83,7 @@ export default function SiteFooter() {
                   </li>
                 ))}
               </ul>
+              {column.title === "About" ? <PaymentMethods /> : null}
             </div>
           ))}
         </nav>

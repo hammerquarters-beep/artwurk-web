@@ -154,119 +154,81 @@ const paymentMethods: PaymentMethod[] = [
 
 export default function PaymentMethods() {
   return (
-    <section className="payment-methods" aria-labelledby="secure-payments-title">
-      <div className="payment-shell">
-        <div className="payment-header">
-          <p>Collector Checkout</p>
-          <h2 id="secure-payments-title">Secure Payments Accepted</h2>
-          <span>Secure encrypted checkout for private collectors worldwide.</span>
-        </div>
+    <section className="payment-methods" aria-labelledby="accepted-payments-title">
+      <div id="accepted-payments-title" className="payment-label">
+        Accepted Payments
+      </div>
 
-        <div className="payment-grid">
-          {paymentMethods.map((method) => (
-            <div className="payment-card" key={method.name}>
+      <div className="payment-strip" aria-label="Accepted payment methods">
+        {paymentMethods.map((method) => (
+          <span
+            className={`payment-mark ${
+              method.name === "PayPal" || method.name === "Apple Pay" ? "payment-mark-featured" : ""
+            }`}
+            key={method.name}
+            title={method.name}
+            aria-label={method.name}
+          >
               <span className="logo-wrap">{method.logo}</span>
-              <span className="method-name">{method.name}</span>
-            </div>
-          ))}
-        </div>
+          </span>
+        ))}
       </div>
 
       <style jsx>{`
         .payment-methods {
-          background: #ffffff;
+          margin-top: 20px;
           color: #17130f;
-          padding: 24px 16px 76px;
-          animation: payment-reveal 700ms ease both;
+          animation: payment-reveal 520ms ease both;
         }
 
-        .payment-shell {
-          width: min(1180px, 100%);
-          margin: 0 auto;
-          border: 1px solid rgba(23, 19, 15, 0.1);
-          border-radius: 36px;
-          background:
-            radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.12), transparent 34%),
-            linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 241, 232, 0.78));
-          box-shadow: 0 24px 80px rgba(72, 48, 22, 0.1);
-          padding: 30px 18px 20px;
-        }
-
-        .payment-header {
-          max-width: 720px;
-          margin: 0 auto 24px;
-          text-align: center;
-        }
-
-        .payment-header p {
+        .payment-label {
           margin: 0;
           color: #75552b;
-          font-size: 11px;
-          letter-spacing: 0.28em;
+          font-size: 10px;
+          letter-spacing: 0.22em;
           text-transform: uppercase;
         }
 
-        .payment-header h2 {
-          margin: 14px 0 0;
-          color: #17130f;
-          font-size: clamp(2rem, 6vw, 4.2rem);
-          line-height: 0.96;
-          letter-spacing: -0.045em;
-          font-weight: 600;
-        }
-
-        .payment-header span {
-          display: block;
-          margin-top: 16px;
-          color: rgba(23, 19, 15, 0.62);
-          font-size: 15px;
-          line-height: 1.8;
-        }
-
-        .payment-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-          gap: 12px;
-        }
-
-        .payment-card {
-          min-height: 72px;
+        .payment-strip {
           display: flex;
+          flex-wrap: wrap;
           align-items: center;
-          gap: 14px;
-          border: 1px solid rgba(23, 19, 15, 0.1);
-          border-radius: 22px;
-          background: rgba(255, 255, 255, 0.68);
+          gap: 8px 10px;
+          margin-top: 10px;
+        }
+
+        .payment-mark {
+          width: 36px;
+          height: 17px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           color: #17130f;
-          padding: 14px 16px;
-          opacity: 0.68;
-          transform: translateY(0);
+          opacity: 0.48;
           transition:
             opacity 220ms ease,
             transform 220ms ease,
-            border-color 220ms ease,
-            box-shadow 220ms ease,
-            background 220ms ease;
+            filter 220ms ease;
         }
 
-        .payment-card:hover,
-        .payment-card:focus-within {
-          opacity: 1;
-          transform: translateY(-2px);
-          border-color: rgba(212, 175, 55, 0.34);
-          background: rgba(255, 255, 255, 0.92);
-          box-shadow:
-            0 16px 34px rgba(72, 48, 22, 0.12),
-            0 0 0 1px rgba(212, 175, 55, 0.08);
+        .payment-mark-featured {
+          width: 46px;
+          height: 20px;
+          opacity: 0.62;
+        }
+
+        .payment-mark:hover {
+          opacity: 0.95;
+          transform: translateY(-1px);
+          filter: drop-shadow(0 5px 10px rgba(117, 85, 43, 0.18));
         }
 
         .logo-wrap {
-          width: 96px;
-          min-width: 96px;
-          height: 30px;
+          width: 100%;
+          height: 100%;
           display: inline-flex;
           align-items: center;
-          justify-content: flex-start;
+          justify-content: center;
           color: currentColor;
         }
 
@@ -274,22 +236,17 @@ export default function PaymentMethods() {
           width: 100%;
           height: 100%;
           display: block;
-          fill: currentColor;
           shape-rendering: geometricPrecision;
         }
 
-        .method-name {
-          color: rgba(23, 19, 15, 0.74);
-          font-size: 13px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          line-height: 1.3;
+        .logo-wrap :global(.payment-logo path) {
+          fill: currentColor;
         }
 
         @keyframes payment-reveal {
           from {
             opacity: 0;
-            transform: translateY(18px);
+            transform: translateY(8px);
           }
           to {
             opacity: 1;
@@ -297,41 +254,19 @@ export default function PaymentMethods() {
           }
         }
 
-        @supports (animation-timeline: view()) {
-          .payment-methods {
-            animation-timeline: view();
-            animation-range: entry 10% cover 34%;
-          }
-        }
-
         @media (max-width: 640px) {
           .payment-methods {
-            padding: 18px 14px 58px;
+            margin-top: 18px;
           }
 
-          .payment-shell {
-            border-radius: 28px;
-            padding: 26px 14px 14px;
-          }
-
-          .payment-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .payment-card {
-            min-height: 68px;
-            border-radius: 20px;
-          }
-
-          .logo-wrap {
-            width: 88px;
-            min-width: 88px;
+          .payment-strip {
+            gap: 9px;
           }
         }
 
         @media (prefers-reduced-motion: reduce) {
           .payment-methods,
-          .payment-card {
+          .payment-mark {
             animation: none;
             transition: none;
           }
