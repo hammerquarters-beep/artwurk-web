@@ -79,6 +79,7 @@ const artworks: ArtworkRecord[] = [
       "A narrative character group built around emotional contrast and merch-ready identity.",
     category: "Character / IP",
     status: "available",
+    paypalCheckoutUrl: "https://www.paypal.com/ncp/payment/R7Y8PCNA6T3GU",
   },
   {
     id: "ART-009",
