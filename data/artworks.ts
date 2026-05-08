@@ -160,6 +160,7 @@ const artworks: ArtworkRecord[] = [
     story: "A flagship commercial-style luxury minimal abstract in the black-gold lane.",
     category: "Luxury / Metallic",
     status: "available",
+    paypalCheckoutUrl: "https://www.paypal.com/ncp/payment/KXAAU5R9SLFJA",
   },
   {
     id: "ART-039",
