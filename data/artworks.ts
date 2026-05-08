@@ -343,6 +343,17 @@ const artworks: ArtworkRecord[] = [
     category: "Covenant Collection / Roots Series / Kingdom Collection",
     status: "available",
   },
+  {
+    id: "ART-056",
+    name: "THE TRUMPET OF ZION",
+    image: "/artwork/art-056-the-trumpet-of-zion.png",
+    price: "$2,520",
+    dimensions: "24 x 36 in",
+    story:
+      "THE TRUMPET OF ZION captures the collision of glory, warning, and divine movement through fluid gold, white, and black forms. Inspired by prophetic imagery from the King James Version, the piece represents light breaking through darkness and the sound of awakening before transformation.",
+    category: "Kingdom Collection / Revelation Series / Covenant Collection",
+    status: "available",
+  },
 ];
 
 export default artworks;
