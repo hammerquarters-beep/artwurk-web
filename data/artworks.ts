@@ -99,6 +99,7 @@ const artworks: ArtworkRecord[] = [
     story: "A dual-identity diptych built around self-versus-self tension.",
     category: "Character / IP",
     status: "available",
+    paypalCheckoutUrl: "https://www.paypal.com/ncp/payment/RD8W6NT9EQ8GJ",
   },
   {
     id: "ART-014",
