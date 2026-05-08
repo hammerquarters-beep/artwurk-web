@@ -119,6 +119,7 @@ const artworks: ArtworkRecord[] = [
     story: "A visually aggressive statement work centered on force, impact, and collision.",
     category: "Bold / Impact",
     status: "available",
+    paypalCheckoutUrl: "https://www.paypal.com/ncp/payment/DZULHNCKHVQ66",
   },
   {
     id: "ART-032",
