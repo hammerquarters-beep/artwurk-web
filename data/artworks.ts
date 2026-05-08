@@ -55,6 +55,7 @@ const artworks: ArtworkRecord[] = [
     story: "A luxury abstract built on concealment, contrast, and hidden value.",
     category: "Luxury / Metallic",
     status: "available",
+    paypalCheckoutUrl: "https://www.paypal.com/ncp/payment/JBL6247DHQTQL",
   },
   {
     id: "ART-007",
