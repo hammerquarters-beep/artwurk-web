@@ -4,7 +4,6 @@ import React, { FormEvent, useEffect, useState } from "react";
 
 import { CartIcon, UserIcon } from "../components/ArtwurkIcons";
 import AccountAccessPanel from "../components/AccountAccessPanel";
-import BrandLogo from "../components/BrandLogo";
 import { useCart } from "../components/CartProvider";
 import PromoPopup from "../components/PromoPopup";
 import PublicHeader from "../components/PublicHeader";
@@ -807,7 +806,17 @@ export default function Home() {
             <section id="gallery" className="gallery-hero">
               <div className="gallery-hero-inner">
                 <p className="gallery-kicker">Curated original works</p>
-                <div className="gallery-logo-mark"><BrandLogo size="profile" /></div>
+                <div className="gallery-logo-mark" aria-hidden="true">
+                  <Image
+                    src="/brand/artwurk-monogram.svg"
+                    alt=""
+                    width={140}
+                    height={140}
+                    priority
+                    sizes="(max-width: 640px) 112px, 140px"
+                    className="gallery-logo-symbol"
+                  />
+                </div>
                 <h1 className="gallery-brand">
                   ARTWURK
                   <span className="gallery-brand-mark">™</span>
@@ -2194,7 +2203,17 @@ export default function Home() {
         }
 
         .gallery-logo-mark {
-          margin: 0 auto 24px;
+          width: clamp(108px, 11vw, 140px);
+          margin: 0 auto 26px;
+          animation: artwurk-fade-in 620ms ease both;
+          filter: drop-shadow(0 16px 30px rgba(23, 19, 15, 0.12))
+            drop-shadow(0 0 18px rgba(212, 175, 55, 0.12));
+        }
+
+        .gallery-logo-symbol {
+          width: 100%;
+          height: auto;
+          display: block;
         }
 
         .gallery-brand {
