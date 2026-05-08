@@ -45,6 +45,7 @@ const artworks: ArtworkRecord[] = [
     story: "A raw-energy release piece with force, movement, and emotional collision.",
     category: "Bold / Impact",
     status: "available",
+    paypalCheckoutUrl: "https://www.paypal.com/ncp/payment/BXPXAG2WYHSTW",
   },
   {
     id: "ART-005",
