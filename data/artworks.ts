@@ -176,6 +176,7 @@ const artworks: ArtworkRecord[] = [
       "A commanding vertical abstract piece in deep teal, bronze, and gold. Gilded Current moves like molten energy across a dark field, creating the feeling of force, movement, and luxury suspended in motion.",
     category: "Luxury / Metallic",
     status: "available",
+    paypalCheckoutUrl: "https://www.paypal.com/ncp/payment/KAJL2H6HJJY5C",
   },
   {
     id: "ART-040",
