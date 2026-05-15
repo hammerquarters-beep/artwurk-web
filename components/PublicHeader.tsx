@@ -15,7 +15,7 @@ const publicNavItems = [
 ];
 
 export default function PublicHeader() {
-  const { count } = useCart();
+  const { count, openCart } = useCart();
   const [customerName, setCustomerName] = useState<string | null>(null);
   const [accountOpen, setAccountOpen] = useState(false);
   const oauthSyncRef = useRef<string | null>(null);
@@ -81,10 +81,15 @@ export default function PublicHeader() {
             ))}
           </nav>
 
-          <Link href="/cart" className="cart-link" aria-label={`Open cart with ${count} items`}>
+          <button
+            type="button"
+            className="cart-link"
+            onClick={openCart}
+            aria-label={`Open cart with ${count} items`}
+          >
             <CartIcon className="cart-icon" />
             {count ? <span className="cart-count">{count}</span> : null}
-          </Link>
+          </button>
 
           <button
             type="button"
@@ -181,6 +186,8 @@ export default function PublicHeader() {
           padding: 0 13px;
           border-color: rgba(17, 16, 14, 0.1);
           background: rgba(255, 255, 255, 0.72);
+          cursor: pointer;
+          font-family: inherit;
         }
 
         .account-icon-link {

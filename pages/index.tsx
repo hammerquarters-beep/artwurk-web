@@ -1,8 +1,9 @@
 import Image from "next/image";
 import React, { FormEvent, useEffect, useState } from "react";
 
-import { CartIcon, UserIcon } from "../components/ArtwurkIcons";
+import { UserIcon } from "../components/ArtwurkIcons";
 import AccountAccessPanel from "../components/AccountAccessPanel";
+import ArtworkCard from "../components/ArtworkCard";
 import { useCart } from "../components/CartProvider";
 import PromoPopup from "../components/PromoPopup";
 import PublicHeader from "../components/PublicHeader";
@@ -51,13 +52,6 @@ const eyebrowStyle: React.CSSProperties = {
   letterSpacing: "0.32em",
   textTransform: "uppercase",
   color: "rgba(23, 19, 15, 0.58)",
-};
-
-const metaLabelStyle: React.CSSProperties = {
-  fontSize: "11px",
-  letterSpacing: "0.18em",
-  textTransform: "uppercase",
-  color: "rgba(23, 19, 15, 0.48)",
 };
 
 const modalMetaStyle: React.CSSProperties = {
@@ -630,6 +624,10 @@ export default function Home() {
   };
 
   const handleAddToCart = async (artwork: ArtworkRecord) => {
+    if (artwork.status === "sold") {
+      return;
+    }
+
     await addItem({
       artworkId: artwork.id,
       displayId: artwork.displayId,
@@ -655,12 +653,21 @@ export default function Home() {
     }, 900);
   };
 
-  const handleQuickAddToCart = async (
-    event: React.MouseEvent<HTMLButtonElement>,
-    artwork: ArtworkRecord,
-  ) => {
-    event.stopPropagation();
-    await handleAddToCart(artwork);
+  const handleAcquireNow = (artwork: ArtworkRecord) => {
+    trackEvent({
+      event: "buy_now_click",
+      route: "/",
+      page: "gallery",
+      source: "artwork-card-acquire-now",
+      artwork: toTrackingArtwork(artwork),
+    });
+
+    if (artwork.paypalCheckoutUrl) {
+      window.open(artwork.paypalCheckoutUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    window.location.href = `/contact?artwork=${encodeURIComponent(artwork.name)}`;
   };
 
   const shouldShowTheWatcherCheckout = selectedArtwork?.id === theWatcherArtworkId;
@@ -802,84 +809,35 @@ export default function Home() {
               <div className="gallery-grid">
                 {orderedArtworks.map((artwork) => {
                   const isMissing = missingImages[artwork.id];
-                  const isHovered = hoveredArtworkId === artwork.id;
                   const isFeatured = galleryPriorityArtworkIds.indexOf(artwork.id) < 5;
                   const displayId = artwork.displayId ?? artwork.id;
                   const description = galleryCardDescriptions[artwork.id] ?? artwork.story;
 
                   return (
-                    <article
+                    <ArtworkCard
                       key={artwork.id}
-                      className={`gallery-card${isFeatured ? " featured" : ""}`}
-                      onMouseEnter={() => handleArtworkHover(artwork)}
-                      onMouseLeave={() =>
+                      artwork={artwork}
+                      description={description}
+                      displayId={displayId}
+                      featured={isFeatured}
+                      imageMissing={isMissing}
+                      isAdded={cartPulseArtworkId === artwork.id}
+                      onAcquireNow={handleAcquireNow}
+                      onAddToCart={(selected) => void handleAddToCart(selected)}
+                      onHover={handleArtworkHover}
+                      onImageError={(selected) =>
+                        setMissingImages((current) => ({
+                          ...current,
+                          [selected.id]: true,
+                        }))
+                      }
+                      onLeave={(selected) =>
                         setHoveredArtworkId((current) =>
-                          current === artwork.id ? null : current,
+                          current === selected.id ? null : current,
                         )
                       }
-                    >
-                      <button
-                        type="button"
-                        className="gallery-card-link"
-                        onClick={() => openArtwork(artwork)}
-                        aria-label={`Open ${artwork.name} artwork details`}
-                      >
-                        <div className="gallery-image-wrap">
-                          {!isMissing ? (
-                            <Image
-                              src={artwork.image}
-                              alt={`${artwork.name} artwork`}
-                              fill
-                              sizes="(max-width: 640px) 100vw, (max-width: 980px) 50vw, 33vw"
-                              style={{
-                                objectFit: "contain",
-                                transform: isHovered ? "scale(1.018)" : "scale(1)",
-                                transition: "transform 0.4s ease",
-                              }}
-                              onError={() =>
-                                setMissingImages((current) => ({
-                                  ...current,
-                                  [artwork.id]: true,
-                                }))
-                              }
-                            />
-                          ) : (
-                            <div className="gallery-image-fallback">
-                              <div style={metaLabelStyle}>Image Missing</div>
-                              <div>
-                                <div style={metaLabelStyle}>{displayId}</div>
-                                <div className="gallery-image-fallback-title">{artwork.name}</div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="gallery-card-copy">
-                          <div className="gallery-card-topline">
-                            <span>{displayId}</span>
-                            <span>{formatStatusLabel(artwork.status)}</span>
-                          </div>
-                          <h2>{artwork.name}</h2>
-                          <p>{description}</p>
-                          <div className="gallery-card-details">
-                            <span>{artwork.dimensions}</span>
-                            <strong>{artwork.price}</strong>
-                          </div>
-                          <div className="gallery-card-cta">
-                            {artwork.paypalCheckoutUrl ? "Secure checkout available" : "Reserve this piece"}
-                          </div>
-                        </div>
-                      </button>
-                      <button
-                        type="button"
-                        className={`quick-cart-button gallery-quick-cart${cartPulseArtworkId === artwork.id ? " is-added" : ""}`}
-                        onClick={(event) => void handleQuickAddToCart(event, artwork)}
-                        aria-label={`Add ${artwork.name} to cart`}
-                      >
-                        <CartIcon className="quick-cart-icon" />
-                        <span>+</span>
-                      </button>
-                    </article>
+                      onOpen={openArtwork}
+                    />
                   );
                 })}
               </div>

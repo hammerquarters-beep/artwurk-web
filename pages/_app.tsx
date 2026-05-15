@@ -1,11 +1,13 @@
 import type { AppProps } from "next/app";
 
+import CartDrawer from "../components/CartDrawer";
 import { CartProvider } from "../components/CartProvider";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <CartProvider>
       <Component {...pageProps} />
+      <CartDrawer />
       <style jsx global>{`
         :root {
           --artwurk-cream: #ffffff;

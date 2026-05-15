@@ -19,6 +19,7 @@ export type CartSnapshot = {
 
 export type CartEventName =
   | "cart_add"
+  | "cart_view"
   | "cart_remove"
   | "cart_merge"
   | "checkout_start"

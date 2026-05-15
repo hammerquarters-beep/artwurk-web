@@ -15,10 +15,13 @@ import { trackEvent } from "../lib/tracking";
 
 type CartContextValue = CartSnapshot & {
   count: number;
+  drawerOpen: boolean;
   ready: boolean;
   addItem: (item: CartArtworkItem) => Promise<void>;
   removeItem: (artworkId: string) => Promise<void>;
   clearLocalCart: () => void;
+  openCart: () => void;
+  closeCart: () => void;
   startCheckout: () => Promise<void>;
   refreshCart: () => Promise<void>;
 };
@@ -108,6 +111,7 @@ const requestCart = async (action: string, payload: Record<string, unknown> = {}
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartSnapshot>(emptyCart());
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [ready, setReady] = useState(false);
   const hasMergedRef = useRef(false);
 
@@ -172,21 +176,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = useCallback(
     async (item: CartArtworkItem) => {
-      const nextItems = dedupeItems([...cart.items, { ...item, quantity: 1 }]);
+      const exists = cart.items.some((current) => current.artworkId === item.artworkId);
+      const nextItems = exists ? cart.items : dedupeItems([...cart.items, { ...item, quantity: 1 }]);
       applyCart(emptyCart(nextItems));
+      setDrawerOpen(true);
 
       trackEvent({
-        event: "cart_add",
+        event: exists ? "cart_view" : "cart_add",
         route: typeof window === "undefined" ? "/" : window.location.pathname,
         page: "cart",
         source: "collector-cart",
         metadata: {
           artworkId: item.artworkId,
           title: item.title,
+          duplicatePrevented: exists,
         },
       });
 
-      const serverCart = await requestCart("add", { item });
+      const serverCart = exists ? null : await requestCart("add", { item });
 
       if (serverCart) {
         applyCart(serverCart);
@@ -221,6 +228,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     applyCart(emptyCart());
   }, [applyCart]);
 
+  const openCart = useCallback(() => {
+    setDrawerOpen(true);
+  }, []);
+
+  const closeCart = useCallback(() => {
+    setDrawerOpen(false);
+  }, []);
+
   const startCheckout = useCallback(async () => {
     trackEvent({
       event: "checkout_start",
@@ -244,14 +259,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     () => ({
       ...cart,
       count: cart.items.length,
+      drawerOpen,
       ready,
       addItem,
       removeItem,
       clearLocalCart,
+      openCart,
+      closeCart,
       startCheckout,
       refreshCart,
     }),
-    [addItem, cart, clearLocalCart, ready, refreshCart, removeItem, startCheckout],
+    [addItem, cart, clearLocalCart, closeCart, drawerOpen, openCart, ready, refreshCart, removeItem, startCheckout],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
